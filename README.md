@@ -1,6 +1,6 @@
 # 简介
 
-本项目是基于[Zephyr Project](https://www.zephyrproject.org/)进行二次开发的，去除了OS调度部分，只保留了Bluetooth的Host协议栈。项目地址：[bobwenstudy/zephyr_polling (github.com)](https://github.com/bobwenstudy/zephyr_polling)。文档地址：
+本项目是基于[Zephyr Project](https://www.zephyrproject.org/)进行二次开发的，去除了OS调度部分，只保留了Bluetooth的Host协议栈。项目地址：[bobwenstudy/zephyr_polling (github.com)](https://github.com/bobwenstudy/zephyr_polling)。文档地址：[Welcome to Zephyr_polling’s documentation!](https://zephyr-polling.readthedocs.io/en/latest/)。
 
 一般蓝牙协议栈分为Host和Controller两个部分，根据是否包含BR/EDR还是LE，分为如下形式。
 
