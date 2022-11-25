@@ -1,0 +1,3 @@
+src = Glob('*.c')
+ 
+Return('src')

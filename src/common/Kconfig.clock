@@ -1,0 +1,33 @@
+# Bluetooth common configuration options
+
+# Copyright (c) 2017 Nordic Semiconductor ASA
+# Copyright (c) 2016 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Clock Settings"
+
+config SYS_CLOCK_HW_CYCLES_PER_SEC
+	int "Hardware clock cycles per second, 1000 for Windows"
+	default 1000
+	range 1000 1000000000
+	help
+	  This option specifies hardware clock.
+
+config SYS_CLOCK_TICKS_PER_SEC
+	int "Hardware ticks per second"
+	default 1000
+	range 1000 1000000000
+	help
+	  This option specifies hardware ticks.
+
+config SYS_CLOCK_MAX_TIMEOUT_DAYS
+	int "Max timeout (in days) used in conversions"
+	default 365
+	help
+	  Value is used in the time conversion static inline function to determine
+	  at compile time which algorithm to use. One algorithm is faster, takes
+	  less code but may overflow if multiplication of source and target
+	  frequency exceeds 64 bits. Second algorithm prevents that. Faster
+	  algorithm is selected for conversion if maximum timeout represented in
+	  source frequency domain multiplied by target frequency fits in 64 bits.
+endmenu

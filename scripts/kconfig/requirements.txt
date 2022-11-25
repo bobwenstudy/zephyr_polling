@@ -1,0 +1,2 @@
+kconfiglib~=14.1.0
+windows-curses~=2.3.0

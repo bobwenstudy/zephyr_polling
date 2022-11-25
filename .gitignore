@@ -1,0 +1,7 @@
+*.dblite
+output
+*.o
+*.exe
+si
+.vscode
+/doc/build
