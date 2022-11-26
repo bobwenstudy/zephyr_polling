@@ -87,7 +87,7 @@ void bt_ready(int err)
     if (err)
     {
         printk("Bluetooth init failed (err %d)\n", err);
-        return 0U;
+        return;
     }
     printk("Bluetooth initialized\n");
 

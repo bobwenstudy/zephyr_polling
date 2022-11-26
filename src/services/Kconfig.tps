@@ -3,9 +3,8 @@
 # Copyright (c) 2020 Nordic Semiconductor ASA
 # SPDX-License-Identifier: Apache-2.0
 
-#menuconfig BT_TPS
-#	bool "GATT TX Power service"
-menu "GATT TX Power service"
+menuconfig BT_TPS
+	bool "GATT TX Power service"
 
 #if BT_TPS
 
@@ -14,4 +13,3 @@ menu "GATT TX Power service"
 #rsource "../logging/Kconfig.template.log_config"
 
 #endif # BT_TPS
-endmenu

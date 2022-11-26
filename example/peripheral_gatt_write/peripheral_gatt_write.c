@@ -64,9 +64,10 @@ void bt_ready(int err)
 
     printk("Bluetooth initialized\n");
 
+    extern struct bt_gatt_service_static _1_gatt_svc;
     extern struct bt_gatt_service_static _2_gap_svc;
 
-    bt_gatt_service_init(2, _2_gap_svc, bas_svc);
+    bt_gatt_service_init(2, _1_gatt_svc, _2_gap_svc);
 
     // bt_gatt_cb_register(&gatt_callbacks);
     bt_conn_cb_register(&conn_callbacks);
@@ -88,7 +89,7 @@ void bt_ready(int err)
     if (err)
     {
         printk("Advertising failed to start (err %d)\n", err);
-        return 0U;
+        return;
     }
 
     printk("Advertising successfully started\n");

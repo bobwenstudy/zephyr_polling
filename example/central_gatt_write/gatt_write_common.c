@@ -82,7 +82,7 @@ static void connected(struct bt_conn *conn, uint8_t conn_err)
     (void)mtu_exchange(conn);
 
 #if defined(CONFIG_BT_SMP)
-    if (conn_info.role == BT_CONN_ROLE_MASTER)
+    if (conn_info.role == BT_CONN_ROLE_CENTRAL)
     {
         err = bt_conn_set_security(conn, BT_SECURITY_L2);
         if (err)
@@ -114,7 +114,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
     // bt_conn_unref(conn);
 
-    if (conn_info.role == BT_CONN_ROLE_MASTER)
+    if (conn_info.role == BT_CONN_ROLE_CENTRAL)
     {
         start_scan_func();
     }

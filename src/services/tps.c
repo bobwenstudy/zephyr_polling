@@ -24,6 +24,7 @@
 
 #include <logging/log_impl.h>
 
+#if defined(CONFIG_BT_TPS)
 static ssize_t read_tx_power_level(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf,
                                    uint16_t len, uint16_t offset)
 {
@@ -52,3 +53,4 @@ BT_GATT_SERVICE_DEFINE(tps_svc, BT_GATT_PRIMARY_SERVICE(BT_UUID_TPS),
                        BT_GATT_CHARACTERISTIC(BT_UUID_TPS_TX_POWER_LEVEL, BT_GATT_CHRC_READ,
                                               BT_GATT_PERM_READ, read_tx_power_level, NULL,
                                               NULL), );
+#endif /* defined(CONFIG_BT_TPS) */

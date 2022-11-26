@@ -20,6 +20,9 @@
 #include <bluetooth/uuid.h>
 #include <logging/log_impl.h>
 
+#include "services/bas.h"
+#include "services/dis.h"
+
 static const struct bt_data ad[] = {
         BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
         BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_HIDS_VAL),
@@ -113,9 +116,10 @@ void bt_ready(int err)
     is_bt_ready_work = 1;
     printk("Bluetooth initialized\n");
 
+    extern struct bt_gatt_service_static _1_gatt_svc;
     extern struct bt_gatt_service_static _2_gap_svc;
     extern struct bt_gatt_service_static hog_svc;
-    bt_gatt_service_init(2, _2_gap_svc, hog_svc);
+    bt_gatt_service_init(5, _1_gatt_svc, _2_gap_svc, dis_svc, bas_svc, hog_svc);
 
     hog_init();
 

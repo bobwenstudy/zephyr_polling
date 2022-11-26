@@ -3,11 +3,10 @@
 # Copyright (c) 2018 Nordic Semiconductor ASA
 # SPDX-License-Identifier: Apache-2.0
 
-# menuconfig BT_HRS
-# 	bool "GATT Heart Rate service"
-menu "GATT Heart Rate service"
+menuconfig BT_HRS
+	bool "GATT Heart Rate service"
 
-# if BT_HRS
+if BT_HRS
 
 choice BT_HRS_DEFAULT_PERM
 	prompt "Default permissions used for HRS characteristics"
@@ -32,5 +31,4 @@ endchoice
 # module-str = HRS
 # rsource "../logging/Kconfig.template.log_config"
 
-# endif # BT_HRS
-endmenu
+endif # BT_HRS

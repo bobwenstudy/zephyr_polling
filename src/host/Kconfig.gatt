@@ -7,7 +7,7 @@ menu "ATT and GATT Options"
 
 config BT_GATT_FIXED_SERVICES_SIZE
 	int "Number of GATT fixed service Size"
-	default 6
+	default 7
 	range 0 20
 	help
 	  Number of GATT fixed service size, user must set this.

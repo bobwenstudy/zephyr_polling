@@ -42,6 +42,7 @@
 #include "adv.h"
 #include "scan.h"
 
+#if defined(CONFIG_BT_CONN)
 struct tx_meta
 {
     struct bt_conn_tx *tx;
@@ -3265,3 +3266,4 @@ void bt_conn_tx_polling(void)
         // tx_complete_polling(conn);
     }
 }
+#endif /* defined(CONFIG_BT_CONN) */

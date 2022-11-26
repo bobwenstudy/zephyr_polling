@@ -371,8 +371,10 @@ int usb_open_process(void)
     pthread_create(&usb_rx_evt_thread, NULL, (void *)rx_evt_process_loop, NULL);
     // pthread_join(usb_rx_evt_thread, NULL);
 
+#if defined(CONFIG_BT_CONN)
     pthread_create(&usb_rx_acl_thread, NULL, (void *)rx_acl_process_loop, NULL);
     // pthread_join(usb_rx_acl_thread, NULL);
+#endif
 
     k_fifo_init(&tx_queue);
     k_fifo_init(&rx_queue);

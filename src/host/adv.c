@@ -27,6 +27,7 @@
 #define LOG_MODULE_NAME bt_adv
 #include "logging/bt_log.h"
 
+#if defined(CONFIG_BT_BROADCASTER)
 enum adv_name_type
 {
     ADV_NAME_TYPE_NONE,
@@ -984,6 +985,7 @@ static uint8_t get_adv_channel_map(uint32_t options)
 
 static int le_adv_start_add_conn(const struct bt_le_ext_adv *adv, struct bt_conn **out_conn)
 {
+#if defined(CONFIG_BT_PERIPHERAL)
     struct bt_conn *conn;
 
     bt_dev.adv_conn_id = adv->id;
@@ -1015,11 +1017,13 @@ static int le_adv_start_add_conn(const struct bt_le_ext_adv *adv, struct bt_conn
 
     bt_conn_set_state(conn, BT_CONN_CONNECTING_DIR_ADV);
     *out_conn = conn;
+#endif
     return 0;
 }
 
 static void le_adv_stop_free_conn(const struct bt_le_ext_adv *adv, uint8_t status)
 {
+#if defined(CONFIG_BT_PERIPHERAL)
     struct bt_conn *conn;
 
     if (!bt_addr_le_cmp(&adv->target_addr, BT_ADDR_LE_ANY))
@@ -1037,6 +1041,7 @@ static void le_adv_stop_free_conn(const struct bt_le_ext_adv *adv, uint8_t statu
         bt_conn_set_state(conn, BT_CONN_DISCONNECTED);
         bt_conn_unref(conn);
     }
+#endif
 }
 
 int bt_le_adv_start_legacy(struct bt_le_ext_adv *adv, const struct bt_le_adv_param *param,
@@ -2248,3 +2253,4 @@ void bt_hci_le_scan_req_received(struct net_buf *buf)
 }
 #endif /* defined(CONFIG_BT_BROADCASTER) */
 #endif /* defined(CONFIG_BT_EXT_ADV) */
+#endif /* defined(CONFIG_BT_BROADCASTER) */

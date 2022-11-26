@@ -27,6 +27,7 @@
 #define LOG_MODULE_NAME bt_scan
 #include "logging/bt_log.h"
 
+#if defined(CONFIG_BT_OBSERVER)
 static bt_le_scan_cb_t *scan_dev_found_cb;
 static sys_slist_t scan_cbs = SYS_SLIST_STATIC_INIT(&scan_cbs);
 
@@ -1980,3 +1981,4 @@ int bt_le_per_adv_list_clear(void)
     return 0;
 }
 #endif /* defined(CONFIG_BT_PER_ADV_SYNC) */
+#endif /* defined(CONFIG_BT_OBSERVER) */

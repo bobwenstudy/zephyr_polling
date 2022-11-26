@@ -3,12 +3,11 @@
 # Copyright (c) 2022 Codecoup
 # SPDX-License-Identifier: Apache-2.0
 
-#menuconfig BT_IAS
-#	bool "Support for GATT Immediate Alert Service [EXPERIMENTAL]"
+menuconfig BT_IAS
+	bool "Support for GATT Immediate Alert Service [EXPERIMENTAL]"
 #	select EXPERIMENTAL
-menu "Support for GATT Immediate Alert Service"
 
-#if BT_IAS
+if BT_IAS
 
 choice BT_IAS_SEC_CHOICE
 	prompt "Default permissions used for IAS characteristics"
@@ -31,5 +30,4 @@ endchoice #BT_IAS_SEC_CHOICE
 #module-str = IAS
 #rsource "../logging/Kconfig.template.log_config"
 
-#endif # BT_IAS
-endmenu
+endif # BT_IAS

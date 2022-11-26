@@ -24,6 +24,7 @@
 #include "hci_core.h"
 #include "common/aes_soft.h"
 
+#if defined(CONFIG_BT_HOST_CRYPTO)
 uint32_t rand_get32(void)
 {
     return rand();
@@ -105,3 +106,4 @@ int bt_encrypt_sk(const uint8_t key[16], const uint8_t plaintext[16], uint8_t en
 
     return 0;
 }
+#endif /* defined(CONFIG_BT_HOST_CRYPTO) */

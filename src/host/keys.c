@@ -28,6 +28,8 @@
 
 #include "common/storage_kv.h"
 
+
+#if defined(CONFIG_BT_SMP)
 static struct bt_keys key_pool[CONFIG_BT_MAX_PAIRED];
 
 #define BT_KEYS_STORAGE_LEN_COMPAT (BT_KEYS_STORAGE_LEN - sizeof(uint32_t))
@@ -598,3 +600,4 @@ void bt_keys_show_sniffer_info(struct bt_keys *keys, void *data)
     }
 }
 #endif /* defined(CONFIG_BT_LOG_SNIFFER_INFO) */
+#endif /* defined(CONFIG_BT_SMP) */

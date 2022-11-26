@@ -34,6 +34,7 @@
 
 #include "utils/mem_slab.h"
 
+#if defined(CONFIG_BT_CONN)
 #define ATT_CHAN(_ch)  CONTAINER_OF(_ch, struct bt_att_chan, chan.chan)
 #define ATT_REQ(_node) CONTAINER_OF(_node, struct bt_att_req, node)
 
@@ -3984,3 +3985,4 @@ void bt_att_free_tx_meta_data(const struct net_buf *buf)
 {
     tx_meta_data_free(bt_att_tx_meta_data(buf));
 }
+#endif /* defined(CONFIG_BT_CONN) */

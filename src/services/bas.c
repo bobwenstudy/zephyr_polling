@@ -24,6 +24,7 @@
 
 #include <logging/log_impl.h>
 
+#if defined(CONFIG_BT_BAS)
 static uint8_t battery_level = 100;
 
 static void blvl_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
@@ -69,3 +70,4 @@ int bt_bas_set_battery_level(uint8_t level)
 
     return rc == -ENOTCONN ? 0 : rc;
 }
+#endif /* defined(CONFIG_BT_BAS) */

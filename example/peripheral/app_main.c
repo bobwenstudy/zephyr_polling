@@ -70,7 +70,7 @@ static void vnd_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
     simulate_vnd = (value == BT_GATT_CCC_INDICATE) ? 1 : 0;
 }
 
-static void indicate_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, uint8_t err)
+static void indicate_cb(struct bt_conn *conn, struct bt_gatt_indicate_params *params, uint8_t err)
 {
     printk("Indication %s\n", err != 0U ? "fail" : "success");
     indicating = 0U;
@@ -293,9 +293,10 @@ void bt_ready(int err)
     is_bt_ready_work = 1;
     printk("Bluetooth initialized\n");
 
+    extern struct bt_gatt_service_static _1_gatt_svc;
     extern struct bt_gatt_service_static _2_gap_svc;
 
-    bt_gatt_service_init(6, _2_gap_svc, vnd_svc, bas_svc, hrs_svc, cts_svc);
+    bt_gatt_service_init(7, _1_gatt_svc, _2_gap_svc, vnd_svc, dis_svc, bas_svc, hrs_svc, cts_svc);
 
     cts_init();
 

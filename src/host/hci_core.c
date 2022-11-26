@@ -1003,6 +1003,7 @@ static void le_conn_complete_cancel(void)
 
 static void le_conn_complete_adv_timeout(void)
 {
+#if defined(CONFIG_BT_PERIPHERAL)
     if (!(IS_ENABLED(CONFIG_BT_EXT_ADV) && BT_DEV_FEAT_LE_EXT_ADV(bt_dev.le.features)))
     {
         struct bt_le_ext_adv *adv = bt_le_adv_lookup_legacy();
@@ -1037,6 +1038,7 @@ static void le_conn_complete_adv_timeout(void)
 
         bt_conn_unref(conn);
     }
+#endif
 }
 
 static void enh_conn_complete(struct bt_hci_evt_le_enh_conn_complete *evt)
@@ -1596,6 +1598,90 @@ static int set_flow_control(void)
 }
 #endif /* CONFIG_BT_HCI_ACL_FLOW_CONTROL */
 
+static void unpair(uint8_t id, const bt_addr_le_t *addr)
+{
+    struct bt_keys *keys = NULL;
+    struct bt_conn *conn = bt_conn_lookup_addr_le(id, addr);
+
+    if (conn)
+    {
+        /* Clear the conn->le.keys pointer since we'll invalidate it,
+         * and don't want any subsequent code (like disconnected
+         * callbacks) accessing it.
+         */
+        if (conn->type == BT_CONN_TYPE_LE)
+        {
+            keys = conn->le.keys;
+            conn->le.keys = NULL;
+        }
+
+        bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+        bt_conn_unref(conn);
+    }
+
+    if (IS_ENABLED(CONFIG_BT_BREDR))
+    {
+        /* LE Public may indicate BR/EDR as well */
+        if (addr->type == BT_ADDR_LE_PUBLIC)
+        {
+            bt_keys_link_key_clear_addr(&addr->a);
+        }
+    }
+
+    if (IS_ENABLED(CONFIG_BT_SMP))
+    {
+        if (!keys)
+        {
+            keys = bt_keys_find_addr(id, addr);
+        }
+
+        if (keys)
+        {
+            bt_keys_clear(keys);
+        }
+    }
+
+    bt_gatt_clear(id, addr);
+
+#if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR)
+    struct bt_conn_auth_info_cb *listener, *next;
+
+    SYS_SLIST_FOR_EACH_CONTAINER_SAFE (&bt_auth_info_cbs, listener, next, node)
+    {
+        if (listener->bond_deleted)
+        {
+            listener->bond_deleted(id, addr);
+        }
+    }
+#endif /* defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR) */
+}
+
+static void unpair_remote(const struct bt_bond_info *info, void *data)
+{
+    uint8_t *id = (uint8_t *)data;
+
+    unpair(*id, &info->addr);
+}
+
+int bt_unpair(uint8_t id, const bt_addr_le_t *addr)
+{
+    if (id >= CONFIG_BT_ID_MAX)
+    {
+        return -EINVAL;
+    }
+
+    if (IS_ENABLED(CONFIG_BT_SMP) && (!addr || !bt_addr_le_cmp(addr, BT_ADDR_LE_ANY)))
+    {
+        bt_foreach_bond(id, unpair_remote, &id);
+        return 0;
+    }
+
+    unpair(id, addr);
+    return 0;
+}
+
+#endif /* CONFIG_BT_CONN */
+
 static int hci_send_cmd_le_set_event_mask(void)
 {
     struct bt_hci_cp_le_set_event_mask *cp_mask;
@@ -1716,90 +1802,6 @@ static int hci_send_cmd_le_write_le_host_supp(void)
     // here not need wait.
     return bt_hci_cmd_send(BT_HCI_OP_LE_WRITE_LE_HOST_SUPP, buf);
 }
-
-static void unpair(uint8_t id, const bt_addr_le_t *addr)
-{
-    struct bt_keys *keys = NULL;
-    struct bt_conn *conn = bt_conn_lookup_addr_le(id, addr);
-
-    if (conn)
-    {
-        /* Clear the conn->le.keys pointer since we'll invalidate it,
-         * and don't want any subsequent code (like disconnected
-         * callbacks) accessing it.
-         */
-        if (conn->type == BT_CONN_TYPE_LE)
-        {
-            keys = conn->le.keys;
-            conn->le.keys = NULL;
-        }
-
-        bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
-        bt_conn_unref(conn);
-    }
-
-    if (IS_ENABLED(CONFIG_BT_BREDR))
-    {
-        /* LE Public may indicate BR/EDR as well */
-        if (addr->type == BT_ADDR_LE_PUBLIC)
-        {
-            bt_keys_link_key_clear_addr(&addr->a);
-        }
-    }
-
-    if (IS_ENABLED(CONFIG_BT_SMP))
-    {
-        if (!keys)
-        {
-            keys = bt_keys_find_addr(id, addr);
-        }
-
-        if (keys)
-        {
-            bt_keys_clear(keys);
-        }
-    }
-
-    bt_gatt_clear(id, addr);
-
-#if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR)
-    struct bt_conn_auth_info_cb *listener, *next;
-
-    SYS_SLIST_FOR_EACH_CONTAINER_SAFE (&bt_auth_info_cbs, listener, next, node)
-    {
-        if (listener->bond_deleted)
-        {
-            listener->bond_deleted(id, addr);
-        }
-    }
-#endif /* defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR) */
-}
-
-static void unpair_remote(const struct bt_bond_info *info, void *data)
-{
-    uint8_t *id = (uint8_t *)data;
-
-    unpair(*id, &info->addr);
-}
-
-int bt_unpair(uint8_t id, const bt_addr_le_t *addr)
-{
-    if (id >= CONFIG_BT_ID_MAX)
-    {
-        return -EINVAL;
-    }
-
-    if (IS_ENABLED(CONFIG_BT_SMP) && (!addr || !bt_addr_le_cmp(addr, BT_ADDR_LE_ANY)))
-    {
-        bt_foreach_bond(id, unpair_remote, &id);
-        return 0;
-    }
-
-    unpair(id, addr);
-    return 0;
-}
-
-#endif /* CONFIG_BT_CONN */
 
 #if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR)
 enum bt_security_err bt_security_err_get(uint8_t hci_err)
@@ -2679,8 +2681,9 @@ static const struct hci_command_complete_process_handler hci_cmd_cmp_handles[] =
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_READ_LOCAL_FEATURES, read_le_features_complete),
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_READ_BD_ADDR, read_bd_addr_complete),
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_READ_BUFFER_SIZE, le_read_buffer_size_complete),
+#if defined(CONFIG_BT_CONN)
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_READ_BUFFER_SIZE, read_buffer_size_complete),
-
+#endif
 #if defined(CONFIG_BT_SLAVE_WHITELIST)
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_READ_WL_SIZE,
                                      hci_handle_cmd_cmp_evt_le_read_wl_size),
@@ -3508,7 +3511,9 @@ int bt_enable(bt_ready_cb_t cb)
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
         bt_id_loading();
+#if defined(CONFIG_BT_SMP)
         bt_keys_loading();
+#endif
         extern void bt_name_loading(void);
         bt_name_loading();
 #if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)

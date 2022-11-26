@@ -6,8 +6,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "services/bas.h"
-
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
@@ -21,6 +19,9 @@
 #include <bluetooth/uuid.h>
 #include <logging/log_impl.h>
 #include "common\timer.h"
+
+#include "services/bas.h"
+#include "services/dis.h"
 
 /* Idle timer */
 struct k_timer idle_work;
@@ -420,9 +421,10 @@ void bt_ready(int err)
 
     printk("Bluetooth initialized\n");
 
+    extern struct bt_gatt_service_static _1_gatt_svc;
     extern struct bt_gatt_service_static _2_gap_svc;
 
-    bt_gatt_service_init(3, _2_gap_svc, ess_svc, bas_svc);
+    bt_gatt_service_init(5, _1_gatt_svc, _2_gap_svc, ess_svc, dis_svc, bas_svc);
 
     bt_conn_cb_register(&conn_callbacks);
     bt_conn_auth_cb_register(&auth_cb_display);

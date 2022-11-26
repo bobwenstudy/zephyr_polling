@@ -26,6 +26,7 @@
 
 #include "hci_core.h"
 
+#if defined(CONFIG_BT_CONN)
 #define LE_CHAN_RTX(_w) CONTAINER_OF(_w, struct bt_l2cap_le_chan, rtx_work)
 #define CHAN_RX(_w)     CONTAINER_OF(_w, struct bt_l2cap_le_chan, rx_work)
 
@@ -3229,3 +3230,4 @@ int bt_l2cap_chan_send(struct bt_l2cap_chan *chan, struct net_buf *buf)
     return bt_l2cap_chan_send_cb(chan, buf, NULL, NULL);
 }
 #endif /* CONFIG_BT_L2CAP_DYNAMIC_CHANNEL */
+#endif /* defined(CONFIG_BT_CONN) */

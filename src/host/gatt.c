@@ -38,6 +38,7 @@
 #include "att_internal.h"
 #include "smp.h"
 
+#if defined(CONFIG_BT_CONN)
 #define SC_TIMEOUT      K_MSEC(10)
 #define CCC_STORE_DELAY K_SECONDS(1)
 
@@ -6480,3 +6481,4 @@ void bt_gatt_disconnected(struct bt_conn *conn)
     remove_cf_cfg(conn);
 #endif
 }
+#endif /* defined(CONFIG_BT_CONN) */

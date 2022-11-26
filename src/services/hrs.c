@@ -24,6 +24,7 @@
 
 #include <logging/log_impl.h>
 
+#if defined(CONFIG_BT_HRS)
 #define GATT_PERM_READ_MASK                                                                        \
     (BT_GATT_PERM_READ | BT_GATT_PERM_READ_ENCRYPT | BT_GATT_PERM_READ_AUTHEN)
 #define GATT_PERM_WRITE_MASK                                                                       \
@@ -92,3 +93,4 @@ int bt_hrs_notify(uint16_t heartrate)
 
     return rc == -ENOTCONN ? 0 : rc;
 }
+#endif /* defined(CONFIG_BT_HRS) */

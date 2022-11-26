@@ -3,11 +3,10 @@
 # Copyright (c) 2018 Nordic Semiconductor ASA
 # SPDX-License-Identifier: Apache-2.0
 
-# menuconfig BT_DIS
-#	bool "GATT Device Information service"
-menu "GATT Device Information service"
+menuconfig BT_DIS
+	bool "GATT Device Information service"
 
-#if BT_DIS
+if BT_DIS
 
 config BT_DIS_SETTINGS
 	bool "Settings usage in Device Information Service"
@@ -143,5 +142,4 @@ config BT_DIS_SW_REV_STR
 	help
 	  Enable software revision characteristic in Device Information Service.
 
-#endif # BT_DIS
-endmenu
+endif # BT_DIS

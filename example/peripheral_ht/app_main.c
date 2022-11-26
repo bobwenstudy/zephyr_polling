@@ -8,6 +8,7 @@
 
 #include "hts.h"
 #include "services/bas.h"
+#include "services/dis.h"
 
 #include <errno.h>
 #include <stddef.h>
@@ -107,7 +108,7 @@ void bt_ready(int err)
     extern struct bt_gatt_service_static _1_gatt_svc;
     extern struct bt_gatt_service_static _2_gap_svc;
 
-    bt_gatt_service_init(4, _1_gatt_svc, _2_gap_svc, hts_svc, bas_svc);
+    bt_gatt_service_init(5, _1_gatt_svc, _2_gap_svc, bas_svc, dis_svc, hts_svc);
 
     bt_conn_cb_register(&conn_callbacks);
     bt_conn_auth_cb_register(&auth_cb_display);
