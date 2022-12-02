@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "windows_log_impl.h"
+#include "windows_bt_log_impl.h"
 
 #include "base\byteorder.h"
 #include "logging\bt_log_impl.h"

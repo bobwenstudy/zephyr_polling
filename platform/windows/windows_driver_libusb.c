@@ -10,10 +10,6 @@
 #include "common/bt_buf.h"
 #include "host/hci_core.h"
 
-// Device vendor and product id.
-#define MY_VID 0x0a12
-#define MY_PID 0x0001
-
 // Device configuration and interface id.
 #define MY_CONFIG 1
 #define MY_INTF   0
@@ -34,8 +30,11 @@ static pthread_mutex_t tx_lock;
 static struct k_fifo rx_queue;
 static pthread_mutex_t rx_lock;
 
+bt_usb_interface_t selected_usb_interface[1] = {{0, 0}};
+
+
 usb_dev_handle *usb_dev;
-usb_dev_handle *open_dev(void)
+usb_dev_handle *open_dev(bt_usb_interface_t *p_interface, uint8_t size)
 {
     struct usb_bus *bus;
     struct usb_device *dev;
@@ -44,12 +43,19 @@ usb_dev_handle *open_dev(void)
     {
         for (dev = bus->devices; dev; dev = dev->next)
         {
-            if (dev->descriptor.idVendor == MY_VID && dev->descriptor.idProduct == MY_PID)
+            for(int i = 0; i < size; i ++)
             {
-                return usb_open(dev);
+                if (dev->descriptor.idVendor == p_interface[i].vid 
+                    && dev->descriptor.idProduct == p_interface[i].pid)
+                {
+                    selected_usb_interface[0].vid = p_interface[i].vid;
+                    selected_usb_interface[0].pid = p_interface[i].pid;
+                    return usb_open(dev);
+                }
             }
         }
     }
+    printk("Warnning: vip/pid not match, please make sure usb device connect.\n");
     return NULL;
 }
 
@@ -62,7 +68,7 @@ static void display_devices(void)
     {
         for (dev = bus->devices; dev; dev = dev->next)
         {
-            printk("idVendor: 0x%x, idProduct: 0x%x\n", dev->descriptor.idVendor,
+            printk("display_devices(), idVendor: 0x%x, idProduct: 0x%x\n", dev->descriptor.idVendor,
                    dev->descriptor.idProduct);
         }
     }
@@ -327,18 +333,22 @@ static void hci_driver_init(void)
     bt_hci_driver_register(&drv);
 }
 
-int usb_open_process(void)
+int usb_open_process(bt_usb_interface_t *p_interface, uint8_t size)
 {
     usb_init();         /* initialize the library */
     usb_find_busses();  /* find all busses */
     usb_find_devices(); /* find all connected devices */
 
     display_devices();
-    usb_dev = open_dev();
+    usb_dev = open_dev(p_interface, size);
 
+    if(usb_dev == NULL)
+    {
+        return -1;
+    }
     if (usb_set_configuration(usb_dev, MY_CONFIG) < 0)
     {
-        printk("error setting config #%d: %s\n", MY_CONFIG, usb_strerror());
+        printk("Error, setting config #%d: %s\n", MY_CONFIG, usb_strerror());
         usb_close(usb_dev);
         return -1;
     }
@@ -349,7 +359,7 @@ int usb_open_process(void)
 
     if (usb_claim_interface(usb_dev, 0) < 0)
     {
-        printk("error claiming interface #%d:\n%s\n", MY_INTF, usb_strerror());
+        printk("Error, claiming interface #%d:\n%s\n", MY_INTF, usb_strerror());
         usb_close(usb_dev);
         return -1;
     }
@@ -382,9 +392,9 @@ int usb_open_process(void)
     return 0;
 }
 
-int usb_open_device(void)
+int usb_open_device(bt_usb_interface_t *p_interface, uint8_t size)
 {
-    int ret = usb_open_process();
+    int ret = usb_open_process(p_interface, size);
     if (ret < 0)
     {
         return ret;
@@ -411,7 +421,7 @@ static int reset_driver_process(void *args)
     pthread_join(usb_rx_evt_thread, NULL);
     pthread_join(usb_rx_acl_thread, NULL);
 
-    int ret = usb_open_process();
+    int ret = usb_open_process(selected_usb_interface, 1);
     if (ret < 0)
     {
         return ret;

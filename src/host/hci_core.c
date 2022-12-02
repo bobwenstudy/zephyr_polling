@@ -3366,8 +3366,10 @@ int bt_hci_driver_register(const struct bt_hci_driver *drv)
 int bt_hci_chipset_driver_register(const struct bt_hci_chipset_driver *drv)
 {
     bt_dev.chipset_drv = drv;
-
-    bt_dev.chipset_drv->init_work();
+    if(bt_dev.chipset_drv != NULL)
+    {
+        bt_dev.chipset_drv->init_work();
+    }
     return 0;
 }
 

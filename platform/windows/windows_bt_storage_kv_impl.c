@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "windows_storage_kv_impl.h"
+#include "windows_bt_storage_kv_impl.h"
 
 #include "base\byteorder.h"
 #include "base\util.h"

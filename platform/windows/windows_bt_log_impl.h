@@ -1,5 +1,6 @@
-#ifndef _WINDOWS_DRIVER_LIBUSB_H_
-#define _WINDOWS_DRIVER_LIBUSB_H_
+
+#ifndef _WINDOWS_BT_LOG_IMPL_H_
+#define _WINDOWS_BT_LOG_IMPL_H_
 
 #include "platform_interface.h"
 
@@ -11,4 +12,4 @@ extern "C" {
 }
 #endif
 
-#endif //_WINDOWS_DRIVER_LIBUSB_H_
+#endif //_WINDOWS_BT_LOG_IMPL_H_

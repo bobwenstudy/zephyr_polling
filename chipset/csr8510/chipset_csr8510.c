@@ -1,7 +1,6 @@
 #include <errno.h>
 
 #include "chipset_csr8510.h"
-#include "windows_driver_libusb.h"
 
 #define STATE_POLLING_NONE      0
 #define STATE_POLLING_BOOTING   1
@@ -150,22 +149,22 @@ static const struct bt_hci_chipset_driver chipset_drv = {
 };
 
 // public API
-const struct bt_hci_chipset_driver *chipset_local_instance(void)
+const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void)
 {
     return &chipset_drv;
 }
 
-static const usb_interface_t usb_interface[] = {
+static const bt_usb_interface_t usb_interface[] = {
     {0x0a12, 0x0001},
 };
 
-const usb_interface_t *chipset_get_usb_interface(uint8_t* size)
+const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size)
 {
     *size = sizeof(usb_interface)/sizeof(usb_interface[0]);
     return usb_interface;
 }
 
-const uart_interface_t *chipset_get_uart_interface(void)
+const bt_uart_interface_t *bt_chipset_get_uart_interface(void)
 {
     return NULL;
 }

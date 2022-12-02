@@ -12,7 +12,7 @@ typedef struct
 {
     uint16_t vid;
     uint16_t pid;
-} usb_interface_t;
+} bt_usb_interface_t;
 
 typedef struct
 {
@@ -21,12 +21,12 @@ typedef struct
     int stopbits;
     int parity;
     bool flowcontrol;
-} uart_interface_t;
+} bt_uart_interface_t;
 
-const usb_interface_t *chipset_get_usb_interface(uint8_t* size);
-const uart_interface_t *chipset_get_uart_interface(void);
+const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size);
+const bt_uart_interface_t *bt_chipset_get_uart_interface(void);
 
-const struct bt_hci_chipset_driver *chipset_local_instance(void);
+const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void);
 
 #ifdef __cplusplus
 }

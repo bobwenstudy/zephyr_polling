@@ -3,7 +3,6 @@
 #define _CHIPSET_CSR8510_USB_H_
 
 #include "chipset_interface.h"
-#include "platform_interface.h"
 
 #ifdef __cplusplus
 extern "C" {

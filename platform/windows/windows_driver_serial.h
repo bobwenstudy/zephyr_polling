@@ -11,7 +11,6 @@ extern "C" {
 
 typedef HANDLE PORT;
 
-int serial_open_device(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol);
 
 #ifdef __cplusplus
 }
