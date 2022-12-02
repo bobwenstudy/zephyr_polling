@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void timer_impl_windows_init(void);
+void bt_timer_impl_local_init(void);
 
 #ifdef __cplusplus
 }

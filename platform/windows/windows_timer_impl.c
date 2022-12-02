@@ -49,7 +49,7 @@ static int timer_process_loop(void *args)
     return 0;
 }
 
-void timer_impl_windows_init(void)
+void bt_timer_impl_local_init(void)
 {
     FILETIME file_time;
     SYSTEMTIME system_time;

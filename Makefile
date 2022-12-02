@@ -111,17 +111,27 @@ BLUETOOTH := src
 include $(BLUETOOTH)/build.mk
 
 # include app info
-APP ?= example/beacon
-include $(APP)/build.mk
-USER_CONFIG_SET += $(APP)/prj.conf
+APP ?= beacon
+
+APP_ROOT_PATH = example
+APP_PATH = $(APP_ROOT_PATH)/$(APP)
+include $(APP_PATH)/build.mk
+USER_CONFIG_SET += $(APP_PATH)/prj.conf
 
 # include port info
-PORT ?= porting/windows_libusb_win32
-include $(PORT)/build.mk
+PORT ?= windows_libusb_win32
+
+PORT_ROOT_PATH = porting
+PORT_PATH = $(PORT_ROOT_PATH)/$(PORT)
+include $(PORT_PATH)/build.mk
 
 # include chipset info
-CHIPSET ?= chipset/csr8510_usb
-include $(CHIPSET)/build.mk
+CHIPSET ?= csr8510
+
+CHIPSET_ROOT_PATH = chipset
+INCLUDE	+= $(CHIPSET_ROOT_PATH)
+CHIPSET_PATH = $(CHIPSET_ROOT_PATH)/$(CHIPSET)
+include $(CHIPSET_PATH)/build.mk
 
 
 
@@ -262,7 +272,7 @@ rom_report:
 	python scripts/footprint/size_report -k $(OUTPUT_MAIN) -z $(OUTPUT_PATH) -o $(OUTPUT_PATH) --workspace=$(OUTPUT_PATH) -d 99 rom
 
 all_report:
-	python scripts/footprint/size_report -k $(OUTPUT_MAIN) -z $(OUTPUT_PATH) -o $(OUTPUT_PATH) --workspace=$(OUTPUT_PATH) -d 99 all
+	python scripts/footprint/size_report -k output/main.elf -z $(OUTPUT_PATH) -o $(OUTPUT_PATH) --workspace=$(OUTPUT_PATH) -d 99 all
 
 code_format:
 	python code_format.py

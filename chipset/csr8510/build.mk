@@ -1,8 +1,8 @@
 # define source directory
-SRC		+= $(CHIPSET)
+SRC		+= $(CHIPSET_PATH)
 
 # define include directory
-INCLUDE	+= $(CHIPSET)
+INCLUDE	+= $(CHIPSET_PATH)
 
 # define lib directory
 LIB		+=

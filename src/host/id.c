@@ -23,7 +23,7 @@
 #include "keys.h"
 #include "common/rpa.h"
 
-#include "common/storage_kv.h"
+#include "common/bt_storage_kv.h"
 #include "common\timer.h"
 
 #define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
@@ -32,20 +32,20 @@
 
 #define ID_DATA_LEN(array) (bt_dev.id_count * sizeof(array[0]))
 
-void storage_kv_set_id(void)
+void bt_storage_kv_set_id(void)
 {
-    storage_kv_set(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr,
+    bt_storage_kv_set(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr,
                    ID_DATA_LEN(bt_dev.id_addr));
 #if defined(CONFIG_BT_PRIVACY)
-    storage_kv_set(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, ID_DATA_LEN(bt_dev.irk));
+    bt_storage_kv_set(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, ID_DATA_LEN(bt_dev.irk));
 #endif
 }
 
-int storage_kv_get_id(void)
+int bt_storage_kv_get_id(void)
 {
     uint16_t len = sizeof(bt_dev.id_addr);
     int ret;
-    storage_kv_get(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr, &len);
+    bt_storage_kv_get(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr, &len);
     if (len < sizeof(bt_dev.id_addr[0]))
     {
         if (len < 0)
@@ -76,7 +76,7 @@ int storage_kv_get_id(void)
 
 #if defined(CONFIG_BT_PRIVACY)
     len = sizeof(bt_dev.irk);
-    ret = storage_kv_get(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, &len);
+    ret = bt_storage_kv_get(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, &len);
     if (len < sizeof(bt_dev.irk[0]))
     {
         if (len < 0)
@@ -1294,7 +1294,7 @@ static int id_create(uint8_t id, bt_addr_le_t *addr, uint8_t *irk)
      */
     if (IS_ENABLED(CONFIG_BT_SETTINGS) && atomic_test_bit(bt_dev.flags, BT_DEV_READY))
     {
-        storage_kv_set_id();
+        bt_storage_kv_set_id();
     }
 
     return 0;
@@ -1463,7 +1463,7 @@ int bt_id_delete(uint8_t id)
 
     if (IS_ENABLED(CONFIG_BT_SETTINGS) && atomic_test_bit(bt_dev.flags, BT_DEV_READY))
     {
-        storage_kv_set_id();
+        bt_storage_kv_set_id();
     }
 
     return 0;
@@ -2090,7 +2090,7 @@ int bt_le_oob_get_sc_data(struct bt_conn *conn, const struct bt_le_oob_sc_data *
 
 void bt_id_loading(void)
 {
-    storage_kv_get_id();
+    bt_storage_kv_get_id();
 }
 
 int bt_id_init(void)

@@ -9,9 +9,9 @@
 
 #include "base\byteorder.h"
 #include "base\util.h"
-#include "logging\log_impl.h"
+#include "logging\bt_log_impl.h"
 
-#define FILE_INFO_HEADER "storage_kv_info"
+#define FILE_INFO_HEADER "bt_storage_kv_info"
 
 #define STORAGE_FILE_PATH_MAX_LENGTH (0x400)
 
@@ -78,7 +78,7 @@ static void get_storage_file(char *name, uint16_t key)
     sprintf(name, "%s\\%s_%04X.kv", storage_path, FILE_INFO_HEADER, key);
 }
 
-static void init_list(struct storage_kv_header *list, uint16_t list_cnt)
+static void init_list(struct bt_storage_kv_header *list, uint16_t list_cnt)
 {
     // TODO: Do nothing.
 }
@@ -133,14 +133,14 @@ static void delete (uint16_t key, uint8_t *data, uint16_t len)
     delete_file(file_name);
 }
 
-static const struct storage_kv_impl kv_impl = {
+static const struct bt_storage_kv_impl kv_impl = {
         init_list,
         get,
         set,
         delete,
 };
 
-const struct storage_kv_impl *storage_kv_impl_windows_instance(void)
+const struct bt_storage_kv_impl *bt_storage_kv_impl_local_instance(void)
 {
     char storage_path[STORAGE_FILE_PATH_MAX_LENGTH];
     // get log path

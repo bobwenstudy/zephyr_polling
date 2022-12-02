@@ -13,7 +13,7 @@
 #define _ZEPHYR_POLLING_LOGGING_BT_LOG_H_
 
 #include "bt_config.h"
-#include "log_impl.h"
+#include "bt_log_impl.h"
 
 #include "base/__assert.h"
 #include "base/types.h"

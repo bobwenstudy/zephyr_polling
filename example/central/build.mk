@@ -1,8 +1,8 @@
 # define source directory
-SRC		+= $(APP)
+SRC		+= $(APP_PATH)
 
 # define include directory
-INCLUDE	+= $(APP)
+INCLUDE	+= $(APP_PATH)
 
 # define lib directory
 LIB		+=

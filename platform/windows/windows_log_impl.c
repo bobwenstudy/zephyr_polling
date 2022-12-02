@@ -8,7 +8,7 @@
 #include "windows_log_impl.h"
 
 #include "base\byteorder.h"
-#include "logging\log_impl.h"
+#include "logging\bt_log_impl.h"
 #include "logging\bt_log.h"
 
 #define FUNCTION_WINDOWS_LOG_PRINT_IN_WINDOW // becareful, printf need too long time
@@ -310,14 +310,14 @@ static void log_init(void)
 #endif
 }
 
-static const log_impl_t log_impl = {
+static const bt_log_impl_t log_impl = {
         log_init,
         log_packet_dump,
         log_printf_dump,
         log_point_dump,
 };
 
-const log_impl_t *log_impl_windows_instance(void)
+const bt_log_impl_t *bt_log_impl_local_instance(void)
 {
     return &log_impl;
 }

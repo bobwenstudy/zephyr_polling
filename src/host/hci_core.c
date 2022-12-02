@@ -28,7 +28,7 @@
 #include <drivers/hci_driver.h>
 
 #include <common/bt_buf.h>
-#include <common/storage_kv.h>
+#include <common/bt_storage_kv.h>
 
 #define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
 #define LOG_MODULE_NAME bt_hci_core
@@ -3597,18 +3597,18 @@ BUILD_ASSERT(DEVICE_NAME_LEN < CONFIG_BT_DEVICE_NAME_MAX);
 BUILD_ASSERT(DEVICE_NAME_LEN < 248);
 #endif
 
-void storage_kv_set_name(size_t val_len)
+void bt_storage_kv_set_name(size_t val_len)
 {
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
-    storage_kv_set(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, val_len);
+    bt_storage_kv_set(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, val_len);
 #endif
 }
 
-int storage_kv_get_name(void)
+int bt_storage_kv_get_name(void)
 {
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
     uint16_t len = sizeof(bt_dev.name) - 1;
-    storage_kv_get(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, &len);
+    bt_storage_kv_get(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, &len);
     if (len < 0)
     {
         BT_ERR("Failed to read device name from storage"
@@ -3627,7 +3627,7 @@ int storage_kv_get_name(void)
 
 void bt_name_loading(void)
 {
-    storage_kv_get_name();
+    bt_storage_kv_get_name();
 }
 
 int bt_set_name(const char *name)
@@ -3651,7 +3651,7 @@ int bt_set_name(const char *name)
 
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
-        storage_kv_set_name(len);
+        bt_storage_kv_set_name(len);
     }
 
     return 0;
@@ -3679,16 +3679,16 @@ uint16_t bt_get_appearance(void)
 }
 
 #if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
-void storage_kv_set_appearance(void)
+void bt_storage_kv_set_appearance(void)
 {
-    storage_kv_set(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance,
+    bt_storage_kv_set(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance,
                    sizeof(bt_dev.appearance));
 }
 
-int storage_kv_get_appearance(void)
+int bt_storage_kv_get_appearance(void)
 {
     uint16_t len = sizeof(bt_dev.appearance);
-    storage_kv_get(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance, &len);
+    bt_storage_kv_get(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance, &len);
     if (len < 0)
     {
         BT_ERR("Failed to read device appearance from storage"
@@ -3705,7 +3705,7 @@ int storage_kv_get_appearance(void)
 
 void bt_appearance_loading(void)
 {
-    storage_kv_get_appearance();
+    bt_storage_kv_get_appearance();
 }
 
 int bt_set_appearance(uint16_t appearance)
@@ -3714,7 +3714,7 @@ int bt_set_appearance(uint16_t appearance)
 
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
-        storage_kv_set_appearance();
+        bt_storage_kv_set_appearance();
     }
 
     return 0;

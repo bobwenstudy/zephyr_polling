@@ -18,7 +18,7 @@
 #include "base/byteorder.h"
 #include "base/common.h"
 
-#include "common/storage_kv.h"
+#include "common/bt_storage_kv.h"
 
 #include <bluetooth/hci.h>
 #include <bluetooth/bluetooth.h>

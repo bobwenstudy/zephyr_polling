@@ -22,7 +22,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/uuid.h>
 
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 #if defined(CONFIG_BT_BAS)
 static uint8_t battery_level = 100;

@@ -6,7 +6,7 @@
 #include "drivers/hci_driver.h"
 #include "drivers/hci_h4.h"
 
-#include "logging/log_impl.h"
+#include "logging/bt_log_impl.h"
 
 #include "common/bt_buf.h"
 

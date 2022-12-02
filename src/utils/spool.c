@@ -7,7 +7,7 @@
 #include "spool.h"
 #include "common/net_buf.h"
 
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 uint8_t spool_is_empty(struct spool *pool)
 {

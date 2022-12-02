@@ -1,11 +1,11 @@
-#ifndef _ZEPHYR_POLLING_COMMON_STORAGE_KV_H_
-#define _ZEPHYR_POLLING_COMMON_STORAGE_KV_H_
+#ifndef _ZEPHYR_POLLING_COMMON_bt_storage_kv_H_
+#define _ZEPHYR_POLLING_COMMON_bt_storage_kv_H_
 
 #include "bt_config.h"
 
 #include "base/types.h"
 
-enum storage_kv_keys
+enum bt_storage_kv_keys
 {
     KEY_INDEX_NULL = 0x0000,
 
@@ -20,15 +20,15 @@ enum storage_kv_keys
 
 #define KEY_INDEX_LE_KEY_INFO_ITEM(__x) (KEY_INDEX_LE_KEY_INFO_ITEM_BASE + (__x))
 
-struct storage_kv_header
+struct bt_storage_kv_header
 {
     uint16_t key;
     uint16_t length; // zero length means length not same.
 };
 
-struct storage_kv_impl
+struct bt_storage_kv_impl
 {
-    void (*init_list)(struct storage_kv_header *list, uint16_t list_cnt);
+    void (*init_list)(struct bt_storage_kv_header *list, uint16_t list_cnt);
 
     int (*get)(uint16_t key, uint8_t *data, uint16_t *len);
 
@@ -37,11 +37,11 @@ struct storage_kv_impl
     void (*delete)(uint16_t key, uint8_t *data, uint16_t len);
 };
 
-void storage_kv_init_list(struct storage_kv_header *list, uint16_t list_cnt);
-int storage_kv_get(uint16_t key, uint8_t *data, uint16_t *len);
-void storage_kv_set(uint16_t key, uint8_t *data, uint16_t len);
-void storage_kv_delete(uint16_t key, uint8_t *data, uint16_t len);
-void storage_kv_register(const struct storage_kv_impl *impl);
+void bt_storage_kv_init_list(struct bt_storage_kv_header *list, uint16_t list_cnt);
+int bt_storage_kv_get(uint16_t key, uint8_t *data, uint16_t *len);
+void bt_storage_kv_set(uint16_t key, uint8_t *data, uint16_t len);
+void bt_storage_kv_delete(uint16_t key, uint8_t *data, uint16_t len);
+void bt_storage_kv_register(const struct bt_storage_kv_impl *impl);
 
 /**
  * Function used to read the data from the settings storage in
@@ -58,4 +58,4 @@ void storage_kv_register(const struct storage_kv_impl *impl);
  */
 typedef ssize_t (*settings_read_cb)(void *cb_arg, void *data, size_t len);
 
-#endif /* _ZEPHYR_POLLING_COMMON_STORAGE_KV_H_ */
+#endif /* _ZEPHYR_POLLING_COMMON_bt_storage_kv_H_ */

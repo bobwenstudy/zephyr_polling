@@ -5,7 +5,7 @@
 #include "drivers/hci_driver.h"
 #include "lib/lusb0_usb.h"
 
-#include "logging/log_impl.h"
+#include "logging/bt_log_impl.h"
 
 #include "common/bt_buf.h"
 #include "host/hci_core.h"

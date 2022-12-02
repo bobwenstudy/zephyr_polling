@@ -33,14 +33,14 @@ static inline char z_log_minimal_level_to_char(int level)
     }
 }
 
-extern void log_impl_printf(uint8_t _level, const char *format, ...);
-extern void log_impl_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t len);
-extern void log_impl_init(void);
+extern void bt_log_impl_printf(uint8_t _level, const char *format, ...);
+extern void bt_log_impl_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t len);
+extern void bt_log_impl_init(void);
 
 #define LOG_IMPL_TO_PRINTK(_fun, _line, _level, _name, fmt, ...)                                   \
     do                                                                                             \
     {                                                                                              \
-        log_impl_printf(_level,                                                                    \
+        bt_log_impl_printf(_level,                                                                    \
                         "%c: "                                                                     \
                         "(%s)"                                                                     \
                         "%s():%d: " fmt "\n",                                                      \
@@ -57,18 +57,18 @@ extern void log_impl_init(void);
 #define __LOG_IMPL_RAW(_level, _fmt, ...)                                                          \
     do                                                                                             \
     {                                                                                              \
-        log_impl_printf(_level, _fmt, ##__VA_ARGS__);                                              \
+        bt_log_impl_printf(_level, _fmt, ##__VA_ARGS__);                                              \
     } while (false);
 
 #define __PACKET_IMPL(_packet_type, _in, _packet, _len)                                            \
     do                                                                                             \
     {                                                                                              \
-        log_impl_packet(_packet_type, _in, _packet, _len);                                         \
+        bt_log_impl_packet(_packet_type, _in, _packet, _len);                                         \
     } while (false)
 #define __LOG_INIT_IMPL()                                                                          \
     do                                                                                             \
     {                                                                                              \
-        log_impl_init(_packet_type, _in, _packet, _len);                                           \
+        bt_log_impl_init(_packet_type, _in, _packet, _len);                                           \
     } while (false)
 #else
 #define __LOG_IMPL(_level, _name, _level_thod, ...)
@@ -148,12 +148,12 @@ typedef struct
     void (*printf)(uint8_t level, const char *format, va_list argptr);
     // log point
     void (*point)(uint32_t val);
-} log_impl_t;
+} bt_log_impl_t;
 
 /**
  * @brief Init Logger
  * @param log_impl - platform-specific implementation
  */
-void log_impl_register(const log_impl_t *log_impl);
+void bt_log_impl_register(const bt_log_impl_t *log_impl);
 
 #endif /* _ZEPHYR_POLLING_LOGGING_LOG_IMPL_H_ */

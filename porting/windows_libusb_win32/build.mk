@@ -1,12 +1,12 @@
 # define source directory
-SRC		+= $(PORT)
+SRC		+= $(PORT_PATH)
 
 # define include directory
-INCLUDE	+= $(PORT)
+INCLUDE	+= $(PORT_PATH)
 
 # define lib directory
 LIB		+=
 
-PLATFORM := platform/windows
+PLATFORM_PATH := platform/windows
 
-include $(PLATFORM)/build.mk
+include $(PLATFORM_PATH)/build.mk

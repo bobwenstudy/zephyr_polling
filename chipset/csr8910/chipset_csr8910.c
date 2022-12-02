@@ -278,8 +278,20 @@ static const struct bt_hci_chipset_driver chipset_drv = {
         init_work, polling_work, boot_start, prepare_start, event_process,
 };
 
-// MARK: public API
-const struct bt_hci_chipset_driver *chipset_csr8910_uart_instance(void)
+// public API
+const struct bt_hci_chipset_driver *chipset_local_instance(void)
 {
     return &chipset_drv;
+}
+
+const usb_interface_t *chipset_get_usb_interface(uint8_t* size)
+{
+    *size = 0;
+    return NULL;
+}
+
+static const uart_interface_t uart_interface = {921600, 8, 1, 0, true};
+const uart_interface_t *chipset_get_uart_interface(void)
+{
+    return uart_interface;
 }
