@@ -23,7 +23,7 @@ typedef struct
     bool flowcontrol;
 } bt_uart_interface_t;
 
-const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size);
+const bt_usb_interface_t *bt_chipset_get_usb_interface(void);
 const bt_uart_interface_t *bt_chipset_get_uart_interface(void);
 
 const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void);

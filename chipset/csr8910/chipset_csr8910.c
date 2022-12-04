@@ -284,9 +284,8 @@ const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void)
     return &chipset_drv;
 }
 
-const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size)
+const bt_usb_interface_t *bt_chipset_get_usb_interface(void)
 {
-    *size = 0;
     return NULL;
 }
 

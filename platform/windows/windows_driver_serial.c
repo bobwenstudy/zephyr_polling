@@ -62,7 +62,7 @@ PORT OpenPort(int idx, BOOL sync)
 
     PurgeComm(hComm, PURGE_TXCLEAR | PURGE_RXCLEAR);
 
-    printf("open%d ok\n", idx);
+    //printk("open%d ok\n", idx);
 
     return hComm;
 }
@@ -124,18 +124,101 @@ int SetPortParity(PORT com_port, int parity)
     Status = SetCommState(com_port, &dcbSerialParams);
     return Status;
 }
+enum FlowControl
+	{
+		NoFlowControl,
+		CtsRtsFlowControl,
+		CtsDtrFlowControl,
+		DsrRtsFlowControl,
+		DsrDtrFlowControl,
+		XonXoffFlowControl
+	};
 
 int SetPortFlowControl(PORT com_port, bool flowcontrol)
 {
-    DCB dcbSerialParams = {0};
+    DCB dcb = {0};
     BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
+    dcb.DCBlength = sizeof(dcb);
+    Status = GetCommState(com_port, &dcb);
     if (Status == FALSE)
         return FALSE;
-    dcbSerialParams.fOutxCtsFlow = flowcontrol;
-    dcbSerialParams.fRtsControl = flowcontrol ? RTS_CONTROL_HANDSHAKE : 0;
-    Status = SetCommState(com_port, &dcbSerialParams);
+    //dcb.fOutxCtsFlow = flowcontrol;
+    //dcb.fRtsControl = flowcontrol ? RTS_CONTROL_HANDSHAKE : 0;
+
+	//流控设置
+	dcb.fDsrSensitivity = FALSE;
+	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	dcb.fDtrControl = DTR_CONTROL_ENABLE;
+    
+    int fc = flowcontrol? CtsRtsFlowControl: NoFlowControl;
+    switch (fc)
+	{
+		//不流控
+	case NoFlowControl:
+	{
+		dcb.fOutxCtsFlow = FALSE;
+		dcb.fOutxDsrFlow = FALSE;
+		dcb.fOutX = FALSE;
+		dcb.fInX = FALSE;
+		break;
+	}
+	//硬件CtsRts流控
+	case CtsRtsFlowControl:
+	{
+		dcb.fOutxCtsFlow = TRUE;
+		dcb.fOutxDsrFlow = FALSE;
+		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+		dcb.fOutX = FALSE;
+		dcb.fInX = FALSE;
+		break;
+	}
+	//硬件 CtsDtr流控
+	case CtsDtrFlowControl:
+	{
+		dcb.fOutxCtsFlow = TRUE;
+		dcb.fOutxDsrFlow = FALSE;
+		dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+		dcb.fOutX = FALSE;
+		dcb.fInX = FALSE;
+		break;
+	}
+	//硬件DsrRts流控
+	case DsrRtsFlowControl:
+	{
+		dcb.fOutxCtsFlow = FALSE;
+		dcb.fOutxDsrFlow = TRUE;
+		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+		dcb.fOutX = FALSE;
+		dcb.fInX = FALSE;
+		break;
+	}
+	//硬件DsrDtr流控
+	case DsrDtrFlowControl:
+	{
+		dcb.fOutxCtsFlow = FALSE;
+		dcb.fOutxDsrFlow = TRUE;
+		dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+		dcb.fOutX = FALSE;
+		dcb.fInX = FALSE;
+		break;
+	}
+	//软件流控
+	case XonXoffFlowControl:
+	{
+		dcb.fOutxCtsFlow = FALSE;
+		dcb.fOutxDsrFlow = FALSE;
+		dcb.fOutX = TRUE;
+		dcb.fInX = TRUE;
+		dcb.XonChar = 0x11;
+		dcb.XoffChar = 0x13;
+		dcb.XoffLim = 100;
+		dcb.XonLim = 100;
+		break;
+	}
+    }
+
+    Status = SetCommState(com_port, &dcb);
     return Status;
 }
 
@@ -194,7 +277,7 @@ int SendData(PORT com_port, const char *data)
     }
     else
     {
-        printf("%s\n", data);
+        printk("%s\n", data);
     }
 
     return dNoOfBytesWritten;
@@ -219,7 +302,7 @@ int ReciveData(PORT com_port, char *data, int len)
     }
     else
     {
-        printf("%s\n", data);
+        printk("%s\n", data);
     }
 
     return TRUE;
@@ -232,41 +315,130 @@ PORT serial_init(int idx, int rate, int databits, int stopbits, int parity, bool
     com_port = OpenPort(idx, TRUE);
     if (com_port == INVALID_HANDLE_VALUE)
     {
-        printf("open COM%d fail\n", idx);
+        printk("open COM%d fail\n", idx);
         return NULL;
     }
-    ret = SetPortBoudRate(com_port, rate);
-    if (ret == FALSE)
-    {
-        printf("set COM%d band fail\n", idx);
-        return NULL;
+    // 配置参数 
+	DCB dcb = {0};
+
+	if (!GetCommState(com_port, &dcb))
+	{
+		// 获取参数失败
+		return false;
+	}
+
+	dcb.DCBlength = sizeof(dcb);
+	dcb.BaudRate = rate; // 波特率
+	dcb.ByteSize = databits; // 数据位
+
+	switch (parity) //校验位
+	{   
+	case 0:   
+		dcb.Parity = NOPARITY; //无校验
+		break;  
+	case 1:   
+		dcb.Parity = ODDPARITY; //奇校验
+		break;  
+	case 2:
+		dcb.Parity = EVENPARITY; //偶校验
+		break;
+	case 3:
+		dcb.Parity = MARKPARITY; //标记校验
+		break;
+	}
+
+	switch(stopbits) //停止位
+	{
+	case 1:
+		dcb.StopBits = ONESTOPBIT; //1位停止位
+		break;
+	case 2:
+		dcb.StopBits = TWOSTOPBITS; //2位停止位
+		break;
+	case 3:
+		dcb.StopBits = ONE5STOPBITS; //1.5位停止位
+		break;
+	}
+
+	//流控设置
+	dcb.fDsrSensitivity = FALSE;
+	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	dcb.fDtrControl = DTR_CONTROL_ENABLE;
+
+    int fc = CtsRtsFlowControl;
+	switch (fc)
+	{
+		//不流控
+        case NoFlowControl:
+        {
+            dcb.fOutxCtsFlow = FALSE;
+            dcb.fOutxDsrFlow = FALSE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            break;
+        }
+        //硬件CtsRts流控
+        case CtsRtsFlowControl:
+        {
+            dcb.fOutxCtsFlow = TRUE;
+            dcb.fOutxDsrFlow = FALSE;
+            dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            break;
+        }
+        //硬件 CtsDtr流控
+        case CtsDtrFlowControl:
+        {
+            dcb.fOutxCtsFlow = TRUE;
+            dcb.fOutxDsrFlow = FALSE;
+            dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            break;
+        }
+        //硬件DsrRts流控
+        case DsrRtsFlowControl:
+        {
+            dcb.fOutxCtsFlow = FALSE;
+            dcb.fOutxDsrFlow = TRUE;
+            dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            break;
+        }
+        //硬件DsrDtr流控
+        case DsrDtrFlowControl:
+        {
+            dcb.fOutxCtsFlow = FALSE;
+            dcb.fOutxDsrFlow = TRUE;
+            dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            break;
+        }
+        //软件流控
+        case XonXoffFlowControl:
+        {
+            dcb.fOutxCtsFlow = FALSE;
+            dcb.fOutxDsrFlow = FALSE;
+            dcb.fOutX = TRUE;
+            dcb.fInX = TRUE;
+            dcb.XonChar = 0x11;
+            dcb.XoffChar = 0x13;
+            dcb.XoffLim = 100;
+            dcb.XonLim = 100;
+            break;
+        }
     }
-    ret = SetPortDataBits(com_port, databits);
-    if (ret == FALSE)
-    {
-        printf("set COM%d databits fail\n", idx);
-        return NULL;
-    }
-    stopbits = ONESTOPBIT;
-    printf("stopbits %d\n", stopbits);
-    ret = SetPortStopBits(com_port, stopbits);
-    if (ret == FALSE)
-    {
-        printf("set COM%d stopbits fail\n", idx);
-        return NULL;
-    }
-    ret = SetPortParity(com_port, parity);
-    if (ret == FALSE)
-    {
-        printf("set COM%d parity fail\n", idx);
-        return NULL;
-    }
-    ret = SetPortFlowControl(com_port, flowcontrol);
-    if (ret == FALSE)
-    {
-        printf("set COM%d flowcontrol fail\n", idx);
-        return NULL;
-    }
+
+
+	if(!SetCommState(com_port, &dcb))
+	{
+		// 设置参数失败
+		return false;
+	}
 
     return com_port;
 }
@@ -287,7 +459,7 @@ int Serial_SendData(PORT com_port, const char *data, int len)
         }
         else
         {
-            printf("send ok\n");
+            //printk("send ok\n");
         }
 
         return dNoOfBytesWritten;
@@ -309,7 +481,7 @@ int Serial_SendData(PORT com_port, const char *data, int len)
                                     len,                   //要发送的数据字节数
                                     &dNoOfBytesWritten, // DWORD*，用来接收返回成功发送的数据字节数
                                     &m_osWrite); // NULL为同步发送，OVERLAPPED*为异步发送
-        // printf("bWriteStat, %d, dNoOfBytesWritten: %d\n", bWriteStat, dNoOfBytesWritten);
+        // printk("bWriteStat, %d, dNoOfBytesWritten: %d\n", bWriteStat, dNoOfBytesWritten);
         if (!bWriteStat)
         {
             if (GetLastError() == ERROR_IO_PENDING) //如果串口正在写入
@@ -324,7 +496,7 @@ int Serial_SendData(PORT com_port, const char *data, int len)
                 return -1;
             }
         }
-        // printf("dNoOfBytesWritten, %d\n", dNoOfBytesWritten);
+        // printk("dNoOfBytesWritten, %d\n", dNoOfBytesWritten);
         return dNoOfBytesWritten;
     }
 
@@ -382,7 +554,7 @@ int Serial_ReciveData(PORT com_port, char *data, int len)
         }
     }
 
-    // printf("rcv ok, %ld\n", NoBytesRead);
+    // printk("rcv ok, %ld\n", NoBytesRead);
 
     return NoBytesRead;
 }
@@ -395,7 +567,7 @@ int Serial_AsyncSendData(PORT com_port, const char *data, int len)
     if (Status == FALSE)
         return -1;
     else
-        printf("send ok\n");
+        //printk("send ok\n");
 
     return 0;
 }
@@ -417,7 +589,7 @@ int Serial_AsyncReciveData(PORT com_port, char *data, int len)
     if (Status == FALSE)
         return -1;
     else
-        printf("rcv ok\n");
+        printk("rcv ok\n");
 
     return NoBytesRead;
 }
@@ -466,7 +638,7 @@ static void push_rx_queue(struct net_buf *buf)
 pthread_t serial_tx_thread;
 static int tx_process_loop(void *args)
 {
-    printf("tx_process_loop\n");
+    printk("tx_process_loop\n");
     struct net_buf *buf;
     int ret;
 
@@ -476,20 +648,18 @@ static int tx_process_loop(void *args)
         {
             buf = pop_tx_queue();
 
-            printf("tx data start\n");
             net_buf_push_u8(buf, bt_get_h4_type_by_buffer(bt_buf_get_type(buf)));
             ret = Serial_SendData(serial, (char *)buf->data, buf->len);
-            printf("tx data end\n");
 
             if (ret < 0)
             {
-                printf("error tx\n");
+                printk("error tx\n");
             }
             else
             {
-                printf("success: tx %d bytes\n", ret);
-                printf("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", buf->data[0], buf->data[1],
-                       buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
+                //printk("success: tx %d bytes\n", ret);
+                //printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", buf->data[0], buf->data[1],
+                //       buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
             }
 
             net_buf_unref(buf);
@@ -506,7 +676,7 @@ static int tx_process_loop(void *args)
 pthread_t serial_rx_thread;
 static int rx_process_loop(void *args)
 {
-    printf("rx_process_loop\n");
+    printk("rx_process_loop\n");
     char tmp[1024];
     int ret;
     while (1)
@@ -514,14 +684,14 @@ static int rx_process_loop(void *args)
         ret = Serial_ReciveData(serial, tmp, sizeof(tmp));
         if (ret <= 0)
         {
-            printf("error reading.\n");
+            //printk("error reading.\n");
             Sleep(1000);
         }
         else
         {
-            printf("success: serial read %d bytes\n", ret);
-            printf("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", tmp[0], tmp[1], tmp[2], tmp[3],
-                   tmp[4], tmp[5]);
+            //printk("success: serial read %d bytes\n", ret);
+            //printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", tmp[0], tmp[1], tmp[2], tmp[3],
+            //       tmp[4], tmp[5]);
 
             struct net_buf *buf;
             buf = bt_buf_get_controller_tx_evt();
@@ -533,7 +703,7 @@ static int rx_process_loop(void *args)
             }
             else
             {
-                printf("hci_driver_polling_work(), no reserve buff\n");
+                printk("hci_driver_polling_work(), no reserve buff\n");
                 while (1)
                     ;
             }
@@ -550,8 +720,6 @@ static int rx_process_loop(void *args)
 
 static int hci_driver_open(void)
 {
-    printf("hci_driver_open()\n");
-
     return 0;
 }
 
@@ -569,28 +737,21 @@ static const struct bt_hci_driver drv = {
 
 static void hci_driver_init(void)
 {
-    printf("hci_driver_init serial\n");
     bt_hci_driver_register(&drv);
 }
 
 static int hci_driver_h4_open(void)
 {
-    printf("hci_driver_h4_open()\n");
-
     return 0;
 }
 
 static int hci_driver_h4_send(uint8_t *buf, uint16_t len)
 {
-    printf("hci_driver_h4_send serial(), len: %d\n", len);
-
     return Serial_SendData(serial, (char *)buf, len);
 }
 
 static int hci_driver_h4_recv(uint8_t *buf, uint16_t len)
 {
-    printf("hci_driver_h4_recv serial()\n");
-
     return Serial_ReciveData(serial, (char *)buf, len);
 }
 
@@ -602,13 +763,13 @@ static const struct bt_hci_h4_driver h4_drv = {
 
 static void hci_driver_h4_init(void)
 {
-    printf("hci_driver_h4_init serial\n");
     hci_h4_init(&h4_drv);
 }
 
 int serial_open_process(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol)
 {
-    printf("serial_open_process idx: %d, rate: %d\n", idx, rate);
+    printk("serial_open_process idx: %d, rate: %d, databits: %d, stopbits: %d, parity: %d, flowcontrol: %d\n"
+        , idx, rate, databits, stopbits, parity, flowcontrol);
     serial = serial_init(idx, rate, databits, stopbits, parity, flowcontrol);
 
     is_enable = true;

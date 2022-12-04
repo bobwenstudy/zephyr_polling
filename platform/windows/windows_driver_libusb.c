@@ -30,11 +30,12 @@ static pthread_mutex_t tx_lock;
 static struct k_fifo rx_queue;
 static pthread_mutex_t rx_lock;
 
-bt_usb_interface_t selected_usb_interface[1] = {{0, 0}};
+uint16_t selected_usb_vid = 0;
+uint16_t selected_usb_pid = 0;
 
 
 usb_dev_handle *usb_dev;
-usb_dev_handle *open_dev(bt_usb_interface_t *p_interface, uint8_t size)
+usb_dev_handle *open_dev(uint16_t vid, uint16_t pid)
 {
     struct usb_bus *bus;
     struct usb_device *dev;
@@ -43,15 +44,12 @@ usb_dev_handle *open_dev(bt_usb_interface_t *p_interface, uint8_t size)
     {
         for (dev = bus->devices; dev; dev = dev->next)
         {
-            for(int i = 0; i < size; i ++)
+            if (dev->descriptor.idVendor == vid 
+                && dev->descriptor.idProduct == pid)
             {
-                if (dev->descriptor.idVendor == p_interface[i].vid 
-                    && dev->descriptor.idProduct == p_interface[i].pid)
-                {
-                    selected_usb_interface[0].vid = p_interface[i].vid;
-                    selected_usb_interface[0].pid = p_interface[i].pid;
-                    return usb_open(dev);
-                }
+                selected_usb_vid = vid;
+                selected_usb_pid = pid;
+                return usb_open(dev);
             }
         }
     }
@@ -333,14 +331,14 @@ static void hci_driver_init(void)
     bt_hci_driver_register(&drv);
 }
 
-int usb_open_process(bt_usb_interface_t *p_interface, uint8_t size)
+int usb_open_process(uint16_t vid, uint16_t pid)
 {
     usb_init();         /* initialize the library */
     usb_find_busses();  /* find all busses */
     usb_find_devices(); /* find all connected devices */
 
     display_devices();
-    usb_dev = open_dev(p_interface, size);
+    usb_dev = open_dev(vid, pid);
 
     if(usb_dev == NULL)
     {
@@ -392,9 +390,9 @@ int usb_open_process(bt_usb_interface_t *p_interface, uint8_t size)
     return 0;
 }
 
-int usb_open_device(bt_usb_interface_t *p_interface, uint8_t size)
+int usb_open_device(uint16_t vid, uint16_t pid)
 {
-    int ret = usb_open_process(p_interface, size);
+    int ret = usb_open_process(vid, pid);
     if (ret < 0)
     {
         return ret;
@@ -421,7 +419,7 @@ static int reset_driver_process(void *args)
     pthread_join(usb_rx_evt_thread, NULL);
     pthread_join(usb_rx_acl_thread, NULL);
 
-    int ret = usb_open_process(selected_usb_interface, 1);
+    int ret = usb_open_process(selected_usb_vid, selected_usb_pid);
     if (ret < 0)
     {
         return ret;

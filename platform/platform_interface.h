@@ -4,7 +4,7 @@
 
 #include "common/bt_storage_kv.h"
 #include "logging/bt_log_impl.h"
-#include "chipset_interface.h"
+#include "drivers/hci_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,8 +19,10 @@ void bt_timer_impl_local_init(void);
 
 typedef void (*reset_callback_t)(void);
 
-int usb_open_device(bt_usb_interface_t *bt_chipset_get_usb_interface, uint8_t size);
+int usb_open_device(uint16_t vid, uint16_t pid);
 void reset_usb_driver(reset_callback_t callback);
+
+int serial_open_device(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol);
 
 #ifdef __cplusplus
 }

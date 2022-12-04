@@ -1740,7 +1740,7 @@ static int hci_send_cmd_le_set_event_mask(void)
         mask |= BT_EVT_MASK_LE_LTK_REQUEST;
     }
 
-    BT_ERR("le_set_event_mask, mask: 0x%x.", mask);
+    BT_DBG("le_set_event_mask, mask: 0x%x.", mask);
 
     sys_put_le64(mask, cp_mask->events);
 
@@ -2715,7 +2715,7 @@ handle_hci_command_complete_work(uint16_t opcode, struct net_buf *buf,
         return;
     }
 
-    BT_WARN("Unhandled opcode 0x%02x, status: 0x%x", opcode, buf->data[0]);
+    BT_DBG("Unhandled opcode 0x%02x, status: 0x%x", opcode, buf->data[0]);
 }
 
 static void hci_init_end(int err);

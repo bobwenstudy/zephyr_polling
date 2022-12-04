@@ -11,7 +11,6 @@ extern "C" {
 
 typedef HANDLE PORT;
 
-
 #ifdef __cplusplus
 }
 #endif

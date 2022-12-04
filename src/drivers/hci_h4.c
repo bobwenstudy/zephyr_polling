@@ -69,7 +69,7 @@ static inline void h4_get_type(void)
     /* Get packet type */
     if (h4_driver->recv(&rx.type, 1) != 1)
     {
-        BT_WARN("Unable to read H:4 packet type");
+        //BT_WARN("Unable to read H:4 packet type");
         rx.type = H4_NONE;
         return;
     }

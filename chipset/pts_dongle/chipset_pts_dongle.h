@@ -1,6 +1,6 @@
 
-#ifndef _CHIPSET_CSR8510_H_
-#define _CHIPSET_CSR8510_H_
+#ifndef _CHIPSET_PTS_DONGLE_H_
+#define _CHIPSET_PTS_DONGLE_H_
 
 #include "chipset_interface.h"
 #include "platform_interface.h"
@@ -13,4 +13,4 @@ extern "C" {
 }
 #endif
 
-#endif //_CHIPSET_CSR8510_H_
+#endif //_CHIPSET_PTS_DONGLE_H_

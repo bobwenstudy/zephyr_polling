@@ -154,14 +154,11 @@ const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void)
     return &chipset_drv;
 }
 
-static const bt_usb_interface_t usb_interface[] = {
-    {0x0a12, 0x0001},
-};
+static const bt_usb_interface_t usb_interface = {0x0a12, 0x0001};
 
-const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size)
+const bt_usb_interface_t *bt_chipset_get_usb_interface(void)
 {
-    *size = sizeof(usb_interface)/sizeof(usb_interface[0]);
-    return usb_interface;
+    return &usb_interface;
 }
 
 const bt_uart_interface_t *bt_chipset_get_uart_interface(void)
