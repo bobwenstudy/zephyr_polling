@@ -17,8 +17,8 @@ jobs:
       - name: Setup project require env
         run: python python_require_env.py
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: Start Compile Test, common compile check.
-        run: make all
+      #- name: Start Compile Test, common compile check.
+      #  run: make all
       - name: Start Compile Test, full compile check.
         run: python scripts\code_compile_check.py
       - name: Start Doc compile Check

@@ -36,8 +36,9 @@ def compile_code(app, port, chipset):
 #             'peripheral_throughput', ]
 app_sets = ['beacon']
 
-port_sets = ['windows_libusb_win32', 
-             'windows_serial', ]
+# port_sets = ['windows_libusb_win32', 
+#              'windows_serial', ]
+port_sets = ['windows_serial', ]
 
 # chipset_sets = ['ats2851', 
 #                 'common', 
