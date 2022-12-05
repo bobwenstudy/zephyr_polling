@@ -1,0 +1,26 @@
+name: Compile Check
+run-name: ${{ github.actor }} is start compile check 🚀
+on: [push]
+jobs:
+  env_and_compile_check:
+    #runs-on: ubuntu-latest
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Setup C/C++ env
+        uses: rlalik/setup-cpp-compiler@v1.2
+      - name: Setup python env
+        uses: actions/setup-python@v2.3.3
+      #- run: sudo apt-get install python3-sphinx
+      - name: Setup project require env
+        run: python python_require_env.py
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: Start Compile Test, common compile check.
+        run: make all
+      - name: Start Compile Test, full compile check.
+        run: python scripts\code_compile_check.py
+      - name: Start Doc compile Check
+        run: cd doc&&make html&&cd ..
+      - run: echo "🍏 This job's status is ${{ job.status }}."
