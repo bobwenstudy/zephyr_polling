@@ -142,6 +142,15 @@ include $(CHIPSET_PATH)/build.mk
 
 
 ifeq ($(OS),Windows_NT)
+ifdef ComSpec
+	WINCMD:=$(ComSpec)
+endif
+ifdef COMSPEC
+	WINCMD:=$(COMSPEC)
+endif
+
+SHELL:=$(WINCMD)
+
 MAIN	:= $(TARGET).exe
 ECHO=echo
 SOURCEDIRS	:= $(SRC)
