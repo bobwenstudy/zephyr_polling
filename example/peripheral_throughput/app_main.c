@@ -17,7 +17,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 #include "common\timer.h"
 
 /* Idle timer */

@@ -19,7 +19,7 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/gatt.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 #include "host/hci_core.h"
 

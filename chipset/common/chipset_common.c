@@ -9,9 +9,9 @@ const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void)
 }
 
 // For test, you can set your customor setting here.
-static const bt_usb_interface_t usb_interface[] = {0, 0};
+static const bt_usb_interface_t usb_interface = {0, 0};
 
-const bt_usb_interface_t *bt_chipset_get_usb_interface(uint8_t* size)
+const bt_usb_interface_t *bt_chipset_get_usb_interface(void)
 {
     return &usb_interface;
 }

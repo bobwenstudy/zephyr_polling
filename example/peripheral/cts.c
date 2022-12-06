@@ -18,7 +18,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 static uint8_t ct[10];
 static uint8_t ct_update;

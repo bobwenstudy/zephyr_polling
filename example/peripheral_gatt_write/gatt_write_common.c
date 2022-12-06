@@ -8,7 +8,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/gatt.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 static struct bt_gatt_exchange_params mtu_exchange_params;
 static uint32_t write_count;

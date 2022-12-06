@@ -11,7 +11,7 @@
 #include "base/types.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 #ifndef IBEACON_RSSI
 #define IBEACON_RSSI 0xc8

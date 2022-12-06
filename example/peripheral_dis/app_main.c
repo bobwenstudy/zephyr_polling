@@ -20,7 +20,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 static const struct bt_data ad[] = {
         BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),

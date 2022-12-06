@@ -213,7 +213,7 @@ OUTPUT_TARGET	:= $(OUTPUT_PATH)/$(TARGET)
 info:
 	@$(ECHO) Current Configuration: APP=$(APP) PORT=$(PORT) CHIPSET=$(CHIPSET)
 
-all: info $(OUTPUT_PATH) $(OBJDIR) $(OBJ_MD) $(MAIN) $(DEBUG_REPORT)
+all: | info $(MAIN) $(DEBUG_REPORT)
 	@$(ECHO) Start Build Image.
 	$(OBJCOPY) -v -O binary $(OUTPUT_MAIN) $(OUTPUT_TARGET).bin
 	$(OBJDUMP) --source --all-headers --demangle --line-numbers --wide $(OUTPUT_MAIN) > $(OUTPUT_TARGET).lst
@@ -232,12 +232,12 @@ $(OUTPUT_PATH):
 $(OBJDIR):
 	$(Q)$(MD) $(call FIXPATH, $(OBJDIR))
 
-$(MAIN): $(AUTOCONFIG_H) $(OBJECTS) 
+$(MAIN): $(OUTPUT_PATH) $(OBJECTS) 
 	@$(ECHO) Linking    : "$@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -Wl,-Map,$(OUTPUT_TARGET).map -o $(OUTPUT_MAIN) $(OBJECTS) $(LFLAGS) $(LIBS)
 
 # Static Pattern Rules [targets ...: target-pattern: prereq-patterns ...]
-$(OBJECTS): $(OBJDIR)/%.o : %.c
+$(OBJECTS): $(OBJDIR)/%.o : %.c $(OBJDIR) $(OBJ_MD) $(AUTOCONFIG_H)
 	@$(ECHO) Compiling  : "$<"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
@@ -245,10 +245,10 @@ $(OBJECTS): $(OBJDIR)/%.o : %.c
 $(AUTOCONFIG_H): $(DOTCONFIG_PATH)
 	python scripts/kconfig/kconfig.py $(KCONFIG_ROOT_PATH) $(DOTCONFIG_PATH) $(AUTOCONFIG_H) $(OUTPUT_PATH)/autoconfig_log.txt $(DOTCONFIG_PATH)
 
-$(USER_RECORD_CONFIG_PATH): $(USER_CONFIG_SET)
+$(USER_RECORD_CONFIG_PATH): $(USER_CONFIG_SET) $(OUTPUT_PATH)
 	@echo Using user config.
 #	create user_record.conf to record current setting.
-	@copy $(call FIXPATH, $^) $(call FIXPATH, $@)
+	@copy $(call FIXPATH, $(USER_CONFIG_SET)) $(call FIXPATH, $(USER_RECORD_CONFIG_PATH))
 #	create .config by user config setting.
 	python scripts/kconfig/kconfig.py --handwritten-input-configs $(KCONFIG_ROOT_PATH) $(DOTCONFIG_PATH) $(AUTOCONFIG_H) $(OUTPUT_PATH)/autoconfig_log.txt $(USER_CONFIG_SET)
 

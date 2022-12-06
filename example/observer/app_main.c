@@ -17,7 +17,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 #include "common\timer.h"
 
 static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,

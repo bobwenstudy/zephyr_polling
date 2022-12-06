@@ -17,7 +17,7 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/uuid.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 
 extern int mtu_exchange(struct bt_conn *conn);
 extern int write_cmd(struct bt_conn *conn);

@@ -5,7 +5,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <drivers/hci_driver.h>
-#include <logging/log_impl.h>
+#include <logging/bt_log_impl.h>
 #include "common\timer.h"
 
 static uint8_t mfg_data[] = {0xff, 0xff, 0x00};
