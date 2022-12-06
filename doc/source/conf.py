@@ -13,7 +13,12 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import sys
+import os
+from pathlib import Path
+import re
 
+ZEPHYR_BASE = Path(__file__).resolve().parents[1]
 
 # -- Project information -----------------------------------------------------
 
@@ -32,7 +37,12 @@ release = 'v1'
 # ones.
 extensions = [
     'recommonmark',
-    'sphinx_markdown_tables'
+    'sphinx_markdown_tables',
+    "sphinx_tabs.tabs",
+    "sphinx.ext.todo",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.graphviz",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -61,4 +71,6 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = [str(ZEPHYR_BASE / "_static")]
+
+html_title = "Zephyr_polling项目文档"

@@ -3,19 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Zephyr_polling's documentation!
-==========================================
+欢迎来到Zephyr_polling的文档！
+==============================
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: 目录：
 
    introduction/index.rst
+   develop/index.rst
 
 
 
-Indices and tables
-==================
+索引和表格
+==========
 
 * :ref:`genindex`
 * :ref:`modindex`

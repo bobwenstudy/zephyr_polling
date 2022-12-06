@@ -49,7 +49,7 @@ static int csr_send_cmd_vs_hci_nop_disable(void)
 #define BLE_MAC_ADDR                                                                               \
     {                                                                                              \
         {                                                                                          \
-            0x11, 0x22, 0x33, 0x44, 0x55                                                           \
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66                                                     \
         }                                                                                          \
     }
 static int csr_send_cmd_vs_set_public_addr(void)
