@@ -9,7 +9,9 @@ INCLUDE	+= $(PLATFORM_PATH)
 #   their path using -Lpath, something like:
 LFLAGS += -lusb0
 
+# Windows have diff cpu arch, ia64, amd64, x86
+CPU_ARCH ?= x86
 # define lib directory
 #LIB		+= $(PLATFORM_PATH)/lib/amd64
 #LIB		+= $(PLATFORM_PATH)/lib/ia64
-LIB		+= $(PLATFORM_PATH)/lib/x86
+LIB		+= $(PLATFORM_PATH)/lib/$(CPU_ARCH)

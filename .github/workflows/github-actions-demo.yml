@@ -13,14 +13,11 @@ jobs:
         uses: rlalik/setup-cpp-compiler@v1.2
       - name: Setup python env
         uses: actions/setup-python@v2.3.3
-      #- run: sudo apt-get install python3-sphinx
       - name: Setup project require env
         run: python python_require_env.py
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      #- name: Start Compile Test, common compile check.
-      #  run: make all
       - name: Start Compile Test, full compile check.
-        run: python scripts\code_compile_check.py
+        run: python scripts\code_compile_check.py --cpu-arch=amd64
       - name: Start Doc compile Check
         run: cd doc&&make html&&cd ..
       - run: echo "🍏 This job's status is ${{ job.status }}."
