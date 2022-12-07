@@ -36,8 +36,8 @@ release = 'v1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'recommonmark',
-    'sphinx_markdown_tables',
+#    'recommonmark',
+#    'sphinx_markdown_tables',
     "sphinx_tabs.tabs",
     "sphinx.ext.todo",
     "sphinx.ext.extlinks",

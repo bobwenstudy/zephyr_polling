@@ -125,14 +125,14 @@ python python_require_env.py
 
 根据具体需要可以调整一些参数，目前Makefile支持如下参数配置。
 
-- **APP**：选择example中的例程，默认选择为`example/beacon`。
-- **PORT**：选择porting中的环境，也就是当前平台和HCI接口类型，默认选择为`porting/windows_libusb_win32`。
-- **CHIPSET**：选择chipset中的芯片种类，默认选择为`chipset/csr8510_usb`。
+- **APP**：选择example中的例程，默认选择为`beacon`。
+- **PORT**：选择porting中的环境，也就是当前平台和HCI接口类型，默认选择为`windows_libusb_win32`。
+- **CHIPSET**：选择chipset中的芯片种类，默认选择为`csr8510_usb`。
 
 也就是可以通过如下指令来编译工程：
 
 ```shell
-make all APP=example/beacon PORT=porting/windows_libusb_win32 CHIPSET=chipset/csr8510_usb
+make all APP=beacon PORT=windows_libusb_win32 CHIPSET=csr8510_usb
 ```
 
 
@@ -219,8 +219,6 @@ kconfig生成的`autoconfig.h`保存在output目录下。
 **注意**：windows环境暂时不可用，只能对elf进行分析。
 
 ![image-20221125112930355](https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20221125112930355.png)
-
-![image-20221125113047913](https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20221125113047913.png)
 
 
 

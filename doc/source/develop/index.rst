@@ -7,3 +7,5 @@
    :maxdepth: 1
 
    getting_started/index.rst
+   application/index.rst
+   optimizations/index.rst

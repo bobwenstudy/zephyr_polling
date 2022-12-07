@@ -16,7 +16,8 @@ def compile_code(params):
 
     return 0
 
-app_sets = ['beacon', 
+app_sets = ['app_test',
+            'beacon', 
             'broadcaster', 
             'central', 
             'central_gatt_write', 
@@ -48,6 +49,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cpu-arch",
                         help="Windows libusb need this.")
+    parser.add_argument("--full-check",
+                        help="For normal build.")
                         
     return parser.parse_args()
 
@@ -64,25 +67,27 @@ if __name__ == '__main__':
     if(res != 0):
         sys.exit(res)
 
-    total_work_cnt = 0
-    for app in app_sets:
-        for port in port_sets:
-            for chipset in chipset_sets:
-                total_work_cnt += 1
+    full_check = args.full_check
+    if full_check != None:
+        total_work_cnt = 0
+        for app in app_sets:
+            for port in port_sets:
+                for chipset in chipset_sets:
+                    total_work_cnt += 1
 
-    current_work_cnt = 0
-    for app in app_sets:
-        for port in port_sets:
-            for chipset in chipset_sets:
-                current_work_cnt += 1
-                print("=================================================================================")
-                print("Total Work Cnt: %d, Current Cnt: %d, Process: %.2f%%" 
-                    % (total_work_cnt, current_work_cnt, current_work_cnt * 100.0 / total_work_cnt))
-                print("=================================================================================")
+        current_work_cnt = 0
+        for app in app_sets:
+            for port in port_sets:
+                for chipset in chipset_sets:
+                    current_work_cnt += 1
+                    print("=================================================================================")
+                    print("Total Work Cnt: %d, Current Cnt: %d, Process: %.2f%%" 
+                        % (total_work_cnt, current_work_cnt, current_work_cnt * 100.0 / total_work_cnt))
+                    print("=================================================================================")
 
-                params_full = params + (' APP=%s PORT=%s CHIPSET=%s') % (app, port, chipset)
-                res = compile_code(params_full)
-                if(res != 0):
-                    sys.exit(res)
+                    params_full = params + (' APP=%s PORT=%s CHIPSET=%s') % (app, port, chipset)
+                    res = compile_code(params_full)
+                    if(res != 0):
+                        sys.exit(res)
     
     sys.exit(0)
