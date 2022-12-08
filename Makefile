@@ -232,12 +232,12 @@ $(OUTPUT_PATH):
 $(OBJDIR):
 	$(Q)$(MD) $(call FIXPATH, $(OBJDIR))
 
-$(MAIN): $(OUTPUT_PATH) $(OBJECTS) 
+$(MAIN): | $(OUTPUT_PATH) $(OBJDIR) $(OBJ_MD) $(OBJECTS) 
 	@$(ECHO) Linking    : "$@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -Wl,-Map,$(OUTPUT_TARGET).map -o $(OUTPUT_MAIN) $(OBJECTS) $(LFLAGS) $(LIBS)
 
 # Static Pattern Rules [targets ...: target-pattern: prereq-patterns ...]
-$(OBJECTS): $(OBJDIR)/%.o : %.c $(OBJDIR) $(OBJ_MD) $(AUTOCONFIG_H)
+$(OBJECTS): $(OBJDIR)/%.o : %.c $(AUTOCONFIG_H)
 	@$(ECHO) Compiling  : "$<"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
@@ -245,7 +245,7 @@ $(OBJECTS): $(OBJDIR)/%.o : %.c $(OBJDIR) $(OBJ_MD) $(AUTOCONFIG_H)
 $(AUTOCONFIG_H): $(DOTCONFIG_PATH)
 	python scripts/kconfig/kconfig.py $(KCONFIG_ROOT_PATH) $(DOTCONFIG_PATH) $(AUTOCONFIG_H) $(OUTPUT_PATH)/autoconfig_log.txt $(DOTCONFIG_PATH)
 
-$(USER_RECORD_CONFIG_PATH): $(USER_CONFIG_SET) $(OUTPUT_PATH)
+$(USER_RECORD_CONFIG_PATH): $(USER_CONFIG_SET)
 	@echo Using user config.
 #	create user_record.conf to record current setting.
 	@copy $(call FIXPATH, $(USER_CONFIG_SET)) $(call FIXPATH, $(USER_RECORD_CONFIG_PATH))
@@ -261,7 +261,7 @@ menuconfig:$(DOTCONFIG_PATH)
 	menuconfig $(KCONFIG_ROOT_PATH)
 
 guiconfig:
-	guiconfig.exe $(KCONFIG_ROOT_PATH)
+	guiconfig $(KCONFIG_ROOT_PATH)
 
 clean:
 #	$(RM) $(OUTPUT_MAIN)
@@ -293,18 +293,18 @@ help:
 	@$(ECHO) "== Make variables used in SDK =="
 	@$(ECHO) "APP:         Select APP Demo built in SDK, will select <beacon> by default"
 	@$(ECHO) "PORT:        Select Porting info built in SDK, will select <windows_libusb_win32> by default"
-	@$(ECHO) "CHIPSET:     Select Chipset built in SDK, will select <csr8510_usb> by default"
+	@$(ECHO) "CHIPSET:     Select Chipset built in SDK, will select <csr8510> by default"
 	@$(ECHO) "NOGC:        NOGC=1 diable gc sections, default is 0"
 	@$(ECHO) "V:           V=1 verbose make, will print more information, by default V=0"
 	@$(ECHO) "== How to Use with Make =="
 	@$(ECHO) "1. Build Application:"
-	@$(ECHO) "all [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510_usb]"
+	@$(ECHO) "all [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510]"
 	@$(ECHO) "   Build a software program."
 	@$(ECHO) "2. Show menuconfig:"
-	@$(ECHO) "menuconfig [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510_usb]"
+	@$(ECHO) "menuconfig [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510]"
 	@$(ECHO) "   Use menuconfig to show the Kconfig setting."
 	@$(ECHO) "3. Show guiconfig:"
-	@$(ECHO) "guiconfig [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510_usb]"
+	@$(ECHO) "guiconfig [APP=beacon] [PORT=windows_libusb_win32] [CHIPSET=csr8510]"
 	@$(ECHO) "   Use guiconfig to show the Kconfig setting."
 	@$(ECHO) "4: Format all code style by .clang-format"
 	@$(ECHO) "code_format"

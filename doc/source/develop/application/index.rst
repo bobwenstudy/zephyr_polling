@@ -22,7 +22,7 @@ Size和RAM Size，项目提供了丰富的配置参数，来实现相关功能�
     ├── build.mk（编译系统所需）
     └── app_main.c（程序代码）
 
-**prj.conf**\ ：Kconfig持久化设计，关于Kconfig的设计可以看相关文档，每个应用可以根据需要单独配置，修改这个会最终影响生成的\ **autoconfig.h**\ ，也就是蓝牙协议栈编译出来的Code和RAM。
+**prj.conf**\ ：Kconfig持久化设计，关于Kconfig的设计可以看 :ref:`kconfig`，每个应用可以根据需要单独配置，修改这个会最终影响生成的\ **autoconfig.h**\ ，也就是蓝牙协议栈编译出来的Code和RAM。
 
 **build.mk**\ ：根目录的makefile会引用这个文件，这里需要配置\ **应用**\ 所需编译的文件和头文件路径。
 
@@ -102,7 +102,7 @@ Size和RAM Size，项目提供了丰富的配置参数，来实现相关功能�
 创建prj.conf
 ~~~~~~~~~~~~
 
-这个要理解需要去看懂相关文档，默认情况下我们只需要开启日志功能和蓝牙功能即可，其他的可以通过\ ``make menuconfig``\ ，修改配置后，用\ ``D``\ 保存差异，生成在根目录的\ ``defconfig``\ 文件就是所需的\ ``prj.conf``\ 。
+这个要理解需要去看懂 :ref:`kconfig`，默认情况下我们只需要开启日志功能和蓝牙功能即可，其他的可以通过\ ``make menuconfig``\ ，修改配置后，用\ ``D``\ 保存差异，生成在根目录的\ ``defconfig``\ 文件就是所需的\ ``prj.conf``\ 。
 
 .. code:: 
 
