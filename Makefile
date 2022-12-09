@@ -223,14 +223,14 @@ all: | info $(MAIN) $(DEBUG_REPORT)
 
 # mk path for object.
 $(OBJ_MD):
-	$(Q)$(MD) $(call FIXPATH, $@)
+	$(Q)if not exist "$@" $(Q)$(MD) $(call FIXPATH, $@)
 
 # mk output path.
 $(OUTPUT_PATH):
-	$(Q)$(MD) $(call FIXPATH, $(OUTPUT_PATH))
+	$(Q)if not exist "$@" $(Q)$(MD) $(call FIXPATH, $@)
 
 $(OBJDIR):
-	$(Q)$(MD) $(call FIXPATH, $(OBJDIR))
+	$(Q)if not exist "$@" $(Q)$(MD) $(call FIXPATH, $@)
 
 $(MAIN): | $(OUTPUT_PATH) $(OBJDIR) $(OBJ_MD) $(OBJECTS) 
 	@$(ECHO) Linking    : "$@"
