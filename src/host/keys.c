@@ -28,7 +28,6 @@
 
 #include "common/bt_storage_kv.h"
 
-
 #if defined(CONFIG_BT_SMP)
 static struct bt_keys key_pool[CONFIG_BT_MAX_PAIRED];
 
@@ -74,7 +73,7 @@ void bt_storage_kv_get_key_list_info(struct bt_storage_kv_key_list_header *list_
 }
 
 int bt_storage_kv_get_key_list_info_pos(struct bt_storage_kv_key_list_header *list_info, uint8_t id,
-                                     const bt_addr_le_t *addr)
+                                        const bt_addr_le_t *addr)
 {
     int pos = -1;
     for (int i = 0; i < list_info->cnt; i++)
@@ -90,8 +89,8 @@ int bt_storage_kv_get_key_list_info_pos(struct bt_storage_kv_key_list_header *li
     return pos;
 }
 
-int bt_storage_kv_get_key_list_info_index(struct bt_storage_kv_key_list_header *list_info, uint8_t id,
-                                       const bt_addr_le_t *addr)
+int bt_storage_kv_get_key_list_info_index(struct bt_storage_kv_key_list_header *list_info,
+                                          uint8_t id, const bt_addr_le_t *addr)
 {
     int select_index = -1;
     int pos = bt_storage_kv_get_key_list_info_pos(list_info, id, addr);
@@ -103,8 +102,8 @@ int bt_storage_kv_get_key_list_info_index(struct bt_storage_kv_key_list_header *
     return select_index;
 }
 
-void bt_storage_kv_set_key_list_info_append(struct bt_storage_kv_key_list_header *list_info, uint8_t id,
-                                         const bt_addr_le_t *addr, uint8_t index)
+void bt_storage_kv_set_key_list_info_append(struct bt_storage_kv_key_list_header *list_info,
+                                            uint8_t id, const bt_addr_le_t *addr, uint8_t index)
 {
     // TODO: check the old one?
     uint8_t store_index = list_info->cnt;
@@ -123,11 +122,11 @@ void bt_storage_kv_set_key_list_info_append(struct bt_storage_kv_key_list_header
     bt_addr_le_copy(&item->addr, addr);
 
     bt_storage_kv_set(KEY_INDEX_LE_KEY_INFO_LIST, (uint8_t *)list_info,
-                   sizeof(struct bt_storage_kv_key_list_header));
+                      sizeof(struct bt_storage_kv_key_list_header));
 }
 
-void bt_storage_kv_set_key_list_info_delete(struct bt_storage_kv_key_list_header *list_info, uint8_t id,
-                                         const bt_addr_le_t *addr)
+void bt_storage_kv_set_key_list_info_delete(struct bt_storage_kv_key_list_header *list_info,
+                                            uint8_t id, const bt_addr_le_t *addr)
 {
     // TODO: check the old one?
     int pos = bt_storage_kv_get_key_list_info_pos(list_info, id, addr);
@@ -144,7 +143,7 @@ void bt_storage_kv_set_key_list_info_delete(struct bt_storage_kv_key_list_header
         }
 
         bt_storage_kv_set(KEY_INDEX_LE_KEY_INFO_LIST, (uint8_t *)list_info,
-                       sizeof(struct bt_storage_kv_key_list_header));
+                          sizeof(struct bt_storage_kv_key_list_header));
     }
 }
 

@@ -15,8 +15,6 @@ const struct bt_hci_chipset_driver *bt_hci_chipset_impl_local_instance(void);
 const struct bt_storage_kv_impl *bt_storage_kv_impl_local_instance(void);
 void bt_timer_impl_local_init(void);
 
-
-
 typedef void (*reset_callback_t)(void);
 
 int usb_open_device(uint16_t vid, uint16_t pid);

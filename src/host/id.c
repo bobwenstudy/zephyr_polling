@@ -35,7 +35,7 @@
 void bt_storage_kv_set_id(void)
 {
     bt_storage_kv_set(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr,
-                   ID_DATA_LEN(bt_dev.id_addr));
+                      ID_DATA_LEN(bt_dev.id_addr));
 #if defined(CONFIG_BT_PRIVACY)
     bt_storage_kv_set(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, ID_DATA_LEN(bt_dev.irk));
 #endif

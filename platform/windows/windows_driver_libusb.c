@@ -33,7 +33,6 @@ static pthread_mutex_t rx_lock;
 uint16_t selected_usb_vid = 0;
 uint16_t selected_usb_pid = 0;
 
-
 usb_dev_handle *usb_dev;
 usb_dev_handle *open_dev(uint16_t vid, uint16_t pid)
 {
@@ -44,8 +43,7 @@ usb_dev_handle *open_dev(uint16_t vid, uint16_t pid)
     {
         for (dev = bus->devices; dev; dev = dev->next)
         {
-            if (dev->descriptor.idVendor == vid 
-                && dev->descriptor.idProduct == pid)
+            if (dev->descriptor.idVendor == vid && dev->descriptor.idProduct == pid)
             {
                 selected_usb_vid = vid;
                 selected_usb_pid = pid;
@@ -340,7 +338,7 @@ int usb_open_process(uint16_t vid, uint16_t pid)
     display_devices();
     usb_dev = open_dev(vid, pid);
 
-    if(usb_dev == NULL)
+    if (usb_dev == NULL)
     {
         return -1;
     }

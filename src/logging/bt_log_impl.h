@@ -40,11 +40,12 @@ extern void bt_log_impl_init(void);
 #define LOG_IMPL_TO_PRINTK(_fun, _line, _level, _name, fmt, ...)                                   \
     do                                                                                             \
     {                                                                                              \
-        bt_log_impl_printf(_level,                                                                    \
-                        "%c: "                                                                     \
-                        "(%s)"                                                                     \
-                        "%s():%d: " fmt "\n",                                                      \
-                        z_log_minimal_level_to_char(_level), #_name, _fun, _line, ##__VA_ARGS__);  \
+        bt_log_impl_printf(_level,                                                                 \
+                           "%c: "                                                                  \
+                           "(%s)"                                                                  \
+                           "%s():%d: " fmt "\n",                                                   \
+                           z_log_minimal_level_to_char(_level), #_name, _fun, _line,               \
+                           ##__VA_ARGS__);                                                         \
     } while (false);
 
 #ifdef FUNCTION_CONTROL_DEBUG_ENABLE
@@ -57,18 +58,18 @@ extern void bt_log_impl_init(void);
 #define __LOG_IMPL_RAW(_level, _fmt, ...)                                                          \
     do                                                                                             \
     {                                                                                              \
-        bt_log_impl_printf(_level, _fmt, ##__VA_ARGS__);                                              \
+        bt_log_impl_printf(_level, _fmt, ##__VA_ARGS__);                                           \
     } while (false);
 
 #define __PACKET_IMPL(_packet_type, _in, _packet, _len)                                            \
     do                                                                                             \
     {                                                                                              \
-        bt_log_impl_packet(_packet_type, _in, _packet, _len);                                         \
+        bt_log_impl_packet(_packet_type, _in, _packet, _len);                                      \
     } while (false)
 #define __LOG_INIT_IMPL()                                                                          \
     do                                                                                             \
     {                                                                                              \
-        bt_log_impl_init(_packet_type, _in, _packet, _len);                                           \
+        bt_log_impl_init(_packet_type, _in, _packet, _len);                                        \
     } while (false)
 #else
 #define __LOG_IMPL(_level, _name, _level_thod, ...)

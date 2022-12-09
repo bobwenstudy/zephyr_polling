@@ -20,9 +20,9 @@
 extern void bt_ready(int err);
 extern void app_polling_work(void);
 
-int open_hci_driver(int argc, const char * argv[])
+int open_hci_driver(int argc, const char *argv[])
 {
-    bt_usb_interface_t * p_interface = NULL;
+    bt_usb_interface_t *p_interface = NULL;
 
     // accept config from command line
     if (argc > 1)
@@ -39,12 +39,12 @@ int open_hci_driver(int argc, const char * argv[])
     }
 
     // Get Input config.
-    if(p_interface == NULL)
+    if (p_interface == NULL)
     {
         p_interface = (bt_usb_interface_t *)bt_chipset_get_usb_interface();
     }
-    
-    if(p_interface == NULL)
+
+    if (p_interface == NULL)
     {
         printk("Error, VID/PID not set.");
         return -1;
@@ -59,13 +59,13 @@ int open_hci_driver(int argc, const char * argv[])
     return 0;
 }
 
-int main(int argc, const char * argv[])
+int main(int argc, const char *argv[])
 {
     int err = 0;
 
     bt_log_impl_register(bt_log_impl_local_instance());
 
-    if(open_hci_driver(argc, argv) < 0)
+    if (open_hci_driver(argc, argv) < 0)
     {
         return -1;
     }

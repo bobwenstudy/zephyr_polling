@@ -3366,7 +3366,7 @@ int bt_hci_driver_register(const struct bt_hci_driver *drv)
 int bt_hci_chipset_driver_register(const struct bt_hci_chipset_driver *drv)
 {
     bt_dev.chipset_drv = drv;
-    if(bt_dev.chipset_drv != NULL)
+    if (bt_dev.chipset_drv != NULL)
     {
         bt_dev.chipset_drv->init_work();
     }
@@ -3684,7 +3684,7 @@ uint16_t bt_get_appearance(void)
 void bt_storage_kv_set_appearance(void)
 {
     bt_storage_kv_set(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance,
-                   sizeof(bt_dev.appearance));
+                      sizeof(bt_dev.appearance));
 }
 
 int bt_storage_kv_get_appearance(void)

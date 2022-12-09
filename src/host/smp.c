@@ -6336,11 +6336,7 @@ int bt_smp_init(void)
     return smp_self_test();
 }
 
-
-
 #else
-
-
 
 static struct bt_l2cap_le_chan bt_smp_pool[CONFIG_BT_MAX_CONN];
 

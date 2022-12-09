@@ -62,7 +62,7 @@ PORT OpenPort(int idx, BOOL sync)
 
     PurgeComm(hComm, PURGE_TXCLEAR | PURGE_RXCLEAR);
 
-    //printk("open%d ok\n", idx);
+    // printk("open%d ok\n", idx);
 
     return hComm;
 }
@@ -125,14 +125,14 @@ int SetPortParity(PORT com_port, int parity)
     return Status;
 }
 enum FlowControl
-	{
-		NoFlowControl,
-		CtsRtsFlowControl,
-		CtsDtrFlowControl,
-		DsrRtsFlowControl,
-		DsrDtrFlowControl,
-		XonXoffFlowControl
-	};
+{
+    NoFlowControl,
+    CtsRtsFlowControl,
+    CtsDtrFlowControl,
+    DsrRtsFlowControl,
+    DsrDtrFlowControl,
+    XonXoffFlowControl
+};
 
 int SetPortFlowControl(PORT com_port, bool flowcontrol)
 {
@@ -142,80 +142,80 @@ int SetPortFlowControl(PORT com_port, bool flowcontrol)
     Status = GetCommState(com_port, &dcb);
     if (Status == FALSE)
         return FALSE;
-    //dcb.fOutxCtsFlow = flowcontrol;
-    //dcb.fRtsControl = flowcontrol ? RTS_CONTROL_HANDSHAKE : 0;
+    // dcb.fOutxCtsFlow = flowcontrol;
+    // dcb.fRtsControl = flowcontrol ? RTS_CONTROL_HANDSHAKE : 0;
 
-	//流控设置
-	dcb.fDsrSensitivity = FALSE;
-	dcb.fTXContinueOnXoff = FALSE;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	dcb.fDtrControl = DTR_CONTROL_ENABLE;
-    
-    int fc = flowcontrol? CtsRtsFlowControl: NoFlowControl;
+    //流控设置
+    dcb.fDsrSensitivity = FALSE;
+    dcb.fTXContinueOnXoff = FALSE;
+    dcb.fRtsControl = RTS_CONTROL_DISABLE;
+    dcb.fDtrControl = DTR_CONTROL_ENABLE;
+
+    int fc = flowcontrol ? CtsRtsFlowControl : NoFlowControl;
     switch (fc)
-	{
-		//不流控
-	case NoFlowControl:
-	{
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-		break;
-	}
-	//硬件CtsRts流控
-	case CtsRtsFlowControl:
-	{
-		dcb.fOutxCtsFlow = TRUE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-		break;
-	}
-	//硬件 CtsDtr流控
-	case CtsDtrFlowControl:
-	{
-		dcb.fOutxCtsFlow = TRUE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-		break;
-	}
-	//硬件DsrRts流控
-	case DsrRtsFlowControl:
-	{
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = TRUE;
-		dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-		break;
-	}
-	//硬件DsrDtr流控
-	case DsrDtrFlowControl:
-	{
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = TRUE;
-		dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-		dcb.fOutX = FALSE;
-		dcb.fInX = FALSE;
-		break;
-	}
-	//软件流控
-	case XonXoffFlowControl:
-	{
-		dcb.fOutxCtsFlow = FALSE;
-		dcb.fOutxDsrFlow = FALSE;
-		dcb.fOutX = TRUE;
-		dcb.fInX = TRUE;
-		dcb.XonChar = 0x11;
-		dcb.XoffChar = 0x13;
-		dcb.XoffLim = 100;
-		dcb.XonLim = 100;
-		break;
-	}
+    {
+        //不流控
+    case NoFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件CtsRts流控
+    case CtsRtsFlowControl:
+    {
+        dcb.fOutxCtsFlow = TRUE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件 CtsDtr流控
+    case CtsDtrFlowControl:
+    {
+        dcb.fOutxCtsFlow = TRUE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件DsrRts流控
+    case DsrRtsFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = TRUE;
+        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件DsrDtr流控
+    case DsrDtrFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = TRUE;
+        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //软件流控
+    case XonXoffFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fOutX = TRUE;
+        dcb.fInX = TRUE;
+        dcb.XonChar = 0x11;
+        dcb.XoffChar = 0x13;
+        dcb.XoffLim = 100;
+        dcb.XonLim = 100;
+        break;
+    }
     }
 
     Status = SetCommState(com_port, &dcb);
@@ -318,127 +318,126 @@ PORT serial_init(int idx, int rate, int databits, int stopbits, int parity, bool
         printk("open COM%d fail\n", idx);
         return NULL;
     }
-    // 配置参数 
-	DCB dcb = {0};
+    // 配置参数
+    DCB dcb = {0};
 
-	if (!GetCommState(com_port, &dcb))
-	{
-		// 获取参数失败
-		return false;
-	}
-
-	dcb.DCBlength = sizeof(dcb);
-	dcb.BaudRate = rate; // 波特率
-	dcb.ByteSize = databits; // 数据位
-
-	switch (parity) //校验位
-	{   
-	case 0:   
-		dcb.Parity = NOPARITY; //无校验
-		break;  
-	case 1:   
-		dcb.Parity = ODDPARITY; //奇校验
-		break;  
-	case 2:
-		dcb.Parity = EVENPARITY; //偶校验
-		break;
-	case 3:
-		dcb.Parity = MARKPARITY; //标记校验
-		break;
-	}
-
-	switch(stopbits) //停止位
-	{
-	case 1:
-		dcb.StopBits = ONESTOPBIT; //1位停止位
-		break;
-	case 2:
-		dcb.StopBits = TWOSTOPBITS; //2位停止位
-		break;
-	case 3:
-		dcb.StopBits = ONE5STOPBITS; //1.5位停止位
-		break;
-	}
-
-	//流控设置
-	dcb.fDsrSensitivity = FALSE;
-	dcb.fTXContinueOnXoff = FALSE;
-	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	dcb.fDtrControl = DTR_CONTROL_ENABLE;
-
-    int fc = CtsRtsFlowControl;
-	switch (fc)
-	{
-		//不流控
-        case NoFlowControl:
-        {
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            break;
-        }
-        //硬件CtsRts流控
-        case CtsRtsFlowControl:
-        {
-            dcb.fOutxCtsFlow = TRUE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            break;
-        }
-        //硬件 CtsDtr流控
-        case CtsDtrFlowControl:
-        {
-            dcb.fOutxCtsFlow = TRUE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            break;
-        }
-        //硬件DsrRts流控
-        case DsrRtsFlowControl:
-        {
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = TRUE;
-            dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            break;
-        }
-        //硬件DsrDtr流控
-        case DsrDtrFlowControl:
-        {
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = TRUE;
-            dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            break;
-        }
-        //软件流控
-        case XonXoffFlowControl:
-        {
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fOutX = TRUE;
-            dcb.fInX = TRUE;
-            dcb.XonChar = 0x11;
-            dcb.XoffChar = 0x13;
-            dcb.XoffLim = 100;
-            dcb.XonLim = 100;
-            break;
-        }
+    if (!GetCommState(com_port, &dcb))
+    {
+        // 获取参数失败
+        return false;
     }
 
+    dcb.DCBlength = sizeof(dcb);
+    dcb.BaudRate = rate;     // 波特率
+    dcb.ByteSize = databits; // 数据位
 
-	if(!SetCommState(com_port, &dcb))
-	{
-		// 设置参数失败
-		return false;
-	}
+    switch (parity) //校验位
+    {
+    case 0:
+        dcb.Parity = NOPARITY; //无校验
+        break;
+    case 1:
+        dcb.Parity = ODDPARITY; //奇校验
+        break;
+    case 2:
+        dcb.Parity = EVENPARITY; //偶校验
+        break;
+    case 3:
+        dcb.Parity = MARKPARITY; //标记校验
+        break;
+    }
+
+    switch (stopbits) //停止位
+    {
+    case 1:
+        dcb.StopBits = ONESTOPBIT; // 1位停止位
+        break;
+    case 2:
+        dcb.StopBits = TWOSTOPBITS; // 2位停止位
+        break;
+    case 3:
+        dcb.StopBits = ONE5STOPBITS; // 1.5位停止位
+        break;
+    }
+
+    //流控设置
+    dcb.fDsrSensitivity = FALSE;
+    dcb.fTXContinueOnXoff = FALSE;
+    dcb.fRtsControl = RTS_CONTROL_DISABLE;
+    dcb.fDtrControl = DTR_CONTROL_ENABLE;
+
+    int fc = CtsRtsFlowControl;
+    switch (fc)
+    {
+        //不流控
+    case NoFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件CtsRts流控
+    case CtsRtsFlowControl:
+    {
+        dcb.fOutxCtsFlow = TRUE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件 CtsDtr流控
+    case CtsDtrFlowControl:
+    {
+        dcb.fOutxCtsFlow = TRUE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件DsrRts流控
+    case DsrRtsFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = TRUE;
+        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //硬件DsrDtr流控
+    case DsrDtrFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = TRUE;
+        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
+        dcb.fOutX = FALSE;
+        dcb.fInX = FALSE;
+        break;
+    }
+    //软件流控
+    case XonXoffFlowControl:
+    {
+        dcb.fOutxCtsFlow = FALSE;
+        dcb.fOutxDsrFlow = FALSE;
+        dcb.fOutX = TRUE;
+        dcb.fInX = TRUE;
+        dcb.XonChar = 0x11;
+        dcb.XoffChar = 0x13;
+        dcb.XoffLim = 100;
+        dcb.XonLim = 100;
+        break;
+    }
+    }
+
+    if (!SetCommState(com_port, &dcb))
+    {
+        // 设置参数失败
+        return false;
+    }
 
     return com_port;
 }
@@ -459,7 +458,7 @@ int Serial_SendData(PORT com_port, const char *data, int len)
         }
         else
         {
-            //printk("send ok\n");
+            // printk("send ok\n");
         }
 
         return dNoOfBytesWritten;
@@ -567,9 +566,9 @@ int Serial_AsyncSendData(PORT com_port, const char *data, int len)
     if (Status == FALSE)
         return -1;
     else
-        //printk("send ok\n");
+        // printk("send ok\n");
 
-    return 0;
+        return 0;
 }
 
 int Serial_AsyncReciveData(PORT com_port, char *data, int len)
@@ -657,9 +656,9 @@ static int tx_process_loop(void *args)
             }
             else
             {
-                //printk("success: tx %d bytes\n", ret);
-                //printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", buf->data[0], buf->data[1],
-                //       buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
+                // printk("success: tx %d bytes\n", ret);
+                // printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", buf->data[0], buf->data[1],
+                //        buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
             }
 
             net_buf_unref(buf);
@@ -684,14 +683,14 @@ static int rx_process_loop(void *args)
         ret = Serial_ReciveData(serial, tmp, sizeof(tmp));
         if (ret <= 0)
         {
-            //printk("error reading.\n");
+            // printk("error reading.\n");
             Sleep(1000);
         }
         else
         {
-            //printk("success: serial read %d bytes\n", ret);
-            //printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", tmp[0], tmp[1], tmp[2], tmp[3],
-            //       tmp[4], tmp[5]);
+            // printk("success: serial read %d bytes\n", ret);
+            // printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", tmp[0], tmp[1], tmp[2], tmp[3],
+            //        tmp[4], tmp[5]);
 
             struct net_buf *buf;
             buf = bt_buf_get_controller_tx_evt();
@@ -768,8 +767,9 @@ static void hci_driver_h4_init(void)
 
 int serial_open_process(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol)
 {
-    printk("serial_open_process idx: %d, rate: %d, databits: %d, stopbits: %d, parity: %d, flowcontrol: %d\n"
-        , idx, rate, databits, stopbits, parity, flowcontrol);
+    printk("serial_open_process idx: %d, rate: %d, databits: %d, stopbits: %d, parity: %d, "
+           "flowcontrol: %d\n",
+           idx, rate, databits, stopbits, parity, flowcontrol);
     serial = serial_init(idx, rate, databits, stopbits, parity, flowcontrol);
 
     is_enable = true;

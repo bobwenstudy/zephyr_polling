@@ -31,7 +31,7 @@ uint32_t timer_get_delay_time_ms(void)
 pthread_t timer_thread;
 static int timer_process_loop(void *args)
 {
-    //printk("timer_process_loop\n");
+    // printk("timer_process_loop\n");
 
     while (1)
     {
