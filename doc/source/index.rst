@@ -13,6 +13,7 @@
    introduction/index.rst
    develop/index.rst
    build/index.rst
+   chipset/index.rst
 
 
 

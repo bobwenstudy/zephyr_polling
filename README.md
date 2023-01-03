@@ -170,11 +170,13 @@ make all APP=beacon PORT=windows_libusb_win32 CHIPSET=csr8510_usb
 
 makefile中配置**CHIPSET**，后续不断完善。
 
-| chipset                                                      | 接口 | 蓝牙版本 |
-| ------------------------------------------------------------ | ---- | -------- |
-| [csr8510_usb](https://detail.tmall.com/item.htm?abbucket=2&id=534662513906&ns=1&spm=a230r.1.14.1.2f6811a37qFFQU&skuId=4910946697067) | USB  | 4.0      |
-|                                                              |      |          |
-|                                                              |      |          |
+
+| 厂商                                       | chipset                                                      | 接口 | 蓝牙版本 | 类型      |
+| ------------------------------------------ | ------------------------------------------------------------ | ---- | -------- | --------- |
+| [CSR](https://www.qualcomm.cn/)            | [csr8510](https://detail.tmall.com/item.htm?abbucket=2&id=534662513906&ns=1&spm=a230r.1.14.1.2f6811a37qFFQU&skuId=4910946697067) | USB  | 4.0      | Dual Mode |
+| [CSR](https://www.qualcomm.cn/)            | [csr8910](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.6cd22e8dj2naR0&id=622836061708&_u=3m1kbkea372) | UART | 4.0      | Dual Mode |
+| [炬芯-Actions](http://www.actions.com.cn/) | [ats2851](https://detail.tmall.com/item.htm?abbucket=2&id=534662513906&ns=1&spm=a230r.1.14.1.2f6811a37qFFQU&skuId=5111551883875) | USB  | 5.3      | Dual Mode |
+| [Nordic](https://www.nordicsemi.com/)      | [pts_dongle](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.6cd22e8dj2naR0&id=622836061708&_u=3m1kbkea372) | UART | 5.3      | LE Only   |
 
 
 
