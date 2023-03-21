@@ -9,27 +9,6 @@
 int state;
 int step;
 
-void booting_work(void)
-{
-}
-
-void preparing_work(void)
-{
-}
-
-void polling_work(void)
-{
-    switch (state)
-    {
-    case STATE_POLLING_BOOTING:
-        booting_work();
-        break;
-    case STATE_POLLING_PREPARING:
-        preparing_work();
-        break;
-    }
-}
-
 static int csr_send_cmd_vs_hci_nop_disable(void)
 {
     uint8_t data[] = {0xc2, 0x02, 0x00, 0x09, 0x00, 0x02, 0x00, 0x03, 0x70, 0x00,
@@ -145,7 +124,7 @@ void event_process(uint8_t event, struct net_buf *buf)
 }
 
 static const struct bt_hci_chipset_driver chipset_drv = {
-        init_work, polling_work, boot_start, prepare_start, event_process,
+        init_work, boot_start, prepare_start, event_process,
 };
 
 // public API

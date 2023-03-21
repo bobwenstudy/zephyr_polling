@@ -252,11 +252,6 @@ struct bt_hci_chipset_driver
      */
     void (*init_work)(void);
     /**
-     * @brief polling work process.
-     *
-     */
-    void (*polling_work)(void);
-    /**
      * @brief Boot work process.
      *
      */
