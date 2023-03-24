@@ -95,7 +95,7 @@ void zephyr_polling_main(void* parameter)
         bt_hci_h4_polling();
 
         // rt_thread_yield();
-        rt_thread_sleep(1);
+        rt_thread_delay(1);
     }
 }
 

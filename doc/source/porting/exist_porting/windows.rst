@@ -1,5 +1,5 @@
-现有移植平台说明
-================
+Windows移植平台说明
+===================
 
 .. _windowslibusbwin32:
 
@@ -50,25 +50,15 @@ USB设备使用
 .. code:: bash
 
    PS D:\worksplace\github\zephyr_polling> make all PORT=windows_libusb_win32 CHIPSET=csr8510 APP=beacon
-
    Current Configuration: APP=beacon PORT=windows_libusb_win32 CHIPSET=csr8510
-
    Linking    : "main.exe"
-
    Start Build Image.
-
    objcopy -v -O binary output/main.exe output/main.bin
-
    copy from `output/main.exe' [pei-i386] to `output/main.bin' [binary]
-
    objdump --source --all-headers --demangle --line-numbers --wide output/main.exe > output/main.lst
-
    Print Size
-
       text    data     bss     dec     hex filename
-
     129080    7016    2676  138772   21e14 output/main.exe
-
    PS D:\worksplace\github\zephyr_polling> .\output\main.exe
 
 .. _windowsserial:
@@ -103,25 +93,14 @@ windows UART H4接口实现。PC上有串口就行，注意观察串口号。
 .. code:: bash
 
    PS D:\worksplace\github\zephyr_polling> make all PORT=windows_serial CHIPSET=csr8510 APP=beacon      
-
    Current Configuration: APP=beacon PORT=windows_serial CHIPSET=csr8510
-
    Compiling  : "porting/windows_serial/main.c"
-
    Linking    : "main.exe"
-
    Start Build Image.
-
    objcopy -v -O binary output/main.exe output/main.bin
-
    copy from `output/main.exe' [pei-i386] to `output/main.bin' [binary]
-
    objdump --source --all-headers --demangle --line-numbers --wide output/main.exe > output/main.lst
-
    Print Size
-
       text    data     bss     dec     hex filename
-
     129388    7016    2676  139080   21f48 output/main.exe
-
    PS D:\worksplace\github\zephyr_polling> .\output\main.exe 1

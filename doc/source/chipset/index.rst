@@ -96,17 +96,11 @@ type。
 .. figure:: https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20221208195537948.png
    :alt: 
 
-.. note::
+注意：由于UART接口的不确定性，一般UART接口都会开启流控，不然在大数据吞吐时容易丢包。但是这样的话需要连接的IO就需要5根了，\ ``TX/RX/CTS/RTS/GND``\ 。
 
-   由于UART接口的不确定性，一般UART接口都会开启流控，不然在大数据吞吐时容易丢包。但是这样的话需要连接的IO就需要5根了，\ ``TX/RX/CTS/RTS/GND``\ 。
+注意，由于UART本身没有同步接口，对于SCO等同步数据交互，该接口的体验并不是很好。
 
-.. note::
-
-   由于UART本身没有同步接口，对于SCO等同步数据交互，该接口的体验并不是很好。
-
-.. note::
-
-   UART接口一般需要确认串口号，波特率，流控等参数，这些参数根据不同厂商有不同的定义。在不开启流控的芯片中可以不接CTS/RTS接口。
+注意：UART接口一般需要确认串口号，波特率，流控等参数，这些参数根据不同厂商有不同的定义。在不开启流控的芯片中可以不接CTS/RTS接口。
 
 .. _3线uart接口h5）:
 
@@ -165,10 +159,7 @@ Endpoint传输，ACL数据包通过0x82和0x02的Buck接口进行传输。
 .. figure:: https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20230103162233842.png
    :alt: 
 
-
-.. note::
-
-   在嵌入式产品中，由于嵌入式主芯片资源受限，一般而言都是使用UART接口，部分场景下会使用SPI/SDIO接口。
+注意，在嵌入式产品中，由于嵌入式主芯片资源受限，一般而言都是使用UART接口，部分场景下会使用SPI/SDIO接口。
 
 SD接口
 ~~~~~~
@@ -208,10 +199,8 @@ Dongle这类产品一方面是提供给专业用户使用，如开发人员等�
 
 根据各家芯片产商的情况，所需配置的参数和种类各不相同，下面对一些参数配置进行说明。
 
-.. note::
-
-   由于嵌入式资源有限，现有市面上的产品基本都是通过HCI的Vendor
-   Cmd/Event接口来实现对设备的参数配置行为。
+注意，由于嵌入式资源有限，现有市面上的产品基本都是通过HCI的Vendor
+Cmd/Event接口来实现对设备的参数配置行为。
 
 固件烧录
 ~~~~~~~~
@@ -385,9 +374,7 @@ ST的《X-NUCLEO-BNRG2A1》中的BLE本身是一个SOC，里面集成了Host的�
 
 public地址通过必须通过《aci_hal_write_config_data》将《CONFIG_DATA_PUBADDR_OFFSET》配置蓝牙地址。
 
-.. note::
-
-   官方提供的Virtual_COM_Port代码并不支持将ACL转发的功能，此外在压力测试时，由于其代码写的可靠性不高，会有丢包等问题，需要自己把这块串口接收转发的代码逻辑给修改掉。
+注意，官方提供的Virtual_COM_Port代码并不支持将ACL转发的功能，此外在压力测试时，由于其代码写的可靠性不高，会有丢包等问题，需要自己把这块串口接收转发的代码逻辑给修改掉。
 
 .. figure:: https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20230103194728104.png
    :alt: 
@@ -446,5 +433,35 @@ ats2851
 Dongle，应该也是Flash版本的芯片，每个设备的蓝牙地址都是唯一的，无需配置。
 
 **Boot流程**\ ，None。
+
+**Prepare流程**\ ，None。
+
+AP6212-brcm
+~~~~~~~~~~~
+
+通过ArtPi认识的。
+
+板子这4个点是Uart点。
+
+原理图在这：\ `sdk-bsp-stm32h750-realthread-artpi/ART-Pi_SCH_V1.5_Release.pdf
+at master · RT-Thread-Studio/sdk-bsp-stm32h750-realthread-artpi
+(github.com) <https://github.com/RT-Thread-Studio/sdk-bsp-stm32h750-realthread-artpi/blob/master/documents/board/ART-Pi_HW_V1.5/ART-Pi_SCH_V1.5_Release.pdf>`__
+
+.. figure:: https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20230324172314816.png
+   :alt: 
+
+.. figure:: https://markdown-1306347444.cos.ap-shanghai.myqcloud.com/img/image-20230324171200993.png
+   :alt: 
+
+AP6212
+^^^^^^
+
+需要注意，有2个地方可能会对方不回数据，需要重传。一个是刚配置完UART口后，发太快可能会导致对方收不到。另一个是烧录完image后，最后reset动作需要等一会才发，当然现在都是按照重传来做的。
+
+这个芯片需要将\ **BT_RST_EN**\ 和\ **BT_WAKEUP**\ 脚拉高，不然芯片就会没上电，或者进入睡眠状态。
+
+**Boot流程**\ ，将image发下去就行。image在这，\ `sdk-bsp-stm32h750-realthread-artpi/ap6212-bt-image-1.0.rbl
+at master · RT-Thread-Studio/sdk-bsp-stm32h750-realthread-artpi
+(github.com) <https://github.com/RT-Thread-Studio/sdk-bsp-stm32h750-realthread-artpi/blob/master/tools/firmware/ap6212-bt-image-1.0.rbl>`__\ 。为了省事换成了数组来实现。
 
 **Prepare流程**\ ，None。
