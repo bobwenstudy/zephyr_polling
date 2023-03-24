@@ -29,25 +29,18 @@ def generate_autoconfig_h(app, clear_all):
 
     return 0
 
-app_sets = ['app_test',
-            'beacon', 
-            'broadcaster', 
-            'central', 
-            'central_gatt_write', 
-            'central_hr', 
-            'central_ht',
-            'eddystone',
-            'ibeacon',
-            'observer',
-            'peripheral',
-            'peripheral_csc',
-            'peripheral_dis',
-            'peripheral_esp',
-            'peripheral_gatt_write',
-            'peripheral_hids',
-            'peripheral_hr',
-            'peripheral_ht',
-            'peripheral_throughput', ]
+def get_example_list():
+    path = 'example'
+    app_list = []
+
+    files = os.listdir(path)
+    for file in files:
+        file_path = os.path.join(path, file)
+
+        if os.path.isdir(file_path):
+            app_list.append(file)
+    
+    return app_list
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -62,6 +55,8 @@ if __name__ == '__main__':
     clear_all = args.clear_all
 
     total_work_cnt = 0
+
+    app_sets = get_example_list()
     for app in app_sets:
         total_work_cnt += 1
 

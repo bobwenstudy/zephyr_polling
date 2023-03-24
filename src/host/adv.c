@@ -21,7 +21,7 @@
 #include "conn_internal.h"
 #include "id.h"
 #include "scan.h"
-#include "common\timer.h"
+#include "common/timer.h"
 
 #define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
 #define LOG_MODULE_NAME bt_adv

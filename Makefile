@@ -124,6 +124,7 @@ PORT ?= windows_libusb_win32
 PORT_ROOT_PATH = porting
 PORT_PATH = $(PORT_ROOT_PATH)/$(PORT)
 include $(PORT_PATH)/build.mk
+# USER_CONFIG_SET += $(PORT_PATH)/prj.conf
 
 # include chipset info
 CHIPSET ?= csr8510

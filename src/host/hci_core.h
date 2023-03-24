@@ -13,8 +13,8 @@
 
 #include "base/atomic.h"
 #include <drivers/hci_driver.h>
-#include "common\timer.h"
-#include "common\work.h"
+#include "common/timer.h"
+#include "common/work.h"
 #include "utils/k_fifo.h"
 #include "utils/k_sem.h"
 

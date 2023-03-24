@@ -50,9 +50,9 @@ int open_hci_driver(int argc, const char *argv[])
         return -1;
     }
 
-    if (usb_open_device(p_interface->vid, p_interface->pid) < 0)
+    if (bt_hci_init_usb_device(p_interface->vid, p_interface->pid) < 0)
     {
-        printk("Error, usb open failed.");
+        printk("Error, usb init failed.");
         return -1;
     }
 

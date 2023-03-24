@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "base/atomic.h"
 #include "base/common.h"
 

@@ -789,7 +789,7 @@ int serial_open_process(int idx, int rate, int databits, int stopbits, int parit
     return 0;
 }
 
-int serial_open_device(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol)
+int bt_hci_init_serial_device(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol)
 {
     int ret = serial_open_process(idx, rate, databits, stopbits, parity, flowcontrol);
     if (ret < 0)

@@ -24,7 +24,7 @@
 #include "common/rpa.h"
 
 #include "common/bt_storage_kv.h"
-#include "common\timer.h"
+#include "common/timer.h"
 
 #define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
 #define LOG_MODULE_NAME bt_id

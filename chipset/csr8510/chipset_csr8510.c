@@ -116,6 +116,7 @@ void event_process(uint8_t event, struct net_buf *buf)
         case 2:
             csr_send_cmd_vs_warn_reset();
 
+            extern void reset_usb_driver(bt_hci_driver_reset_callback_t callback);
             reset_usb_driver(reset_callback);
             step = 0;
             break;

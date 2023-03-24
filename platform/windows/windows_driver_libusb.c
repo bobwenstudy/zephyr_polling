@@ -388,7 +388,7 @@ int usb_open_process(uint16_t vid, uint16_t pid)
     return 0;
 }
 
-int usb_open_device(uint16_t vid, uint16_t pid)
+int bt_hci_init_usb_device(uint16_t vid, uint16_t pid)
 {
     int ret = usb_open_process(vid, pid);
     if (ret < 0)
@@ -401,7 +401,7 @@ int usb_open_device(uint16_t vid, uint16_t pid)
     return (0);
 }
 
-reset_callback_t local_callback;
+bt_hci_driver_reset_callback_t local_callback;
 
 static int reset_driver_process(void *args)
 {
@@ -428,7 +428,7 @@ static int reset_driver_process(void *args)
     return 0;
 }
 
-void reset_usb_driver(reset_callback_t callback)
+void reset_usb_driver(bt_hci_driver_reset_callback_t callback)
 {
     local_callback = callback;
 

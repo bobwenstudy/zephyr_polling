@@ -172,7 +172,7 @@ config BT_BUF_CMD_TX_SIZE
 	# of antenna ids for platforms other than Nordic.
 	default 83 if (!BT_EXT_ADV && !BT_BREDR && BT_CTLR_DF && BT_CTLR_DF_CONN_CTE_REQ && !SOC_COMPATIBLE_NRF)
 	# LE Generate DHKey v2 command
-	default 65
+	default 255
 	range 65 255
 	help
 	  Maximum data size for each HCI Command buffer. This value does not

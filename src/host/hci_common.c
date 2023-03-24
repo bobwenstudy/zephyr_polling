@@ -11,7 +11,7 @@
 #include "base/byteorder.h"
 
 #include <drivers/hci_driver.h>
-#include "common\timer.h"
+#include "common/timer.h"
 
 struct net_buf *bt_hci_evt_create(uint8_t evt, uint8_t len)
 {

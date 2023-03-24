@@ -14,12 +14,12 @@
 
 #include "base/byteorder.h"
 #include "base/util.h"
-#include "common\timeout.h"
+#include "common/timeout.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <drivers/hci_driver.h>
 
-#include "utils\k_fifo.h"
+#include "utils/k_fifo.h"
 
 #define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_HCI_DRIVER)
 #define LOG_MODULE_NAME bt_driver
@@ -456,6 +456,13 @@ static int h4_send(struct net_buf *buf)
  */
 int bt_hci_transport_setup(void)
 {
+    int ret;
+    ret = h4_driver->open();
+    if (ret < 0)
+    {
+        return -EIO;
+    }
+
     h4_discard(32);
     return 0;
 }

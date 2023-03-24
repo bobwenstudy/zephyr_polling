@@ -49,7 +49,7 @@
 #include "scan.h"
 #include "id.h"
 
-#include "common\timer.h"
+#include "common/timer.h"
 
 #define HCI_CMD_TIMEOUT K_SECONDS(10)
 
@@ -3462,6 +3462,14 @@ void hci_state_polling(void)
         bt_dev.hci_init_state = HCI_INIT_RESET_WAIT;
 
         bt_hci_cmd_send(BT_HCI_OP_RESET, NULL);
+
+        // if (bt_dev.chipset_drv && bt_dev.chipset_drv->prepare_start)
+        // {
+        //     bt_dev.hci_state = HCI_STATE_PREPARING_WAIT_CHIPSET;
+        //     bt_dev.chipset_drv->prepare_start();
+        //     return;
+        // }
+        // bt_dev.hci_state = HCI_STATE_INITIALING;
         break;
     case HCI_STATE_INITIALING:
         bt_dev.hci_state = HCI_STATE_INITIALING_WAIT;

@@ -15,7 +15,7 @@
 #ifndef _ZEPHYR_POLLING_UTILS_MEM_SLAB_H_
 #define _ZEPHYR_POLLING_UTILS_MEM_SLAB_H_
 
-#include "common\timeout.h"
+#include "common/timeout.h"
 
 struct k_mem_slab
 {

@@ -65,11 +65,11 @@ int open_hci_driver(int argc, const char *argv[])
 
     if (p_interface == NULL)
     {
-        printk("Error, VID/PID not set.");
+        printk("Error, Interface not set.");
         return -1;
     }
 
-    if (serial_open_device(com_num, p_interface->rate, p_interface->databits, p_interface->stopbits,
+    if (bt_hci_init_serial_device(com_num, p_interface->rate, p_interface->databits, p_interface->stopbits,
                            p_interface->parity, p_interface->flowcontrol) < 0)
     {
         printk("Error, uart open failed.");
