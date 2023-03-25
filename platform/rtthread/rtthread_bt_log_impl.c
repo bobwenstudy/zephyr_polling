@@ -16,6 +16,7 @@
 
 #define LOG_FILE_PRINT_BUFFER_MAX_LENGTH (0x100)
 
+__unused
 static const char *get_packet_type_str(uint8_t packet_type, uint8_t in)
 {
     switch (packet_type)
