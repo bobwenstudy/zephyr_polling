@@ -27,6 +27,7 @@ int bt_init_hci_driver(void)
     bt_uart_interface_t *p_interface = NULL;
     uint8_t com_num;
 
+#ifdef I
     // Enable AP6212 Bluetooth Power(BT_RST_EN)
     #define BT_AP6212_PIN    GET_PIN(I, 11)
     rt_pin_mode(BT_AP6212_PIN, PIN_MODE_OUTPUT);
@@ -35,7 +36,7 @@ int bt_init_hci_driver(void)
     rt_thread_mdelay(1000);
     rt_pin_write(BT_AP6212_PIN, PIN_HIGH);
     rt_thread_mdelay(1000);
-    
+
 
     // Enable AP6212 Wake(BT_WAKE)
 //    #define BT_AP6212_WAKE_PIN    GET_PIN(I, 10)
@@ -43,6 +44,7 @@ int bt_init_hci_driver(void)
 //
 //    rt_pin_write(BT_AP6212_WAKE_PIN, PIN_HIGH);
 //    rt_thread_mdelay(100);
+#endif
 
     p_interface = (bt_uart_interface_t *)bt_chipset_get_uart_interface();
     bt_uart_interface_t tmp = {0, 0, 0, 0, 0};

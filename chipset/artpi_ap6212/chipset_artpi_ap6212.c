@@ -1,7 +1,7 @@
 #include <errno.h>
 
 #include "chipset_artpi_ap6212.h"
-#include "common\timer.h"
+#include "common/timer.h"
 
 #define STATE_POLLING_NONE      0
 #define STATE_POLLING_BOOTING   1
