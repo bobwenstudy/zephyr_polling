@@ -78,7 +78,7 @@ static ssize_t data_rx(struct bt_conn *conn, const struct bt_gatt_attr *attr, co
 static ssize_t config_rx(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf,
                          uint16_t len, uint16_t offset, uint8_t flags)
 {
-    char value[20] = {};
+    // char value[20] = {};
 
     if (offset != 0 || len != 1)
     {

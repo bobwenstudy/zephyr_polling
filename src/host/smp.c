@@ -4871,6 +4871,7 @@ static int bt_smp_recv(struct bt_l2cap_chan *chan, struct net_buf *buf)
     return 0;
 }
 
+__unused
 static void bt_smp_pkey_ready(const uint8_t *pkey)
 {
     int i;

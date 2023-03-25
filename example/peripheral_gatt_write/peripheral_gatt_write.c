@@ -29,6 +29,7 @@ static const struct bt_data ad[] = {
         BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 };
 
+__unused
 static void mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
     printk("Updated MTU: TX: %d RX: %d bytes\n", tx, rx);

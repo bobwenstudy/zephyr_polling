@@ -236,6 +236,7 @@ static int rx_evt_process_loop(void *args)
     return 0;
 }
 
+#if defined(CONFIG_BT_CONN)
 pthread_t usb_rx_acl_thread;
 static int rx_acl_process_loop(void *args)
 {
@@ -304,6 +305,7 @@ static int rx_acl_process_loop(void *args)
 
     return 0;
 }
+#endif
 
 static int hci_driver_open(void)
 {
@@ -415,7 +417,9 @@ static int reset_driver_process(void *args)
     // wait thread close.
     pthread_join(usb_tx_thread, NULL);
     pthread_join(usb_rx_evt_thread, NULL);
+#if defined(CONFIG_BT_CONN)
     pthread_join(usb_rx_acl_thread, NULL);
+#endif
 
     int ret = usb_open_process(selected_usb_vid, selected_usb_pid);
     if (ret < 0)

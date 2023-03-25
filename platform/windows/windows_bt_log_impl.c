@@ -126,6 +126,7 @@ static void log_printf_dump(uint8_t level, const char *format, va_list argptr)
     char log_printf_buffer[LOG_FILE_PRINT_BUFFER_MAX_LENGTH];
     char msg_str[LOG_FILE_PRINT_BUFFER_MAX_LENGTH];
     int len = vsnprintf(msg_str, sizeof(msg_str), format, argptr);
+    ARG_UNUSED(len);
 
     char timestamp_str[0x100];
     SYSTEMTIME timestamp;
@@ -136,6 +137,7 @@ static void log_printf_dump(uint8_t level, const char *format, va_list argptr)
 
     int total_len = snprintf(log_printf_buffer, sizeof(log_printf_buffer), "[%s] [0x%lx] %s",
                              timestamp_str, GetCurrentThreadId(), msg_str);
+    ARG_UNUSED(total_len);
 
     pthread_mutex_lock(&print_lock);
 #ifdef FUNCTION_WINDOWS_LOG_TXT_FILE
@@ -202,12 +204,13 @@ static void log_packet_dump(uint8_t packet_type, uint8_t in, uint8_t *packet, ui
 
     int total_len = snprintf(log_printf_buffer, sizeof(log_printf_buffer), "[%s] [0x%lx] %s %s\n",
                              timestamp_str, GetCurrentThreadId(), packet_type_str, msg_str);
+    ARG_UNUSED(total_len);
 
     pthread_mutex_lock(&print_lock);
 #ifdef FUNCTION_WINDOWS_LOG_CFA_FILE
     uint8_t header_btsnoop[25];
 
-    uint32_t tv_sec = 0;
+    // uint32_t tv_sec = 0;
     // uint32_t tv_us = 0;
     uint64_t ts_usec;
 

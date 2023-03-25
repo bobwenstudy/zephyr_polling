@@ -166,6 +166,7 @@ int bt_storage_kv_get_key_item(uint8_t index, struct bt_keys *keys)
     return bt_storage_kv_get(KEY_INDEX_LE_KEY_INFO_ITEM(index), keys->storage_start, &len);
 }
 
+#if defined(CONFIG_BT_SETTINGS)
 static void bt_storage_kv_key_store(struct bt_keys *keys)
 {
     uint8_t id = keys->id;
@@ -183,7 +184,9 @@ static void bt_storage_kv_key_store(struct bt_keys *keys)
     bt_storage_kv_set_key_list_info_append(&list_info, id, addr, select_index);
     bt_storage_kv_set_key_item(select_index, keys);
 }
+#endif
 
+__unused
 static int bt_storage_kv_key_get(struct bt_keys *keys)
 {
     uint8_t id = keys->id;
@@ -201,6 +204,7 @@ static int bt_storage_kv_key_get(struct bt_keys *keys)
     return 0;
 }
 
+#if defined(CONFIG_BT_SETTINGS)
 static void bt_storage_kv_key_delete(struct bt_keys *keys)
 {
     uint8_t id = keys->id;
@@ -209,6 +213,7 @@ static void bt_storage_kv_key_delete(struct bt_keys *keys)
     bt_storage_kv_get_key_list_info(&list_info);
     bt_storage_kv_set_key_list_info_delete(&list_info, id, addr);
 }
+#endif
 
 #if IS_ENABLED(CONFIG_BT_KEYS_OVERWRITE_OLDEST)
 static uint32_t aging_counter_val;
@@ -510,6 +515,7 @@ int bt_keys_store(struct bt_keys *keys)
     return 0;
 }
 
+__unused
 static void id_add(struct bt_keys *keys, void *user_data)
 {
     // bt_id_add(keys);

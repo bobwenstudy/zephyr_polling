@@ -45,6 +45,7 @@ int bt_storage_kv_get_id(void)
 {
     uint16_t len = sizeof(bt_dev.id_addr);
     int ret;
+    ARG_UNUSED(ret);
     bt_storage_kv_get(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr, &len);
     if (len < sizeof(bt_dev.id_addr[0]))
     {

@@ -26,7 +26,7 @@ static struct bt_uuid_16 uuid = BT_UUID_INIT_16(0);
 static struct bt_gatt_discover_params discover_params;
 static struct bt_gatt_subscribe_params subscribe_params;
 
-static double pow(double x, double y)
+static double pow_cal(double x, double y)
 {
     double result = 1;
 
@@ -66,7 +66,7 @@ static uint8_t notify_func(struct bt_conn *conn, struct bt_gatt_subscribe_params
     /* temperature value display */
     mantissa = sys_get_le24(&((uint8_t *)data)[1]);
     exponent = ((uint8_t *)data)[4];
-    temperature = (double)mantissa * pow(10, exponent);
+    temperature = (double)mantissa * pow_cal(10, exponent);
 
     printf("Temperature %gC.\n", temperature);
 
@@ -193,13 +193,13 @@ static bool eir_found(struct bt_data *data, void *user_data)
 
         for (i = 0; i < data->data_len; i += sizeof(uint16_t))
         {
-            struct bt_uuid *uuid;
+            struct bt_uuid *tmp_uuid;
             uint16_t u16;
             int err;
 
             memcpy(&u16, &data->data[i], sizeof(u16));
-            uuid = BT_UUID_DECLARE_16(sys_le16_to_cpu(u16));
-            if (bt_uuid_cmp(uuid, BT_UUID_HTS))
+            tmp_uuid = BT_UUID_DECLARE_16(sys_le16_to_cpu(u16));
+            if (bt_uuid_cmp(tmp_uuid, BT_UUID_HTS))
             {
                 continue;
             }

@@ -350,6 +350,7 @@ static void sc_store(struct gatt_sc_cfg *cfg)
 #endif
 }
 
+__unused
 static void clear_sc_cfg(struct gatt_sc_cfg *cfg)
 {
     memset(cfg, 0, sizeof(*cfg));
@@ -5611,6 +5612,7 @@ static void ccc_clear(struct _bt_gatt_ccc *ccc, const bt_addr_le_t *addr, uint8_
     clear_ccc_cfg(cfg);
 }
 
+__unused
 static uint8_t ccc_load(const struct bt_gatt_attr *attr, uint16_t handle, void *user_data)
 {
     struct ccc_load *load = user_data;
@@ -5756,6 +5758,7 @@ static int ccc_set(const char *name, size_t len_rd, settings_read_cb read_cb, vo
     return 0;
 }
 
+__unused
 static int ccc_set_cb(const char *name, size_t len_rd, settings_read_cb read_cb, void *cb_arg)
 {
     if (IS_ENABLED(CONFIG_BT_SETTINGS_CCC_LAZY_LOADING))
@@ -5769,6 +5772,7 @@ static int ccc_set_cb(const char *name, size_t len_rd, settings_read_cb read_cb,
 
 // SETTINGS_STATIC_HANDLER_DEFINE(bt_ccc, "bt/ccc", NULL, ccc_set_cb, NULL, NULL);
 
+__unused
 static int ccc_set_direct(const char *key, size_t len, settings_read_cb read_cb, void *cb_arg,
                           void *param)
 {
@@ -5980,6 +5984,7 @@ struct ccc_save
     size_t count;
 };
 
+__unused
 static uint8_t ccc_save(const struct bt_gatt_attr *attr, uint16_t handle, void *user_data)
 {
     struct ccc_save *save = user_data;

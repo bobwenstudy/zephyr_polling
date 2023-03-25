@@ -62,10 +62,6 @@ void adv_work_timer_expiry(struct k_timer *timer)
 
 void bt_ready(int err)
 {
-    char addr_s[BT_ADDR_LE_STR_LEN];
-    bt_addr_le_t addr = {0};
-    size_t count = 1;
-
     if (err)
     {
         printk("Bluetooth init failed (err %d)\n", err);

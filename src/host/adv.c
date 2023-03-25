@@ -338,7 +338,7 @@ struct bt_le_ext_adv *bt_le_adv_lookup_legacy(void)
 int bt_le_adv_set_enable_legacy(struct bt_le_ext_adv *adv, bool enable)
 {
     struct net_buf *buf;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
     int err;
 
     buf = bt_hci_cmd_create(BT_HCI_OP_LE_SET_ADV_ENABLE, 1);
@@ -1884,10 +1884,10 @@ int bt_le_ext_adv_delete(struct bt_le_ext_adv *adv)
 static void adv_timeout(struct k_work *work)
 {
     int err = 0;
+#if defined(CONFIG_BT_EXT_ADV)
     struct k_work_delayable *dwork;
     struct bt_le_ext_adv *adv;
 
-#if defined(CONFIG_BT_EXT_ADV)
     dwork = k_work_delayable_from_work(work);
     adv = CONTAINER_OF(dwork, struct bt_le_ext_adv, lim_adv_timeout_work);
 

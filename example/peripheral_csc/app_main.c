@@ -261,11 +261,11 @@ struct crank_rev_data_nfy
     uint16_t lcet;
 } __packed;
 
-static void measurement_nfy(struct bt_conn *conn, uint32_t cwr, uint16_t lwet, uint16_t ccr,
+static void measurement_nfy(struct bt_conn *conn, uint32_t tmp_cwr, uint16_t lwet, uint16_t ccr,
                             uint16_t lcet)
 {
     struct csc_measurement_nfy *nfy;
-    uint8_t buf[sizeof(*nfy) + (cwr ? sizeof(struct wheel_rev_data_nfy) : 0) +
+    uint8_t buf[sizeof(*nfy) + (tmp_cwr ? sizeof(struct wheel_rev_data_nfy) : 0) +
                 (ccr ? sizeof(struct crank_rev_data_nfy) : 0)];
     uint16_t len = 0U;
 
@@ -273,12 +273,12 @@ static void measurement_nfy(struct bt_conn *conn, uint32_t cwr, uint16_t lwet, u
     nfy->flags = 0U;
 
     /* Send Wheel Revolution data is present */
-    if (cwr)
+    if (tmp_cwr)
     {
         struct wheel_rev_data_nfy data;
 
         nfy->flags |= CSC_WHEEL_REV_DATA_PRESENT;
-        data.cwr = sys_cpu_to_le32(cwr);
+        data.cwr = sys_cpu_to_le32(tmp_cwr);
         data.lwet = sys_cpu_to_le16(lwet);
 
         memcpy(nfy->data, &data, sizeof(data));

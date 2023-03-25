@@ -72,58 +72,6 @@ void ClosePort(PORT com_port)
     CloseHandle(com_port);
 }
 
-int SetPortBoudRate(PORT com_port, int rate)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return FALSE;
-    dcbSerialParams.BaudRate = rate;
-    Status = SetCommState(com_port, &dcbSerialParams);
-    return Status;
-}
-
-int SetPortDataBits(PORT com_port, int bits)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return FALSE;
-    dcbSerialParams.ByteSize = bits;
-    Status = SetCommState(com_port, &dcbSerialParams);
-    return Status;
-}
-
-int SetPortStopBits(PORT com_port, int bits)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return FALSE;
-    dcbSerialParams.StopBits = bits;
-    Status = SetCommState(com_port, &dcbSerialParams);
-    return Status;
-}
-
-// default: NOPARITY 0； ODDPARITY 1；EVENPARITY 2；MARKPARITY 3；SPACEPARITY 4
-int SetPortParity(PORT com_port, int parity)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return FALSE;
-    dcbSerialParams.Parity = parity;
-    Status = SetCommState(com_port, &dcbSerialParams);
-    return Status;
-}
 enum FlowControl
 {
     NoFlowControl,
@@ -134,183 +82,9 @@ enum FlowControl
     XonXoffFlowControl
 };
 
-int SetPortFlowControl(PORT com_port, bool flowcontrol)
-{
-    DCB dcb = {0};
-    BOOL Status;
-    dcb.DCBlength = sizeof(dcb);
-    Status = GetCommState(com_port, &dcb);
-    if (Status == FALSE)
-        return FALSE;
-    // dcb.fOutxCtsFlow = flowcontrol;
-    // dcb.fRtsControl = flowcontrol ? RTS_CONTROL_HANDSHAKE : 0;
-
-    //流控设置
-    dcb.fDsrSensitivity = FALSE;
-    dcb.fTXContinueOnXoff = FALSE;
-    dcb.fRtsControl = RTS_CONTROL_DISABLE;
-    dcb.fDtrControl = DTR_CONTROL_ENABLE;
-
-    int fc = flowcontrol ? CtsRtsFlowControl : NoFlowControl;
-    switch (fc)
-    {
-        //不流控
-    case NoFlowControl:
-    {
-        dcb.fOutxCtsFlow = FALSE;
-        dcb.fOutxDsrFlow = FALSE;
-        dcb.fOutX = FALSE;
-        dcb.fInX = FALSE;
-        break;
-    }
-    //硬件CtsRts流控
-    case CtsRtsFlowControl:
-    {
-        dcb.fOutxCtsFlow = TRUE;
-        dcb.fOutxDsrFlow = FALSE;
-        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-        dcb.fOutX = FALSE;
-        dcb.fInX = FALSE;
-        break;
-    }
-    //硬件 CtsDtr流控
-    case CtsDtrFlowControl:
-    {
-        dcb.fOutxCtsFlow = TRUE;
-        dcb.fOutxDsrFlow = FALSE;
-        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-        dcb.fOutX = FALSE;
-        dcb.fInX = FALSE;
-        break;
-    }
-    //硬件DsrRts流控
-    case DsrRtsFlowControl:
-    {
-        dcb.fOutxCtsFlow = FALSE;
-        dcb.fOutxDsrFlow = TRUE;
-        dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
-        dcb.fOutX = FALSE;
-        dcb.fInX = FALSE;
-        break;
-    }
-    //硬件DsrDtr流控
-    case DsrDtrFlowControl:
-    {
-        dcb.fOutxCtsFlow = FALSE;
-        dcb.fOutxDsrFlow = TRUE;
-        dcb.fDtrControl = DTR_CONTROL_HANDSHAKE;
-        dcb.fOutX = FALSE;
-        dcb.fInX = FALSE;
-        break;
-    }
-    //软件流控
-    case XonXoffFlowControl:
-    {
-        dcb.fOutxCtsFlow = FALSE;
-        dcb.fOutxDsrFlow = FALSE;
-        dcb.fOutX = TRUE;
-        dcb.fInX = TRUE;
-        dcb.XonChar = 0x11;
-        dcb.XoffChar = 0x13;
-        dcb.XoffLim = 100;
-        dcb.XonLim = 100;
-        break;
-    }
-    }
-
-    Status = SetCommState(com_port, &dcb);
-    return Status;
-}
-
-int GetPortBoudRate(PORT com_port)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return -1;
-    return dcbSerialParams.BaudRate;
-}
-
-int GetPortDataBits(PORT com_port)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return -1;
-    return dcbSerialParams.ByteSize;
-}
-
-int GetPortStopBits(PORT com_port)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return -1;
-    return dcbSerialParams.StopBits;
-}
-
-int GetPortParity(PORT com_port)
-{
-    DCB dcbSerialParams = {0};
-    BOOL Status;
-    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-    Status = GetCommState(com_port, &dcbSerialParams);
-    if (Status == FALSE)
-        return -1;
-    return dcbSerialParams.Parity;
-}
-
-int SendData(PORT com_port, const char *data)
-{
-    DWORD dNoOFBytestoWrite = strlen(data);
-    DWORD dNoOfBytesWritten;
-    BOOL Status = WriteFile(com_port, data, dNoOFBytestoWrite, &dNoOfBytesWritten, NULL);
-    if (Status == FALSE)
-    {
-        return -1;
-    }
-    else
-    {
-        printk("%s\n", data);
-    }
-
-    return dNoOfBytesWritten;
-}
-
-int ReciveData(PORT com_port, char *data, int len)
-{
-    DWORD dwEventMask;
-    DWORD NoBytesRead;
-
-    BOOL Status = WaitCommEvent(com_port, &dwEventMask, NULL);
-    if (Status == FALSE)
-    {
-        return FALSE;
-    }
-    Status = ReadFile(com_port, data, len, &NoBytesRead, NULL);
-    data[NoBytesRead] = 0;
-
-    if (Status == FALSE)
-    {
-        return FALSE;
-    }
-    else
-    {
-        printk("%s\n", data);
-    }
-
-    return TRUE;
-}
 
 PORT serial_init(int idx, int rate, int databits, int stopbits, int parity, bool flowcontrol)
 {
-    int ret = 0;
     PORT com_port;
     com_port = OpenPort(idx, TRUE);
     if (com_port == INVALID_HANDLE_VALUE)
@@ -514,6 +288,7 @@ int Serial_ReciveData(PORT com_port, char *data, int len)
                                   len,      //要读取的数据最大字节数
                                   &NoBytesRead, // DWORD*,用来接收返回成功读取的数据字节数
                                   NULL);        // NULL为同步发送，OVERLAPPED*为异步发送
+        ARG_UNUSED(bReadStat);
     }
     else
     {
@@ -595,149 +370,9 @@ int Serial_AsyncReciveData(PORT com_port, char *data, int len)
 
 static bool is_enable;
 
-static struct k_fifo tx_queue;
-static pthread_mutex_t tx_lock;
-static struct k_fifo rx_queue;
-static pthread_mutex_t rx_lock;
 
 static PORT serial;
 
-static struct net_buf *pop_tx_queue(void)
-{
-    pthread_mutex_lock(&tx_lock);
-    struct net_buf *buf = net_buf_get(&tx_queue, Z_FOREVER);
-    pthread_mutex_unlock(&tx_lock);
-
-    return buf;
-}
-
-static void push_tx_queue(struct net_buf *buf)
-{
-    pthread_mutex_lock(&tx_lock);
-    net_buf_put(&tx_queue, buf);
-    pthread_mutex_unlock(&tx_lock);
-}
-
-static struct net_buf *pop_rx_queue(void)
-{
-    pthread_mutex_lock(&rx_lock);
-    struct net_buf *buf = net_buf_get(&rx_queue, Z_FOREVER);
-    pthread_mutex_unlock(&rx_lock);
-
-    return buf;
-}
-
-static void push_rx_queue(struct net_buf *buf)
-{
-    pthread_mutex_lock(&rx_lock);
-    net_buf_put(&rx_queue, buf);
-    pthread_mutex_unlock(&rx_lock);
-}
-
-pthread_t serial_tx_thread;
-static int tx_process_loop(void *args)
-{
-    printk("tx_process_loop\n");
-    struct net_buf *buf;
-    int ret;
-
-    while (1)
-    {
-        if (!k_fifo_is_empty(&tx_queue))
-        {
-            buf = pop_tx_queue();
-
-            net_buf_push_u8(buf, bt_get_h4_type_by_buffer(bt_buf_get_type(buf)));
-            ret = Serial_SendData(serial, (char *)buf->data, buf->len);
-
-            if (ret < 0)
-            {
-                printk("error tx\n");
-            }
-            else
-            {
-                // printk("success: tx %d bytes\n", ret);
-                // printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", buf->data[0], buf->data[1],
-                //        buf->data[2], buf->data[3], buf->data[4], buf->data[5]);
-            }
-
-            net_buf_unref(buf);
-        }
-
-        if (!is_enable)
-        {
-            break;
-        }
-    }
-    return 0;
-}
-
-pthread_t serial_rx_thread;
-static int rx_process_loop(void *args)
-{
-    printk("rx_process_loop\n");
-    char tmp[1024];
-    int ret;
-    while (1)
-    {
-        ret = Serial_ReciveData(serial, tmp, sizeof(tmp));
-        if (ret <= 0)
-        {
-            // printk("error reading.\n");
-            Sleep(1000);
-        }
-        else
-        {
-            // printk("success: serial read %d bytes\n", ret);
-            // printk("data: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n", tmp[0], tmp[1], tmp[2], tmp[3],
-            //        tmp[4], tmp[5]);
-
-            struct net_buf *buf;
-            buf = bt_buf_get_controller_tx_evt();
-
-            if (buf)
-            {
-                net_buf_add_mem(buf, tmp, ret);
-                bt_recv(buf);
-            }
-            else
-            {
-                printk("hci_driver_polling_work(), no reserve buff\n");
-                while (1)
-                    ;
-            }
-        }
-
-        if (!is_enable)
-        {
-            break;
-        }
-    }
-
-    return 0;
-}
-
-static int hci_driver_open(void)
-{
-    return 0;
-}
-
-static int hci_driver_send(struct net_buf *buf)
-{
-    push_tx_queue(buf);
-
-    return 0;
-}
-
-static const struct bt_hci_driver drv = {
-        .open = hci_driver_open,
-        .send = hci_driver_send,
-};
-
-static void hci_driver_init(void)
-{
-    bt_hci_driver_register(&drv);
-}
 
 static int hci_driver_h4_open(void)
 {
@@ -773,18 +408,6 @@ int serial_open_process(int idx, int rate, int databits, int stopbits, int parit
     serial = serial_init(idx, rate, databits, stopbits, parity, flowcontrol);
 
     is_enable = true;
-
-    // pthread_mutex_init(&tx_lock, NULL);
-    // pthread_mutex_init(&rx_lock, NULL);
-
-    // pthread_create(&serial_tx_thread, NULL, (void*)tx_process_loop,NULL);
-    // //pthread_join(serial_tx_thread, NULL);
-
-    // pthread_create(&serial_rx_thread, NULL, (void*)rx_process_loop,NULL);
-    // //pthread_join(serial_rx_thread, NULL);
-
-    // sys_slist_init(&tx_queue);
-    // sys_slist_init(&rx_queue);
 
     return 0;
 }

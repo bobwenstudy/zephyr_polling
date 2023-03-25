@@ -11,17 +11,17 @@
 #include <logging/bt_log_impl.h>
 
 static struct bt_gatt_exchange_params mtu_exchange_params;
-static uint32_t write_count;
-static uint32_t write_len;
-static uint32_t write_rate;
+// static uint32_t write_count;
+// static uint32_t write_len;
+// static uint32_t write_rate;
 struct bt_conn *conn_connected;
 uint32_t last_write_rate;
 void (*start_scan_func)(void);
 
 static void write_cmd_cb(struct bt_conn *conn, void *user_data)
 {
-    static uint32_t cycle_stamp;
-    uint64_t delta;
+    // static uint32_t cycle_stamp;
+    // uint64_t delta;
     uint16_t len;
     /* Extract the 16-bit data length stored in user_data */
     len = (uint32_t)user_data & 0xFFFF;

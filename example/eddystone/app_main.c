@@ -414,7 +414,7 @@ static ssize_t read_adv_data(struct bt_conn *conn, const struct bt_gatt_attr *at
 static int eds_slot_restart(struct eds_slot *slot, uint8_t type)
 {
     int err;
-    char addr_s[BT_ADDR_LE_STR_LEN];
+    // char addr_s[BT_ADDR_LE_STR_LEN];
     bt_addr_le_t addr = {0};
 
     /* Restart advertising */
@@ -652,8 +652,8 @@ static struct bt_conn_cb conn_callbacks = {
 
 void bt_ready(int err)
 {
-    char addr_s[BT_ADDR_LE_STR_LEN];
-    struct bt_le_oob oob;
+    // char addr_s[BT_ADDR_LE_STR_LEN];
+    // struct bt_le_oob oob;
 
     if (err)
     {

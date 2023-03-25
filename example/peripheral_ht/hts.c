@@ -65,7 +65,7 @@ void hts_indicate(void)
         static double temperature = 20U;
         uint32_t mantissa;
         uint8_t exponent;
-        int r;
+        // int r;
 
         if (indicating)
         {

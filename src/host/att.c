@@ -2951,6 +2951,7 @@ static void att_timeout(struct k_work *work)
     bt_att_disconnected(&chan->chan.chan);
 }
 
+__unused
 static struct bt_att_chan *att_get_fixed_chan(struct bt_conn *conn)
 {
     struct bt_l2cap_chan *chan;

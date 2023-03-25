@@ -77,6 +77,7 @@ static int csr_send_cmd_vs_enable_rts_cts_for_bcsp(void)
     return bt_hci_cmd_send(0xfc00, buf);
 }
 
+__unused
 static int csr_send_cmd_vs_set_uart_baudrate_115200(void)
 {
     uint8_t data[] = {0xc2, 0x02, 0x00, 0x0a, 0x00, 0x02, 0x00, 0x03, 0x70, 0x00, 0x00,
@@ -122,7 +123,6 @@ static int csr_send_cmd_vs_set_public_addr(void)
                       0x04, 0x00, 0x08, 0x00, 0xf3, 0x00, 0xf5, 0xf4, 0xf0, 0x00, 0xf2, 0xf1};
     struct net_buf *buf;
     bt_addr_t addr = BLE_MAC_ADDR;
-    size_t count = 1;
 
     // addr.val[0] = (BLE_MAC_ADDR)&0xff;
     // addr.val[1] = (BLE_MAC_ADDR >> 8) & 0xff;

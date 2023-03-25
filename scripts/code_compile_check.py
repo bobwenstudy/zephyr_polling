@@ -44,6 +44,8 @@ def parse_args():
     parser.add_argument("--cpu-arch",
                         help="Windows libusb need this.")
     parser.add_argument("--full-check",
+                        action="store_true",
+                        default=False,
                         help="For normal build.")
                         
     return parser.parse_args()

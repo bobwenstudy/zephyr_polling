@@ -231,6 +231,7 @@ int bt_hci_le_rand(void *buffer, size_t len)
     return 0;
 }
 
+__unused
 static int hci_le_read_max_data_len(uint16_t *tx_octets, uint16_t *tx_time)
 {
     struct bt_hci_rp_le_read_max_data_len *rp;
@@ -400,7 +401,7 @@ int bt_le_create_conn_ext(const struct bt_conn *conn)
 {
     struct bt_hci_cp_le_ext_create_conn *cp;
     struct bt_hci_ext_conn_phy *phy;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
     bool use_filter = false;
     struct net_buf *buf;
     uint8_t own_addr_type;
@@ -482,7 +483,7 @@ int bt_le_create_conn_ext(const struct bt_conn *conn)
 static int bt_le_create_conn_legacy(const struct bt_conn *conn)
 {
     struct bt_hci_cp_le_create_conn *cp;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
     bool use_filter = false;
     struct net_buf *buf;
     uint8_t own_addr_type;
@@ -558,7 +559,7 @@ int bt_le_create_conn(const struct bt_conn *conn)
 int bt_le_create_conn_cancel(void)
 {
     struct net_buf *buf;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
 
     buf = bt_hci_cmd_create(BT_HCI_OP_LE_CREATE_CONN_CANCEL, 0);
 
@@ -930,7 +931,7 @@ static void conn_auto_initiate(struct bt_conn *conn)
     {
         // if (IS_BT_QUIRK_NO_AUTO_DLE(&bt_dev))
         {
-            uint16_t tx_octets, tx_time;
+            // uint16_t tx_octets, tx_time;
 
             // err = hci_le_read_max_data_len(&tx_octets, &tx_time);
             // if (!err)
@@ -2525,6 +2526,7 @@ static void le_read_buffer_size_complete(struct net_buf *buf)
 #endif /* CONFIG_BT_CONN */
 }
 
+__unused
 static void read_buffer_size_v2_complete(struct net_buf *buf)
 {
 #if defined(CONFIG_BT_ISO)
@@ -2557,6 +2559,7 @@ static void read_buffer_size_v2_complete(struct net_buf *buf)
 #endif /* CONFIG_BT_ISO */
 }
 
+__unused
 static int le_set_host_feature(uint8_t bit_number, uint8_t bit_value)
 {
     struct bt_hci_cp_le_set_host_feature *cp;
@@ -2601,6 +2604,7 @@ static void read_local_features_complete(struct net_buf *buf)
     memcpy(bt_dev.features[0], rp->features, sizeof(bt_dev.features[0]));
 }
 
+__unused
 static void le_read_supp_states_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_supp_states *rp = (void *)buf->data;
@@ -2611,6 +2615,7 @@ static void le_read_supp_states_complete(struct net_buf *buf)
 }
 
 #if defined(CONFIG_BT_SMP)
+__unused
 static void le_read_resolving_list_size_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_rl_size *rp = (void *)buf->data;
@@ -3644,7 +3649,6 @@ int bt_set_name(const char *name)
 {
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
     size_t len = strlen(name);
-    int err;
 
     if (len > CONFIG_BT_DEVICE_NAME_MAX)
     {

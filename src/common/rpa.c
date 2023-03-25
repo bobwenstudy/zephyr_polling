@@ -45,6 +45,7 @@ static int internal_encrypt_le(const uint8_t key[16], const uint8_t plaintext[16
     return bt_encrypt_le(key, plaintext, enc_data);
 }
 
+__unused
 static int ah(const uint8_t irk[16], const uint8_t r[3], uint8_t out[3])
 {
     uint8_t res[16];

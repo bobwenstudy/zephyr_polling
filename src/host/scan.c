@@ -88,7 +88,7 @@ void bt_scan_reset(void)
 static int set_le_ext_scan_enable(uint8_t enable, uint16_t duration)
 {
     struct bt_hci_cp_le_set_ext_scan_enable *cp;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
     struct net_buf *buf;
     int err;
 
@@ -128,7 +128,7 @@ static int set_le_ext_scan_enable(uint8_t enable, uint16_t duration)
 static int bt_le_scan_set_enable_legacy(uint8_t enable)
 {
     struct bt_hci_cp_le_set_scan_enable *cp;
-    struct bt_hci_cmd_state_set state;
+    // struct bt_hci_cmd_state_set state;
     struct net_buf *buf;
     int err;
 
