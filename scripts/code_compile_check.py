@@ -66,7 +66,7 @@ if __name__ == '__main__':
         sys.exit(res)
 
     full_check = args.full_check
-    if full_check != None:
+    if full_check:
         total_work_cnt = 0
         for app in app_sets:
             for port in port_sets:
