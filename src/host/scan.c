@@ -115,6 +115,14 @@ static int set_le_ext_scan_enable(uint8_t enable, uint16_t duration)
 
     // bt_hci_cmd_state_set_init(buf, &state, bt_dev.flags, BT_DEV_SCANNING,
     //                           enable == BT_HCI_LE_SCAN_ENABLE);
+    if(enable == BT_HCI_LE_SCAN_ENABLE)
+    {
+        atomic_set_bit(bt_dev.flags, BT_DEV_SCANNING);
+    }
+    else
+    {
+        atomic_clear_bit(bt_dev.flags, BT_DEV_SCANNING);
+    }
 
     err = bt_hci_cmd_send(BT_HCI_OP_LE_SET_EXT_SCAN_ENABLE, buf);
     if (err)
@@ -153,6 +161,14 @@ static int bt_le_scan_set_enable_legacy(uint8_t enable)
 
     // bt_hci_cmd_state_set_init(buf, &state, bt_dev.flags, BT_DEV_SCANNING,
     //                           enable == BT_HCI_LE_SCAN_ENABLE);
+    if(enable == BT_HCI_LE_SCAN_ENABLE)
+    {
+        atomic_set_bit(bt_dev.flags, BT_DEV_SCANNING);
+    }
+    else
+    {
+        atomic_clear_bit(bt_dev.flags, BT_DEV_SCANNING);
+    }
 
     err = bt_hci_cmd_send(BT_HCI_OP_LE_SET_SCAN_ENABLE, buf);
     if (err)

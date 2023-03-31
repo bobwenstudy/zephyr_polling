@@ -357,6 +357,14 @@ int bt_le_adv_set_enable_legacy(struct bt_le_ext_adv *adv, bool enable)
     }
 
     // bt_hci_cmd_state_set_init(buf, &state, adv->flags, BT_ADV_ENABLED, enable);
+    if(enable)
+    {
+        atomic_set_bit(adv->flags, BT_ADV_ENABLED);
+    }
+    else
+    {
+        atomic_clear_bit(adv->flags, BT_ADV_ENABLED);
+    }
 
     err = bt_hci_cmd_send(BT_HCI_OP_LE_SET_ADV_ENABLE, buf);
     if (err)
