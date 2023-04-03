@@ -74,7 +74,7 @@ uint8_t bt_get_h4_type_by_buffer(enum bt_buf_type type)
     default:
         break;
     }
-    BT_ERR("Invalid type: %u", type);
+    LOG_ERR("Invalid type: %u", type);
     return 0;
 }
 
@@ -110,7 +110,7 @@ bool bt_buf_check_poll_empty(enum bt_buf_type type)
         break;
 #endif
     default:
-        BT_ERR("Invalid type: %u", type);
+        LOG_ERR("Invalid type: %u", type);
         return NULL;
     }
 
@@ -144,7 +144,7 @@ struct net_buf *bt_buf_get(enum bt_buf_type type)
         break;
 #endif
     default:
-        BT_ERR("Invalid type: %u", type);
+        LOG_ERR("Invalid type: %u", type);
         return NULL;
     }
 
@@ -187,7 +187,7 @@ uint8_t bt_buf_reserve_size(enum bt_buf_type type)
         break;
 #endif
     default:
-        BT_ERR("Invalid type: %u", type);
+        LOG_ERR("Invalid type: %u", type);
         return 0;
     }
 

@@ -23,6 +23,8 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/hci.h>
 
+#include <common/work.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -70,7 +72,7 @@ extern "C" {
  */
 #define BT_L2CAP_SDU_RX_MTU (BT_L2CAP_RX_MTU - BT_L2CAP_SDU_HDR_SIZE)
 
-/** @def BT_L2CAP_SDU_BUF_SIZE
+/**
  *
  *  @brief Helper to calculate needed buffer size for L2CAP SDUs.
  *         Useful for creating buffer pools.
@@ -179,19 +181,33 @@ struct bt_l2cap_le_chan
     /** Channel Transmission Endpoint */
     struct bt_l2cap_le_endpoint tx;
     /** Channel Transmission queue */
-    sys_slist_t tx_queue;
+    struct k_fifo tx_queue;
     /** Channel Pending Transmission buffer  */
     struct net_buf *tx_buf;
     /** Channel Transmission work  */
-    // struct k_work			tx_work;
+    struct k_work tx_work;
     /** Segment SDU packet from upper layer */
     struct net_buf *_sdu;
     uint16_t _sdu_len;
 
-    sys_slist_t rx_queue;
+    struct k_work rx_work;
+    struct k_fifo rx_queue;
+
+#if defined(CONFIG_BT_L2CAP_DYNAMIC_CHANNEL)
+    bt_l2cap_chan_state_t state;
+    /** Remote PSM to be connected */
+    uint16_t psm;
+    /** Helps match request context during CoC */
+    uint8_t ident;
+    bt_security_t required_sec_level;
+
+    /* Response Timeout eXpired (RTX) timer */
+    struct k_work_delayable rtx_work;
+    struct k_work_sync rtx_sync;
+#endif
 };
 
-/** @def BT_L2CAP_LE_CHAN(_ch)
+/**
  *  @brief Helper macro getting container object of type bt_l2cap_le_chan
  *  address having the same container chan member address as object in question.
  *
@@ -205,7 +221,7 @@ struct bt_l2cap_le_chan
 /** @brief BREDR L2CAP Endpoint structure. */
 struct bt_l2cap_br_endpoint
 {
-    /** Endpoint CID */
+    /** Endpoint Channel Identifier (CID) */
     uint16_t cid;
     /** Endpoint Maximum Transmission Unit */
     uint16_t mtu;
@@ -222,6 +238,17 @@ struct bt_l2cap_br_chan
     struct bt_l2cap_br_endpoint tx;
     /* For internal use only */
     atomic_t flags[1];
+
+    bt_l2cap_chan_state_t state;
+    /** Remote PSM to be connected */
+    uint16_t psm;
+    /** Helps match request context during CoC */
+    uint8_t ident;
+    bt_security_t required_sec_level;
+
+    /* Response Timeout eXpired (RTX) timer */
+    struct k_work_delayable rtx_work;
+    struct k_work_sync rtx_sync;
 };
 
 /** @brief L2CAP Channel operations structure. */
@@ -263,11 +290,26 @@ struct bt_l2cap_chan_ops
      */
     void (*encrypt_change)(struct bt_l2cap_chan *chan, uint8_t hci_status);
 
+    /** @brief Channel alloc_seg callback
+     *
+     *  If this callback is provided the channel will use it to allocate
+     *  buffers to store segments. This avoids wasting big SDU buffers with
+     *  potentially much smaller PDUs. If this callback is supplied, it must
+     *  return a valid buffer.
+     *
+     *  @param chan The channel requesting a buffer.
+     *
+     *  @return Allocated buffer.
+     */
+    struct net_buf *(*alloc_seg)(struct bt_l2cap_chan *chan);
+
     /** @brief Channel alloc_buf callback
      *
      *  If this callback is provided the channel will use it to allocate
      *  buffers to store incoming data. Channels that requires segmentation
      *  must set this callback.
+     *  If the application has not set a callback the L2CAP SDU MTU will be
+     *  truncated to @ref BT_L2CAP_SDU_RX_MTU.
      *
      *  @param chan The channel requesting a buffer.
      *
@@ -315,12 +357,27 @@ struct bt_l2cap_chan_ops
      * references to the channel object.
      */
     void (*released)(struct bt_l2cap_chan *chan);
+
+    /** @brief Channel reconfigured callback
+     *
+     *  If this callback is provided it will be called whenever peer or
+     *  local device requested reconfiguration. Application may check
+     *  updated MTU and MPS values by inspecting chan->le endpoints.
+     *
+     *  @param chan The channel which was reconfigured
+     */
+    void (*reconfigured)(struct bt_l2cap_chan *chan);
 };
 
-/** @def BT_L2CAP_CHAN_SEND_RESERVE
- *  @brief Headroom needed for outgoing buffers
+/**
+ *  @brief Headroom needed for outgoing L2CAP PDUs.
  */
-#define BT_L2CAP_CHAN_SEND_RESERVE (BT_BUF_RESERVE + 4 + 4)
+#define BT_L2CAP_CHAN_SEND_RESERVE (BT_L2CAP_BUF_SIZE(0))
+
+/**
+ * @brief Headroom needed for outgoing L2CAP SDUs.
+ */
+#define BT_L2CAP_SDU_CHAN_SEND_RESERVE (BT_L2CAP_SDU_BUF_SIZE(0))
 
 /** @brief L2CAP Server structure. */
 struct bt_l2cap_server
@@ -340,7 +397,7 @@ struct bt_l2cap_server
      */
     uint16_t psm;
 
-    /** Required minimim security level */
+    /** Required minimum security level */
     bt_security_t sec_level;
 
     /** @brief Server accept callback
@@ -407,6 +464,20 @@ int bt_l2cap_br_server_register(struct bt_l2cap_server *server);
  *  @return 0 in case of success or negative value in case of error.
  */
 int bt_l2cap_ecred_chan_connect(struct bt_conn *conn, struct bt_l2cap_chan **chans, uint16_t psm);
+
+/** @brief Reconfigure Enhanced Credit Based L2CAP channels
+ *
+ *  Reconfigure up to 5 L2CAP channels. Channels must be from the same bt_conn.
+ *  Once reconfiguration is completed each channel reconfigured() callback will
+ *  be called. MTU cannot be decreased on any of provided channels.
+ *
+ *  @param chans Array of channel objects. Null-terminated. Elements after the
+ *               first 5 are silently ignored.
+ *  @param mtu Channel MTU to reconfigure to.
+ *
+ *  @return 0 in case of success or negative value in case of error.
+ */
+int bt_l2cap_ecred_chan_reconfigure(struct bt_l2cap_chan **chans, uint16_t mtu);
 
 /** @brief Connect L2CAP channel
  *
@@ -487,8 +558,6 @@ int bt_l2cap_chan_send(struct bt_l2cap_chan *chan, struct net_buf *buf);
  *  @return 0 in case of success or negative value in case of error.
  */
 int bt_l2cap_chan_recv_complete(struct bt_l2cap_chan *chan, struct net_buf *buf);
-
-int bt_l2cap_update_conn_param(struct bt_conn *conn, const struct bt_le_conn_param *param);
 
 #ifdef __cplusplus
 }

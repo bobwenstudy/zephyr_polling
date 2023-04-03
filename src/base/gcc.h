@@ -133,6 +133,18 @@ extern "C" {
 // For small retention case.
 #define __noretention_data_section Z_GENERIC_SECTION(._noretention_area)
 
+
+
+
+#if defined(CONFIG_ASAN) && defined(__clang__)
+#define __noasan __attribute__((no_sanitize("address")))
+#else
+#define __noasan /**/
+#endif
+
+
+
+
 #ifdef __cplusplus
 }
 #endif

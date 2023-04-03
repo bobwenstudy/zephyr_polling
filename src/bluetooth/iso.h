@@ -30,13 +30,12 @@ extern "C" {
 #include <bluetooth/conn.h>
 #include <bluetooth/hci.h>
 
-/** @def BT_ISO_CHAN_SEND_RESERVE
+/**
  *  @brief Headroom needed for outgoing ISO SDUs
  */
 #define BT_ISO_CHAN_SEND_RESERVE BT_BUF_ISO_SIZE(0)
 
-/** @def BT_ISO_SDU_BUF_SIZE
- *
+/**
  *  @brief Helper to calculate needed buffer size for ISO SDUs.
  *         Useful for creating buffer pools.
  *
@@ -201,8 +200,8 @@ struct bt_iso_chan_path
     uint32_t delay;
     /** Codec Configuration length*/
     uint8_t cc_len;
-    /** Codec Configuration */
-    uint8_t cc[0];
+    /** Pointer to an array containing the Codec Configuration */
+    uint8_t *cc;
 };
 
 /** ISO packet status flag bits */
@@ -363,6 +362,13 @@ struct bt_iso_big_create_param
      *
      *  The code used to derive the session key that is used to encrypt and
      *  decrypt BIS payloads.
+     *
+     *  If the value is a string or a the value is less than 16 octets,
+     *  the remaining octets shall be 0.
+     *
+     *  Example:
+     *    The string "Broadcast Code" shall be
+     *    [42 72 6F 61 64 63 61 73 74 20 43 6F 64 65 00 00]
      */
     uint8_t bcode[BT_ISO_BROADCAST_CODE_SIZE];
 };
@@ -411,6 +417,13 @@ struct bt_iso_big_sync_param
      *
      *  The code used to derive the session key that is used to encrypt and
      *  decrypt BIS payloads.
+     *
+     *  If the value is a string or a the value is less than 16 octets,
+     *  the remaining octets shall be 0.
+     *
+     *  Example:
+     *    The string "Broadcast Code" shall be
+     *    [42 72 6F 61 64 63 61 73 74 20 43 6F 64 65 00 00]
      */
     uint8_t bcode[BT_ISO_BROADCAST_CODE_SIZE];
 };
@@ -633,7 +646,26 @@ int bt_iso_cig_terminate(struct bt_iso_cig *cig);
  *  @param param Pointer to a connect parameter array with the ISO and ACL pointers.
  *  @param count Number of connect parameters.
  *
- *  @return 0 in case of success or negative value in case of error.
+ *  @retval 0 Successfully started the connecting procedure.
+ *
+ *  @retval -EINVAL Invalid parameters were supplied.
+ *
+ *  @retval -EBUSY Some ISO channels are already being connected.
+ *          It is not possible to have multiple outstanding connection requests.
+ *          May also be returned if @kconfig{CONFIG_BT_SMP} is enabled and a
+ *          pairing procedure is already in progress.
+ *
+ *  @retval -ENOBUFS Not buffers available to send request to controller or if
+ *          @kconfig{CONFIG_BT_SMP} is enabled and no more keys could be stored.
+ *
+ *  @retval -ENOMEM If @kconfig{CONFIG_BT_SMP} is enabled and no more keys
+ *          could be stored.
+ *
+ *  @retval -EIO Controller rejected the request or if @kconfig{CONFIG_BT_SMP}
+ *          is enabled and pairing has timed out.
+ *
+ *  @retval -ENOTCONN If @kconfig{CONFIG_BT_SMP} is enabled the ACL is not
+ *          connected.
  */
 int bt_iso_chan_connect(const struct bt_iso_connect_param *param, size_t count);
 
@@ -673,7 +705,7 @@ int bt_iso_chan_disconnect(struct bt_iso_chan *chan);
  *
  *  @return Bytes sent in case of success or negative value in case of error.
  */
-int bt_iso_chan_send(struct bt_iso_chan *chan, struct net_buf *buf, uint32_t seq_num, uint32_t ts);
+int bt_iso_chan_send(struct bt_iso_chan *chan, struct net_buf *buf, uint16_t seq_num, uint32_t ts);
 
 struct bt_iso_unicast_tx_info
 {
@@ -832,10 +864,10 @@ int bt_iso_chan_get_tx_sync(const struct bt_iso_chan *chan, struct bt_iso_tx_inf
 
 /** @brief Creates a BIG as a broadcaster
  *
- *  @param[in] padv      Pointer to the periodic advertising object the BIGInfo shall be sent
- * on.
- *  @param[in] param     The parameters used to create and enable the BIG. The QOS parameters
- * are determined by the QOS field of the first BIS in the BIS list of this parameter.
+ *  @param[in] padv      Pointer to the periodic advertising object the BIGInfo shall be sent on.
+ *  @param[in] param     The parameters used to create and enable the BIG. The QOS parameters are
+ *                       determined by the QOS field of the first BIS in the BIS list of this
+ *                       parameter.
  *  @param[out] out_big  Broadcast Isochronous Group object on success.
  *
  *  @return 0 in case of success or negative value in case of error.
@@ -853,8 +885,7 @@ int bt_iso_big_terminate(struct bt_iso_big *big);
 
 /** @brief Creates a BIG as a receiver
  *
- *  @param[in] sync     Pointer to the periodic advertising sync object the BIGInfo was received
- * on.
+ *  @param[in] sync     Pointer to the periodic advertising sync object the BIGInfo was received on.
  *  @param[in] param    The parameters used to create and enable the BIG sync.
  *  @param[out] out_big Broadcast Isochronous Group object on success.
  *

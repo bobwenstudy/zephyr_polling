@@ -54,7 +54,7 @@ static void hrmc_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value
 
     bool notif_enabled = (value == BT_GATT_CCC_NOTIFY);
 
-    printk("HRS notifications %s\n", notif_enabled ? "enabled" : "disabled");
+    LOG_INF("HRS notifications %s", notif_enabled ? "enabled" : "disabled");
 }
 
 static ssize_t read_blsc(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf,

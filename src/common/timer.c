@@ -9,7 +9,6 @@
 #include "timer.h"
 #include "utils/slist.h"
 
-#define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_TIMER)
 #define LOG_MODULE_NAME timer
 #include "logging/bt_log.h"
 
@@ -31,7 +30,7 @@ void z_timer_expiration_handler(struct _timeout *t)
     /* update timer's status */
     timer->status += 1U;
 
-    // BT_DBG("timer: %p, expiry_fn: %p, status: %d\n", timer,
+    // LOG_DBG("timer: %p, expiry_fn: %p, status: %d\n", timer,
     // timer->expiry_fn, timer->status);
     /* invoke timer expiry function */
     if (timer->expiry_fn != NULL)
@@ -42,7 +41,7 @@ void z_timer_expiration_handler(struct _timeout *t)
 
 void k_timer_init(struct k_timer *timer, k_timer_expiry_t expiry_fn, k_timer_stop_t stop_fn)
 {
-    BT_DBG("timer: %p, expiry_fn: %p\n", timer, expiry_fn);
+    LOG_DBG("timer: %p, expiry_fn: %p\n", timer, expiry_fn);
 
     timer->expiry_fn = expiry_fn;
     timer->stop_fn = stop_fn;
@@ -64,7 +63,7 @@ void k_timer_start(struct k_timer *timer, k_timeout_t duration, k_timeout_t peri
 
 void k_timer_stop(struct k_timer *timer)
 {
-    BT_DBG("timer: %p\n", timer);
+    LOG_DBG("timer: %p\n", timer);
 
     bool inactive = (z_abort_timeout(&timer->timeout) != 0);
 

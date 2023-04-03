@@ -16,7 +16,6 @@
 
 #include "bt_storage_kv.h"
 
-#define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_bt_storage_kv)
 #define LOG_MODULE_NAME bt_storage_kv
 #include "logging/bt_log.h"
 

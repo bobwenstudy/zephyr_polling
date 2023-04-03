@@ -309,4 +309,29 @@ static inline int k_work_schedule(struct k_work_delayable *dwork, k_timeout_t de
     return k_work_reschedule(dwork, delay);
 }
 
+
+/**
+ * @addtogroup workqueue_apis
+ * @{
+ */
+
+#define Z_WORK_INITIALIZER(work_handler) { \
+	.handler = work_handler, \
+}
+
+/**
+ * @brief Initialize a statically-defined work item.
+ *
+ * This macro can be used to initialize a statically-defined workqueue work
+ * item, prior to its first use. For example,
+ *
+ * @code static K_WORK_DEFINE(<work>, <work_handler>); @endcode
+ *
+ * @param work Symbol name for work item object
+ * @param work_handler Function to invoke each time work item is processed.
+ */
+#define K_WORK_DEFINE(work, work_handler) \
+	struct k_work work = Z_WORK_INITIALIZER(work_handler)
+
+
 #endif /* _ZEPHYR_POLLING_UTILS_WORK_H_ */

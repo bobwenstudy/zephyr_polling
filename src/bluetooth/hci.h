@@ -24,26 +24,6 @@
 extern "C" {
 #endif
 
-#if defined(CONFIG_SOC_COMPATIBLE_NRF)
-#define BT_HCI_VS_HW_PLAT BT_HCI_VS_HW_PLAT_NORDIC
-#if defined(CONFIG_SOC_SERIES_NRF51X)
-#define BT_HCI_VS_HW_VAR BT_HCI_VS_HW_VAR_NORDIC_NRF51X
-#elif defined(CONFIG_SOC_COMPATIBLE_NRF52X)
-#define BT_HCI_VS_HW_VAR BT_HCI_VS_HW_VAR_NORDIC_NRF52X
-#elif defined(CONFIG_SOC_SERIES_NRF53X)
-#define BT_HCI_VS_HW_VAR BT_HCI_VS_HW_VAR_NORDIC_NRF53X
-#endif
-#else
-#define BT_HCI_VS_HW_PLAT 0
-#define BT_HCI_VS_HW_VAR  0
-#endif /* CONFIG_SOC_COMPATIBLE_NRF */
-
-#define KERNEL_VERSION_MAJOR             0
-#define KERNEL_VERSION_MINOR             0
-#define KERNEL_PATCHLEVEL                0
-#define KERNEL_VERSION_STRING            "1.0"
-#define CONFIG_BT_CTLR_HCI_VS_BUILD_INFO ""
-
 /* Special own address types for LL privacy (used in adv & scan parameters) */
 #define BT_HCI_OWN_ADDR_RPA_OR_PUBLIC 0x02
 #define BT_HCI_OWN_ADDR_RPA_OR_RANDOM 0x03
@@ -224,6 +204,15 @@ struct bt_hci_cmd_hdr
 #define BT_FEAT_LE_ISO_BROADCASTER(feat)   BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_ISO_BROADCASTER)
 #define BT_FEAT_LE_SYNC_RECEIVER(feat)     BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_SYNC_RECEIVER)
 #define BT_FEAT_LE_ISO_CHANNELS(feat)      BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_ISO_CHANNELS)
+#define BT_FEAT_LE_PWR_CTRL_REQ(feat)      BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_PWR_CTRL_REQ)
+#define BT_FEAT_LE_PWR_CHG_IND(feat)       BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_PWR_CHG_IND)
+#define BT_FEAT_LE_PATH_LOSS_MONITOR(feat) BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_PATH_LOSS_MONITOR)
+#define BT_FEAT_LE_PER_ADV_ADI_SUPP(feat)  BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_PER_ADV_ADI_SUPP)
+#define BT_FEAT_LE_CONN_SUBRATING(feat)    BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_CONN_SUBRATING)
+#define BT_FEAT_LE_CONN_SUBRATING_HOST_SUPP(feat)                                                  \
+    BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_CONN_SUBRATING_HOST_SUPP)
+#define BT_FEAT_LE_CHANNEL_CLASSIFICATION(feat)                                                    \
+    BT_LE_FEAT_TEST(feat, BT_LE_FEAT_BIT_CHANNEL_CLASSIFICATION)
 
 #define BT_FEAT_LE_CIS(feat) (BT_FEAT_LE_CIS_CENTRAL(feat) | BT_FEAT_LE_CIS_PERIPHERAL(feat))
 #define BT_FEAT_LE_BIS(feat) (BT_FEAT_LE_ISO_BROADCASTER(feat) | BT_FEAT_LE_SYNC_RECEIVER(feat))
@@ -520,6 +509,24 @@ struct bt_hci_write_local_name
     uint8_t local_name[248];
 } __packed;
 
+#define BT_HCI_OP_READ_CONN_ACCEPT_TIMEOUT BT_OP(BT_OGF_BASEBAND, 0x0015)
+struct bt_hci_rp_read_conn_accept_timeout
+{
+    uint8_t status;
+    uint16_t conn_accept_timeout;
+} __packed;
+
+#define BT_HCI_OP_WRITE_CONN_ACCEPT_TIMEOUT BT_OP(BT_OGF_BASEBAND, 0x0016)
+struct bt_hci_cp_write_conn_accept_timeout
+{
+    uint16_t conn_accept_timeout;
+} __packed;
+
+struct bt_hci_rp_write_conn_accept_timeout
+{
+    uint8_t status;
+} __packed;
+
 #define BT_HCI_OP_WRITE_PAGE_TIMEOUT BT_OP(BT_OGF_BASEBAND, 0x0018)
 
 #define BT_HCI_OP_WRITE_SCAN_ENABLE BT_OP(BT_OGF_BASEBAND, 0x001a)
@@ -737,10 +744,9 @@ struct bt_hci_rp_read_bd_addr
 #define BT_HCI_DATAPATH_DIR_CTLR_TO_HOST 0x01
 
 /* audio datapath IDs */
-#define BT_HCI_DATAPATH_ID_HCI      0x00
-#define BT_HCI_DATAPATH_ID_VS       0x01
-#define BT_HCI_DATAPATH_ID_VS_END   0xfe
-#define BT_HCI_DATAPATH_ID_DISABLED 0xff
+#define BT_HCI_DATAPATH_ID_HCI    0x00
+#define BT_HCI_DATAPATH_ID_VS     0x01
+#define BT_HCI_DATAPATH_ID_VS_END 0xfe
 
 /* coding format assigned numbers, used for codec IDs */
 #define BT_HCI_CODING_FORMAT_ULAW_LOG    0x00
@@ -1910,9 +1916,10 @@ struct bt_hci_rp_le_per_adv_set_info_transfer
     uint16_t conn_handle;
 } __packed;
 
-#define BT_HCI_LE_PAST_MODE_NO_SYNC    0x00
-#define BT_HCI_LE_PAST_MODE_NO_REPORTS 0x01
-#define BT_HCI_LE_PAST_MODE_SYNC       0x02
+#define BT_HCI_LE_PAST_MODE_NO_SYNC                0x00
+#define BT_HCI_LE_PAST_MODE_NO_REPORTS             0x01
+#define BT_HCI_LE_PAST_MODE_SYNC                   0x02
+#define BT_HCI_LE_PAST_MODE_SYNC_FILTER_DUPLICATES 0x03
 
 #define BT_HCI_LE_PAST_CTE_TYPE_NO_AOA     BIT(0)
 #define BT_HCI_LE_PAST_CTE_TYPE_NO_AOD_1US BIT(1)
@@ -2197,6 +2204,10 @@ struct bt_hci_rp_le_remove_iso_path
     uint8_t status;
     uint16_t handle;
 } __packed;
+
+#define BT_HCI_ISO_TEST_ZERO_SIZE_SDU     0
+#define BT_HCI_ISO_TEST_VARIABLE_SIZE_SDU 1
+#define BT_HCI_ISO_TEST_MAX_SIZE_SDU      2
 
 #define BT_HCI_OP_LE_ISO_TRANSMIT_TEST BT_OP(BT_OGF_LE, 0x0070)
 struct bt_hci_cp_le_iso_transmit_test

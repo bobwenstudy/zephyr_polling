@@ -23,5 +23,6 @@ int bt_le_adv_set_enable_ext(struct bt_le_ext_adv *adv, bool enable,
                              const struct bt_le_ext_adv_start_param *param);
 int bt_le_adv_set_enable_legacy(struct bt_le_ext_adv *adv, bool enable);
 int bt_le_lim_adv_cancel_timeout(struct bt_le_ext_adv *adv);
+void bt_adv_reset_adv_pool(void);
 
 #endif /* _ZEPHYR_POLLING_HOST_ADV_H_ */

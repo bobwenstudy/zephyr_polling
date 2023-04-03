@@ -16,15 +16,14 @@
 
 #include "bt_config.h"
 
-#define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_RPA)
 #define LOG_MODULE_NAME bt_rpa
 #include "logging/bt_log.h"
 
 #include <bluetooth/crypto.h>
 
 #if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_HOST_CRYPTO)
-#include "../controller/hal/ecb.h"
 #include "../controller/util/util.h"
+#include "../controller/hal/ecb.h"
 #endif /* defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_HOST_CRYPTO) */
 
 #if defined(CONFIG_BT_PRIVACY) || defined(CONFIG_BT_CTLR_PRIVACY)
@@ -42,17 +41,22 @@ static int internal_rand(void *buf, size_t len)
 static int internal_encrypt_le(const uint8_t key[16], const uint8_t plaintext[16],
                                uint8_t enc_data[16])
 {
+/* Force using controller encrypt function if supported. */
+#if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_HOST_CRYPTO) && defined(CONFIG_BT_CTLR_LE_ENC)
+    ecb_encrypt(key, plaintext, enc_data, NULL);
+    return 0;
+#else
     return bt_encrypt_le(key, plaintext, enc_data);
+#endif
 }
 
-__unused
 static int ah(const uint8_t irk[16], const uint8_t r[3], uint8_t out[3])
 {
     uint8_t res[16];
     int err;
 
-    BT_DBG("irk %s", bt_hex(irk, 16));
-    BT_DBG("r %s", bt_hex(r, 3));
+    LOG_DBG("irk %s", bt_hex(irk, 16));
+    LOG_DBG("r %s", bt_hex(r, 3));
 
     /* r' = padding || r */
     memcpy(res, r, 3);
@@ -81,7 +85,7 @@ bool bt_rpa_irk_matches(const uint8_t irk[16], const bt_addr_t *addr)
     uint8_t hash[3];
     int err;
 
-    BT_DBG("IRK %s bdaddr %s", bt_hex(irk, 16), bt_addr_str(addr));
+    LOG_DBG("IRK %s bdaddr %s", bt_hex(irk, 16), bt_addr_str(addr));
 
     err = ah(irk, addr->val + 3, hash);
     if (err)
@@ -112,7 +116,7 @@ int bt_rpa_create(const uint8_t irk[16], bt_addr_t *rpa)
         return err;
     }
 
-    BT_DBG("Created RPA %s", bt_addr_str((bt_addr_t *)rpa->val));
+    LOG_DBG("Created RPA %s", bt_addr_str((bt_addr_t *)rpa->val));
 
     return 0;
 }

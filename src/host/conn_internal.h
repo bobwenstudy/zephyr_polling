@@ -23,6 +23,7 @@
 
 #include "bluetooth/addr.h"
 #include "bluetooth/buf.h"
+#include "bluetooth/iso.h"
 
 typedef enum __packed
 {
@@ -41,16 +42,17 @@ typedef enum __packed
 enum
 {
     BT_CONN_AUTO_CONNECT,
-    BT_CONN_BR_LEGACY_SECURE,        /* 16 digits legacy PIN tracker */
-    BT_CONN_USER,                    /* user I/O when pairing */
-    BT_CONN_BR_PAIRING,              /* BR connection in pairing context */
-    BT_CONN_BR_NOBOND,               /* SSP no bond pairing tracker */
-    BT_CONN_BR_PAIRING_INITIATOR,    /* local host starts authentication */
-    BT_CONN_CLEANUP,                 /* Disconnected, pending cleanup */
-    BT_CONN_PERIPHERAL_PARAM_UPDATE, /* If periph param update timer fired */
-    BT_CONN_PERIPHERAL_PARAM_SET,    /* If periph param were set from app */
-    BT_CONN_PERIPHERAL_PARAM_L2CAP,  /* If should force L2CAP for CPUP */
-    BT_CONN_FORCE_PAIR,              /* Pairing even with existing keys. */
+    BT_CONN_BR_LEGACY_SECURE,             /* 16 digits legacy PIN tracker */
+    BT_CONN_USER,                         /* user I/O when pairing */
+    BT_CONN_BR_PAIRING,                   /* BR connection in pairing context */
+    BT_CONN_BR_NOBOND,                    /* SSP no bond pairing tracker */
+    BT_CONN_BR_PAIRING_INITIATOR,         /* local host starts authentication */
+    BT_CONN_CLEANUP,                      /* Disconnected, pending cleanup */
+    BT_CONN_PERIPHERAL_PARAM_UPDATE,      /* If periph param update timer fired */
+    BT_CONN_PERIPHERAL_PARAM_AUTO_UPDATE, /* If periph param auto update on timer fired */
+    BT_CONN_PERIPHERAL_PARAM_SET,         /* If periph param were set from app */
+    BT_CONN_PERIPHERAL_PARAM_L2CAP,       /* If should force L2CAP for CPUP */
+    BT_CONN_FORCE_PAIR,                   /* Pairing even with existing keys. */
 #if defined(CONFIG_BT_GATT_CLIENT)
     BT_CONN_ATT_MTU_EXCHANGED, /* If ATT MTU has been exchanged. */
 #endif                         /* CONFIG_BT_GATT_CLIENT */
@@ -83,6 +85,10 @@ struct bt_conn_le
     uint16_t timeout;
     uint16_t pending_latency;
     uint16_t pending_timeout;
+
+#if defined(CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS)
+    uint8_t conn_param_retry_countdown;
+#endif
 
     uint8_t features[8];
 
@@ -146,20 +152,8 @@ struct bt_conn_iso
         uint8_t bis_id;
     };
 
-#if defined(CONFIG_BT_ISO_UNICAST) || defined(CONFIG_BT_ISO_BROADCASTER)
-    /** @brief 16-bit sequence number that shall be incremented per SDU interval
-     *
-     *  Stored as 32-bit to handle wrapping: Only once the value has
-     *  become greater than 0xFFFF will values less than the
-     *  current are allowed again.
-     */
-    uint32_t seq_num;
-#endif /* CONFIG_BT_ISO_UNICAST) || CONFIG_BT_ISO_BROADCASTER */
-
-#if defined(CONFIG_BT_ISO)
     /** Stored information about the ISO stream */
     struct bt_iso_info info;
-#endif
 };
 
 typedef void (*bt_conn_tx_cb_t)(struct bt_conn *conn, void *user_data, int err);
@@ -402,7 +396,7 @@ void bt_conn_security_changed(struct bt_conn *conn, uint8_t hci_err, enum bt_sec
 #endif /* CONFIG_BT_SMP || CONFIG_BT_BREDR */
 
 /* Prepare a PDU to be sent over a connection */
-#if defined(CONFIG_BT_DEBUG)
+#if defined(CONFIG_NET_BUF_LOG)
 struct net_buf *bt_conn_create_pdu_timeout_debug(struct spool *pool, size_t reserve,
                                                  k_timeout_t timeout, const char *func, int line);
 #define bt_conn_create_pdu_timeout(_pool, _reserve, _timeout)                                      \
@@ -417,7 +411,7 @@ struct net_buf *bt_conn_create_pdu_timeout(struct spool *pool, size_t reserve, k
 #endif
 
 /* Prepare a PDU to be sent over a connection */
-#if defined(CONFIG_BT_DEBUG)
+#if defined(CONFIG_NET_BUF_LOG)
 struct net_buf *bt_conn_create_frag_timeout_debug(size_t reserve, k_timeout_t timeout,
                                                   const char *func, int line);
 
@@ -434,6 +428,9 @@ struct net_buf *bt_conn_create_frag_timeout(size_t reserve, k_timeout_t timeout)
 
 /* Initialize connection management */
 int bt_conn_init(void);
+
+/* Reset states of connections and set state to BT_CONN_DISCONNECTED. */
+void bt_conn_cleanup_all(void);
 
 /* Selects based on connection type right semaphore for ACL packets */
 struct k_sem *bt_conn_get_pkts(struct bt_conn *conn);

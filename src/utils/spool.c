@@ -23,12 +23,29 @@ uint8_t spool_init(struct spool *pool, uint8_t num, void **buf, uint8_t *storage
     pool->rptr = 0;
     pool->data_size = data_size;
     pool->user_data_size = user_data_size;
+    pool->__buf = storage_buf;
 
     for (int i = 0; i < num; i++)
     {
         buf[i] = (uint8_t *)(storage_buf +
                              ((data_size + sizeof(struct net_buf) + user_data_size) + 3) / 4 * 4 *
                                      i);
+    }
+
+    return 0;
+}
+
+
+uint8_t spool_get_id(struct spool *pool, struct net_buf *buf)
+{
+    for (int i = 0; i < pool->num; i++)
+    {
+        if(buf == (uint8_t *)(pool->__buf +
+                             ((pool->data_size + sizeof(struct net_buf) + pool->user_data_size) + 3) / 4 * 4 *
+                                     i))
+                                     {
+                                        return i;
+                                     }
     }
 
     return 0;

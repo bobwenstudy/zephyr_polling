@@ -15,7 +15,8 @@
 # 	# Hidden: Long workqueue stack size. Should be derived from system
 # 	# requirements.
 # 	int
-# 	default BT_HCI_ECC_STACK_SIZE if BT_TINYCRYPT_ECC
+# 	default 1300 if BT_GATT_CACHING
+# 	default 1140 if BT_TINYCRYPT_ECC
 # 	default 1024
 
 # config BT_LONG_WQ_PRIO
@@ -166,6 +167,7 @@ menu "Bluetooth Host"
 
 # rsource "../mesh/Kconfig"
 # rsource "../audio/Kconfig"
+rsource "Kconfig.tinycrypt"
 
 config BT_HOST_CRYPTO
 	# Hidden option that compiles in AES encryption support using TinyCrypt
@@ -329,9 +331,7 @@ config BT_REMOTE_INFO
 
 config BT_SMP
 	bool "Security Manager Protocol support"
-	select TINYCRYPT
-	select TINYCRYPT_AES
-	select TINYCRYPT_AES_CMAC
+	select BT_CRYPTO
 	select BT_RPA
 	select BT_ECC
 	help
@@ -342,10 +342,64 @@ if BT_SMP
 config BT_PRIVACY
 	bool "Privacy Feature"
 	help
-	  Enable Privacy Feature support. This makes it possible to generate and use
-	  Resolvable Private Addresses (RPAs).
+	  Enable local Privacy Feature support. This makes it possible
+	  to use Resolvable Private Addresses (RPAs).
 
-	  Disabling this will remove the capability to resolve private addresses.
+config BT_PRIVACY_RANDOMIZE_IR
+	bool "Randomize identity root for fallback identities"
+	depends on BT_PRIVACY
+	select BT_SETTINGS
+	help
+	  Enabling this option will cause the Host to ignore controller-provided
+	  identity roots (IR). The Host will instead use bt_rand to generate
+	  identity resolving keys (IRK) and store them in the settings subsystem.
+
+	  Setting this config may come with a performance penalty to boot time,
+	  as the hardware RNG may need time to generate entropy and will block
+	  Bluetooth initialization.
+
+	  This option increases privacy, as explained in the following text.
+
+	  The IR determines the IRK of the identity. The IRK is used to both
+	  generate and resolve (recognize) the private addresses of an identity.
+	  The IRK is a shared secret, distributed to peers bonded to that
+	  identity.
+
+	  An attacker that has stolen or once bonded and retained the IRK can
+	  forever resolve addresses from that IRK, even if that bond has been
+	  deleted locally.
+
+	  Deleting an identity should ideally delete the IRK as well and thereby
+	  restore anonymity from previously bonded peers. But unless this config
+	  is set, this does not always happen.
+
+	  In particular, a factory reset function that wipes the data in the
+	  settings subsystem may not affect the controller-provided IRs. If
+	  those IRs are reused, this device can be tracked across factory resets.
+
+	  For optimal privacy, a new IRK (i.e., identity) should be used per
+	  bond. However, this naturally limits advertisements from that identity
+	  to be recognizable by only that one bonded device.
+
+	  A description of the exact effect of this setting follows.
+
+	  If the application has not setup an identity before calling
+	  settings_load()/settings_load_subtree("bt") after bt_enable(), the
+	  Host will automatically try to load saved identities from the settings
+	  subsystem, and if there are none, set up the default identity
+	  (BT_ID_DEFAULT).
+
+	  If the controller has a public address (HCI_Read_BD_ADDR), that becomes
+	  the address of the default identity. The Host will by default try to
+	  obtain the IR for that identity from the controller (by Zephyr HCI
+	  Read_Key_Hierarchy_Roots). Setting this config randomizes the IR
+	  instead.
+
+	  If the controller does not have a public address, the Host will try
+	  to source the default identity from the static address information
+	  from controller (Zephyr HCI Read_Static_Addresses). This results in an
+	  identity for each entry in Read_Static_Addresses. Setting this config
+	  randomizes the IRs during this process.
 
 config BT_RPA_TIMEOUT
 	int "Resolvable Private Address timeout"
@@ -422,6 +476,54 @@ config BT_SMP_ALLOW_UNAUTH_OVERWRITE
 	  to replace the existing bond. When this option is disabled in order
 	  to create a new bond the old bond has to be explicitly deleted with
 	  bt_unpair.
+
+config BT_ID_UNPAIR_MATCHING_BONDS
+	bool "Delete bond with same peer with other local identity when bonding"
+	help
+	  When a bond is about to complete, find any other bond with the same
+	  peer address (or IRK) and `bt_unpair` that bond before the event
+	  `pairing_complete`.
+
+	  Important: If this option is not enabled, the current implementation
+	  will automatically fail the bonding. See "RL limitation" below.
+
+	  Important: If this option is not enabled, as Peripheral, it may be too
+	  late to abort the bonding. The pairing is failed locally, but it may
+	  still be reported as successful on the Central. When this situation
+	  occurs, the Zephyr Peripheral will immediately disconnect. See "SMP
+	  limitation" below.
+
+	  [RL limitation]:
+	  The Host implementors have considered it unlikely that applications
+	  would ever want to have multiple bonds with the same peer. The
+	  implementors prioritize the simplicity of the implementation over this
+	  capability.
+
+	  The Resolve List on a Controller is not able to accommodate multiple
+	  local addresses/IRKs for a single remote address. This would prevent
+	  the Host from setting up a one-to-one correspondence between the Host
+	  bond database and the Controller Resolve List. The implementation
+	  relies on that capability when using the Resolve List. For performance
+	  reasons, there is the wish to not fallback to Host Address Resolution
+	  in this case.
+
+	  [SMP Limitation]:
+	  The Paring Failed command of the Security Manager Protocol cannot be
+	  sent outside of a Pairing Process. A Pairing Process ends when the
+	  last Transport Specific Key to be distributed is acknowledged at
+	  link-layer. The Host does not have control over this acknowledgment,
+	  and the order of distribution is fixed by the specification.
+
+config BT_ID_ALLOW_UNAUTH_OVERWRITE
+	bool "Allow unauthenticated pairing with same peer with other local identity"
+	depends on !BT_SMP_ALLOW_UNAUTH_OVERWRITE
+	help
+	  This option allows unauthenticated pairing attempts made by the
+	  peer where an unauthenticated bond already exists on other local
+	  identity. This configuration still blocks unauthenticated pairing
+	  attempts on the same local identity. To allow the pairing procedure
+	  unconditionally, please see the BT_SMP_ALLOW_UNAUTH_OVERWRITE
+	  configuration.
 
 config BT_SMP_USB_HCI_CTLR_WORKAROUND
 	bool "Workaround for USB HCI controller out-of-order events"
@@ -518,8 +620,8 @@ config BT_SMP_MIN_ENC_KEY_SIZE
 	int
 	prompt "Minimum encryption key size accepted in octets" if !BT_SMP_SC_ONLY
 	range 7 16
-	default 7
 	default 16 if BT_SMP_SC_ONLY
+	default 7
 	help
 	  This option sets the minimum encryption key size accepted during pairing.
 
@@ -548,7 +650,6 @@ config BT_CONN_PARAM_UPDATE_TIMEOUT
 	int "Peripheral connection parameter update timeout in milliseconds"
 	default 5000
 	range 0 65535
-
 	help
 	  The value is a timeout used by peripheral device to wait until it
 	  starts the first connection parameters update procedure after a
@@ -560,6 +661,23 @@ config BT_CONN_PARAM_UPDATE_TIMEOUT
 	  Core specification: Core 4.2 Vol 3, Part C, 9.3.12.2:
 	  "The Peripheral device should not perform a Connection Parameter
 	  Update procedure within 5 seconds after establishing a connection."
+
+config BT_CONN_PARAM_RETRY_COUNT
+	int "Peripheral connection parameter update retry attempts"
+	default 3
+	range 0 255
+	help
+	  This value corresponds to number of times to retry connection
+	  parameter update to attain the preferred value set in GATT
+	  characteristics in the Peripheral.
+
+config BT_CONN_PARAM_RETRY_TIMEOUT
+	int "Peripheral connection parameter update retry timeout in milliseconds"
+	default 5000
+	range 0 65535
+	help
+	  The value is a timeout used by peripheral device to wait until retry
+	  to attempt requesting again the preferred connection parameters.
 
 endif # BT_CONN
 
@@ -715,6 +833,28 @@ config BT_DF_CTE_TX_AOD
 	  Enable support for antenna switching during CTE transmission.
 	  Also known as Angle of Departure mode.
 
+config BT_DF_VS_CL_IQ_REPORT_16_BITS_IQ_SAMPLES
+	bool "Use 16 bits signed integer IQ samples in connectionless IQ reports"
+	depends on BT_DF_CONNECTIONLESS_CTE_RX && BT_HCI_VS_EXT
+	select BT_HCI_VS_EVT
+	help
+	  Direction Finging connectionless IQ reports provide a set of IQ samples collected during
+	  sampling of CTE. Bluetooth 5.3 Core Specification defines IQ samples to be 8 bits signed
+	  integer, see Vol 4, Part E section 7.7.65.21. This option enables a vendor specific Host
+	  extenstion to handle connectionless IQ reports with samples that are in 16 bit signed
+	  integer format.
+
+config BT_DF_VS_CONN_IQ_REPORT_16_BITS_IQ_SAMPLES
+	bool "Use 16 bits signed integer IQ samples in connection IQ reports"
+	depends on BT_DF_CONNECTION_CTE_RX && BT_HCI_VS_EXT
+	select BT_HCI_VS_EVT
+	help
+	  Direction Finging connection IQ reports provide a set of IQ samples collected during
+	  sampling of CTE. Bluetooth 5.3 Core Specification defines IQ samples to be 8 bits signed
+	  integer, see Vol 4, Part E sections 7.7.65.22. This option enables a vendor specific Host
+	  extenstion to handle connection IQ report with samples that are in 16 bit signed integer
+	  format.
+
 config BT_DEBUG_DF
 	bool "Bluetooth Direction Finding debug"
 	help
@@ -725,7 +865,7 @@ endif # BT_DF
 
 config BT_ECC
 	bool "ECDH key generation support"
-	default y if BT_MESH_PROV
+	default y if BT_MESH_PROV || (BT_SMP && !BT_SMP_OOB_LEGACY_PAIR_ONLY)
 	help
 	  This option adds support for ECDH HCI commands.
 
@@ -734,7 +874,7 @@ config BT_TINYCRYPT_ECC
 	select TINYCRYPT
 	select TINYCRYPT_ECC_DH
 	select BT_LONG_WQ
-	depends on BT_ECC
+	depends on BT_ECC && (BT_HCI_RAW || BT_HCI_HOST)
 	default y if BT_CTLR && !BT_CTLR_ECDH
 	help
 	  If this option is set TinyCrypt library is used for emulating the
@@ -767,11 +907,6 @@ config BT_PER_ADV_SYNC_BUF_SIZE
 	  Unfragmented reports are forwarded as they are received.
 
 if BT_DEBUG
-menu "Bluetooth Debug Setting"
-config BT_DEBUG_NET_BUF
-	bool "Bluetooth Net buffer debug"
-	help
-	  This option enables debug support for Bluetooth net_buf.
 
 config BT_DEBUG_SETTINGS
 	bool "Bluetooth storage debug"
@@ -800,7 +935,7 @@ config BT_DEBUG_ISO
 
 config BT_DEBUG_ISO_DATA
 	bool "ISO channel data debug"
-	depends on BT_DEBUG_ISO
+	depends on BT_ISO_LOG_LEVEL_DBG
 	help
 	  Use this option to enable ISO channels data debug logs for the
 	  Bluetooth Audio functionality. This will enable debug logs for all
@@ -832,14 +967,14 @@ config BT_DEBUG_SMP
 
 config BT_SMP_SELFTEST
 	bool "Bluetooth SMP self tests executed on init"
-	depends on BT_DEBUG_SMP
+	depends on BT_SMP_LOG_LEVEL_DBG
 	help
 	  This option enables SMP self-tests executed on startup
 	  to verify security and crypto functions.
 
 config BT_SMP_FORCE_BREDR
 	bool "Force Bluetooth SMP over BR/EDR"
-	depends on BT_DEBUG_SMP
+	depends on BT_SMP_LOG_LEVEL_DBG
 	help
 	  This option enables SMP over BR/EDR even if controller is not
 	  supporting BR/EDR Secure Connections. This option is solely for
@@ -885,7 +1020,7 @@ config BT_DEBUG_SERVICE
 	help
 	  This option enables debug support for the Bluetooth
 	  Services.
-endmenu
+
 endif # BT_DEBUG
 
 config BT_LOG_SNIFFER_INFO

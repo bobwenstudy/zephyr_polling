@@ -120,7 +120,7 @@ void bt_iso_disconnected(struct bt_conn *iso);
 void bt_iso_security_changed(struct bt_conn *acl, uint8_t hci_status);
 
 /* Allocate ISO PDU */
-#if defined(CONFIG_BT_DEBUG)
+#if defined(CONFIG_NET_BUF_LOG)
 struct net_buf *bt_iso_create_pdu_timeout_debug(struct net_buf_pool *pool, size_t reserve,
                                                 k_timeout_t timeout, const char *func, int line);
 #define bt_iso_create_pdu_timeout(_pool, _reserve, _timeout)                                       \
@@ -136,7 +136,7 @@ struct net_buf *bt_iso_create_pdu_timeout(struct net_buf_pool *pool, size_t rese
 #endif
 
 /* Allocate ISO Fragment */
-#if defined(CONFIG_BT_DEBUG)
+#if defined(CONFIG_NET_BUF_LOG)
 struct net_buf *bt_iso_create_frag_timeout_debug(size_t reserve, k_timeout_t timeout,
                                                  const char *func, int line);
 
@@ -151,14 +151,14 @@ struct net_buf *bt_iso_create_frag_timeout(size_t reserve, k_timeout_t timeout);
 #define bt_iso_create_frag(_reserve) bt_iso_create_frag_timeout(_reserve, K_FOREVER)
 #endif
 
-#if defined(CONFIG_BT_DEBUG_ISO)
+#if defined(CONFIG_BT_ISO_LOG_LEVEL_DBG)
 void bt_iso_chan_set_state_debug(struct bt_iso_chan *chan, enum bt_iso_state state,
                                  const char *func, int line);
 #define bt_iso_chan_set_state(_chan, _state)                                                       \
     bt_iso_chan_set_state_debug(_chan, _state, __func__, __LINE__)
 #else
 void bt_iso_chan_set_state(struct bt_iso_chan *chan, enum bt_iso_state state);
-#endif /* CONFIG_BT_DEBUG_ISO */
+#endif /* CONFIG_BT_ISO_LOG_LEVEL_DBG */
 
 /* Process incoming data for a connection */
 void bt_iso_recv(struct bt_conn *iso, struct net_buf *buf, uint8_t flags);

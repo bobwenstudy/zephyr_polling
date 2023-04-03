@@ -14,15 +14,14 @@
 #include "base/byteorder.h"
 #include "net_buf.h"
 
-#define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_NET_BUF)
 #define LOG_MODULE_NAME net_buf
 #include "logging/bt_log.h"
 
 #if defined(CONFIG_BT_DEBUG)
-#define NET_BUF_DBG(fmt, ...)  BT_DBG(fmt, ##__VA_ARGS__)
-#define NET_BUF_ERR(fmt, ...)  BT_ERR(fmt, ##__VA_ARGS__)
-#define NET_BUF_WARN(fmt, ...) BT_WARN(fmt, ##__VA_ARGS__)
-#define NET_BUF_INFO(fmt, ...) BT_INFO(fmt, ##__VA_ARGS__)
+#define NET_BUF_DBG(fmt, ...)  LOG_DBG(fmt, ##__VA_ARGS__)
+#define NET_BUF_ERR(fmt, ...)  LOG_ERR(fmt, ##__VA_ARGS__)
+#define NET_BUF_WARN(fmt, ...) LOG_WRN(fmt, ##__VA_ARGS__)
+#define NET_BUF_INFO(fmt, ...) LOG_INF(fmt, ##__VA_ARGS__)
 #else
 #define NET_BUF_DBG(fmt, ...)
 #define NET_BUF_ERR(fmt, ...)
@@ -44,6 +43,23 @@ void net_buf_reset(struct net_buf *buf)
     __ASSERT_NO_MSG(buf->frags == NULL);
 
     net_buf_simple_reset(&buf->b);
+}
+
+struct spool *net_buf_pool_get(struct spool * id)
+{
+	return id;
+}
+
+static int pool_id(struct spool *pool)
+{
+	return pool;
+}
+
+int net_buf_id(struct net_buf *buf)
+{
+	struct spool *pool = net_buf_pool_get(buf->pool_id);
+
+	return spool_get_id(pool, buf);
 }
 
 #if defined(CONFIG_BT_DEBUG)
@@ -260,7 +276,7 @@ struct net_buf *net_buf_frag_last(struct net_buf *buf)
 
     return buf;
 }
-/*���µ�fragƬ�μ��븸Ƭ�κ�Ļ�����Ƭ���б���*/
+
 void net_buf_frag_insert(struct net_buf *parent, struct net_buf *frag)
 {
     __ASSERT_NO_MSG(parent);

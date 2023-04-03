@@ -40,8 +40,6 @@ extern "C" {
  */
 
 /**
- * @def BT_ID_DEFAULT
- *
  * Convenience macro for specifying the default identity. This helps
  * make the code more readable, especially when only one identity is
  * supported.
@@ -118,6 +116,7 @@ struct bt_le_ext_adv_cb
      * @param addr Information about the scanned event.
      */
     void (*scanned)(struct bt_le_ext_adv *adv, struct bt_le_ext_adv_scanned_info *info);
+
 #if defined(CONFIG_BT_PRIVACY)
     /**
      * @brief The RPA validity of the advertising set has expired.
@@ -247,7 +246,7 @@ int bt_set_appearance(uint16_t new_appearance);
  * count of all available identities that can be retrieved with a
  * subsequent call to this function with non-NULL @a addrs parameter.
  *
- * @note Deleted identities may show up as BT_LE_ADDR_ANY in the returned
+ * @note Deleted identities may show up as @ref BT_ADDR_LE_ANY in the returned
  * array.
  *
  * @param addrs Array where to store the configured identities.
@@ -404,7 +403,7 @@ enum
      * Advertise as connectable. If not connectable then the type of
      * advertising is determined by providing scan response data.
      * The advertiser address is determined by the type of advertising
-     * and/or enabling privacy @option{CONFIG_BT_PRIVACY}.
+     * and/or enabling privacy @kconfig{CONFIG_BT_PRIVACY}.
      */
     BT_LE_ADV_OPT_CONNECTABLE = BIT(0),
 
@@ -414,7 +413,7 @@ enum
      * Don't try to resume connectable advertising after a connection.
      * This option is only meaningful when used together with
      * BT_LE_ADV_OPT_CONNECTABLE. If set the advertising will be stopped
-     * when bt_le_adv_stop() is called or when an incoming (slave)
+     * when bt_le_adv_stop() is called or when an incoming (peripheral)
      * connection happens. If this option is not set the stack will
      * take care of keeping advertising enabled even as connections
      * occur.
@@ -667,6 +666,13 @@ enum
      * @note Requires @ref BT_LE_ADV_OPT_EXT_ADV
      */
     BT_LE_PER_ADV_OPT_USE_TX_POWER = BIT(1),
+
+    /**
+     * @brief Advertise with included AdvDataInfo (ADI).
+     *
+     * @note Requires @ref BT_LE_ADV_OPT_EXT_ADV
+     */
+    BT_LE_PER_ADV_OPT_INCLUDE_ADI = BIT(2),
 };
 
 struct bt_le_per_adv_param
@@ -1054,6 +1060,9 @@ struct bt_le_ext_adv_info
 
     /** Currently selected Transmit Power (dBM). */
     int8_t tx_power;
+
+    /** Current local advertising address used. */
+    const bt_addr_le_t *addr;
 };
 
 /**
@@ -1378,6 +1387,20 @@ struct bt_le_per_adv_sync_param
  */
 uint8_t bt_le_per_adv_sync_get_index(struct bt_le_per_adv_sync *per_adv_sync);
 
+/**
+ * @brief Get a periodic advertising sync object from the array index.
+ *
+ * This function is to get the periodic advertising sync object from
+ * the array index.
+ * The array has CONFIG_BT_PER_ADV_SYNC_MAX elements.
+ *
+ * @param index The index of the periodic advertising sync object.
+ *              The range of the index value is 0..CONFIG_BT_PER_ADV_SYNC_MAX-1
+ *
+ * @return The periodic advertising sync object of the array index or NULL if invalid index.
+ */
+struct bt_le_per_adv_sync *bt_le_per_adv_sync_lookup_index(uint8_t index);
+
 /** @brief Advertising set info structure. */
 struct bt_le_per_adv_sync_info
 {
@@ -1515,6 +1538,22 @@ enum
 
     /** Only sync to packets with constant tone extension */
     BT_LE_PER_ADV_SYNC_TRANSFER_OPT_SYNC_ONLY_CTE = BIT(3),
+
+    /**
+     * @brief Sync to received PAST packets but don't generate sync reports
+     *
+     * This option must not be set at the same time as
+     * @ref BT_LE_PER_ADV_SYNC_TRANSFER_OPT_FILTER_DUPLICATES.
+     */
+    BT_LE_PER_ADV_SYNC_TRANSFER_OPT_REPORTING_INITIALLY_DISABLED = BIT(4),
+
+    /**
+     * @brief Sync to received PAST packets and generate sync reports with duplicate filtering
+     *
+     * This option must not be set at the same time as
+     * @ref BT_LE_PER_ADV_SYNC_TRANSFER_OPT_REPORTING_INITIALLY_DISABLED.
+     */
+    BT_LE_PER_ADV_SYNC_TRANSFER_OPT_FILTER_DUPLICATES = BIT(5),
 };
 
 struct bt_le_per_adv_sync_transfer_param
@@ -1659,6 +1698,8 @@ enum
     BT_LE_SCAN_OPT_NO_1M = BIT(3),
 };
 
+#define BT_LE_SCAN_OPT_FILTER_WHITELIST __DEPRECATED_MACRO BT_LE_SCAN_OPT_FILTER_ACCEPT_LIST
+
 enum
 {
     /** Scan without requesting additional information from advertisers. */
@@ -1712,7 +1753,7 @@ struct bt_le_scan_param
     uint16_t window_coded;
 };
 
-/** LE advertisement packet information */
+/** LE advertisement and scan response packet information */
 struct bt_le_scan_recv_info
 {
     /**
@@ -1856,11 +1897,11 @@ struct bt_le_scan_cb
  * the specified callback.
  *
  * @note The LE scanner by default does not use the Identity Address of the
- *       local device when @option{CONFIG_BT_PRIVACY} is disabled. This is to
+ *       local device when @kconfig{CONFIG_BT_PRIVACY} is disabled. This is to
  *       prevent the active scanner from disclosing the identity information
  *       when requesting additional information from advertisers.
  *       In order to enable directed advertiser reports then
- *       @option{CONFIG_BT_SCAN_WITH_IDENTITY} must be enabled.
+ *       @kconfig{CONFIG_BT_SCAN_WITH_IDENTITY} must be enabled.
  *
  * @param param Scan parameters.
  * @param cb Callback to notify scan results. May be NULL if callback
@@ -2039,16 +2080,16 @@ struct bt_le_oob
  * This function allows to get local information that are useful for
  * Out of Band pairing or connection creation.
  *
- * If privacy @option{CONFIG_BT_PRIVACY} is enabled this will result in
+ * If privacy @kconfig{CONFIG_BT_PRIVACY} is enabled this will result in
  * generating new Resolvable Private Address (RPA) that is valid for
- * @option{CONFIG_BT_RPA_TIMEOUT} seconds. This address will be used for
+ * @kconfig{CONFIG_BT_RPA_TIMEOUT} seconds. This address will be used for
  * advertising started by @ref bt_le_adv_start, active scanning and
  * connection creation.
  *
  * @note If privacy is enabled the RPA cannot be refreshed in the following
  *       cases:
  *       - Creating a connection in progress, wait for the connected callback.
- *      In addition when extended advertising @option{CONFIG_BT_EXT_ADV} is
+ *      In addition when extended advertising @kconfig{CONFIG_BT_EXT_ADV} is
  *      not enabled or not supported by the controller:
  *       - Advertiser is enabled using a Random Static Identity Address for a
  *         different local identity.
@@ -2069,9 +2110,9 @@ int bt_le_oob_get_local(uint8_t id, struct bt_le_oob *oob);
  * This function allows to get local information that are useful for
  * Out of Band pairing or connection creation.
  *
- * If privacy @option{CONFIG_BT_PRIVACY} is enabled this will result in
+ * If privacy @kconfig{CONFIG_BT_PRIVACY} is enabled this will result in
  * generating new Resolvable Private Address (RPA) that is valid for
- * @option{CONFIG_BT_RPA_TIMEOUT} seconds. This address will be used by the
+ * @kconfig{CONFIG_BT_RPA_TIMEOUT} seconds. This address will be used by the
  * advertising set.
  *
  * @note When generating OOB information for multiple advertising set all
@@ -2238,7 +2279,22 @@ struct bt_bond_info
 void bt_foreach_bond(uint8_t id, void (*func)(const struct bt_bond_info *info, void *user_data),
                      void *user_data);
 
-void bt_polling_work(void);
+/** @brief Configure vendor data path
+ *
+ *  Request the Controller to configure the data transport path in a given direction between
+ *  the Controller and the Host.
+ *
+ *  @param dir            Direction to be configured, BT_HCI_DATAPATH_DIR_HOST_TO_CTLR or
+ *                        BT_HCI_DATAPATH_DIR_CTLR_TO_HOST
+ *  @param id             Vendor specific logical transport channel ID, range
+ *                        [BT_HCI_DATAPATH_ID_VS..BT_HCI_DATAPATH_ID_VS_END]
+ *  @param vs_config_len  Length of additional vendor specific configuration data
+ *  @param vs_config      Pointer to additional vendor specific configuration data
+ *
+ *  @return 0 in case of success or negative value in case of error.
+ */
+int bt_configure_data_path(uint8_t dir, uint8_t id, uint8_t vs_config_len,
+                           const uint8_t *vs_config);
 
 /**
  * @}

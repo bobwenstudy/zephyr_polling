@@ -14,6 +14,7 @@ struct spool
 
     uint16_t data_size; /* data size */
     void **buf;         /* point ptr buffer */
+    void *__buf;         /* point store buffer */
 };
 /* Alignment needed for various parts of the buffer definition */
 #define __spool_buf_align __aligned(sizeof(void *))

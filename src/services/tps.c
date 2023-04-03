@@ -39,11 +39,11 @@ static ssize_t read_tx_power_level(struct bt_conn *conn, const struct bt_gatt_at
     err = bt_conn_le_get_tx_power_level(conn, &tx_power_level);
     if (err)
     {
-        printk("Failed to read Tx Power Level over HCI: %d\n", err);
+        LOG_ERR("Failed to read Tx Power Level over HCI: %d", err);
         return BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
     }
 
-    printk("TPS Tx Power Level read %d\n", tx_power_level.current_level);
+    LOG_INF("TPS Tx Power Level read %d", tx_power_level.current_level);
 
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &tx_power_level.current_level,
                              sizeof(tx_power_level.current_level));

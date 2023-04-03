@@ -10,7 +10,6 @@
 #include "base/types.h"
 #include "base/util.h"
 
-#define BT_DBG_ENABLED  IS_ENABLED(CONFIG_BT_DEBUG_TIMEOUT)
 #define LOG_MODULE_NAME timeout
 #include "logging/bt_log.h"
 
@@ -52,7 +51,7 @@ void timeout_polling_work(void)
     while (first() != NULL && first()->dticks <= sys_clock_tick_get())
     {
         struct _timeout *t = first();
-        // BT_DBG("t: %p, fn: %p\n", t, t->fn);
+        // LOG_DBG("t: %p, fn: %p\n", t, t->fn);
         remove_timeout(t);
 
         t->fn(t);
@@ -63,17 +62,17 @@ void dump_timeout_list(void)
 {
     struct _timeout *t;
     sys_dnode_t *last = NULL;
-    BT_DBG("head: %p, tail: %p\n", timeout_list.head, timeout_list.tail);
+    LOG_DBG("head: %p, tail: %p\n", timeout_list.head, timeout_list.tail);
     for (t = first(); t != NULL; t = next(t))
     {
         last = &t->node;
-        BT_DBG("next: %p\n", t->node.next);
-        BT_DBG("t: %p, dticks: %d, tick: %d\n", t, t->dticks, sys_clock_tick_get());
+        LOG_DBG("next: %p\n", t->node.next);
+        LOG_DBG("t: %p, dticks: %d, tick: %d\n", t, t->dticks, sys_clock_tick_get());
     }
 
     if (last != sys_dlist_peek_tail(&timeout_list))
     {
-        BT_DBG("error. last: %p, tail: %p\n", last->next, sys_dlist_peek_tail(&timeout_list));
+        LOG_DBG("error. last: %p, tail: %p\n", last->next, sys_dlist_peek_tail(&timeout_list));
     }
 }
 

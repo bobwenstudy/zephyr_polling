@@ -49,11 +49,11 @@ struct bt_pub_key_cb
  *  Compare the Public key to the Bluetooth specification defined debug public
  *  key.
  *
- *  @param pub_key_ptr The public key to compare.
+ *  @param pub_key The public key to compare.
  *
  *  @return True if the public key is the debug public key.
  */
-bool bt_pub_key_is_debug(uint8_t *pub_key_ptr);
+bool bt_pub_key_is_debug(uint8_t *pub_key);
 
 /*  @brief Generate a new Public Key.
  *
@@ -69,6 +69,12 @@ bool bt_pub_key_is_debug(uint8_t *pub_key_ptr);
  *  @return Zero on success or negative error code otherwise
  */
 int bt_pub_key_gen(struct bt_pub_key_cb *cb);
+
+/*  @brief Cleanup public key callbacks when HCI is disrupted.
+ *
+ *  Clear the pub_key_cb_slist and clear the BT_DEV_PUB_KEY_BUSY flag.
+ */
+void bt_pub_key_hci_disrupted(void);
 
 /*  @brief Get the current Public Key.
  *

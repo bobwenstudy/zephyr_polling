@@ -185,54 +185,109 @@
  */
 #define Z_DECL_ALIGN(type) __aligned(__alignof(type)) type
 
-/*
+/* Check if a pointer is aligned for against a specific byte boundary  */
+#define IS_PTR_ALIGNED_BYTES(ptr, bytes) ((((uintptr_t)ptr) % bytes) == 0)
+
+/* Check if a pointer is aligned enough for a particular data type. */
+#define IS_PTR_ALIGNED(ptr, type) IS_PTR_ALIGNED_BYTES(ptr, __alignof(type))
+
+/**
+ * @brief Iterable Sections APIs
+ * @defgroup iterable_section_apis Iterable Sections APIs
+ * @{
+ */
+
+/**
+ * @brief Defines a new element for an iterable section.
+ *
+ * @details
  * Convenience helper combining __in_section() and Z_DECL_ALIGN().
  * The section name is the struct type prepended with an underscore.
  * The subsection is "static" and the subsubsection is the variable name.
  *
  * In the linker script, create output sections for these using
- * Z_ITERABLE_SECTION_ROM or Z_ITERABLE_SECTION_RAM.
+ * ITERABLE_SECTION_ROM() or ITERABLE_SECTION_RAM().
+ *
+ * @note In order to store the element in ROM, a const specifier has to
+ * be added to the declaration: const STRUCT_SECTION_ITERABLE(...);
  */
-#define Z_STRUCT_SECTION_ITERABLE(struct_type, name)                                               \
-    Z_DECL_ALIGN(struct struct_type) name __in_section(_##struct_type, static, name) __used
+#define STRUCT_SECTION_ITERABLE(struct_type, name) \
+	Z_DECL_ALIGN(struct struct_type) name \
+	__in_section(_##struct_type, static, name) __used __noasan
 
-/* Special variant of Z_STRUCT_SECTION_ITERABLE, for placing alternate
+/**
+ * @brief Defines a new element of alternate data type for an iterable section.
+ *
+ * @details
+ * Special variant of STRUCT_SECTION_ITERABLE(), for placing alternate
  * data types within the iterable section of a specific data type. The
  * data type sizes and semantics must be equivalent!
  */
-#define Z_STRUCT_SECTION_ITERABLE_ALTERNATE(out_type, struct_type, name)                           \
-    Z_DECL_ALIGN(struct struct_type) name __in_section(_##out_type, static, name) __used
+#define STRUCT_SECTION_ITERABLE_ALTERNATE(out_type, struct_type, name) \
+	Z_DECL_ALIGN(struct struct_type) name \
+	__in_section(_##out_type, static, name) __used __noasan
 
-/*
- * Itterator for structure instances gathered by Z_STRUCT_SECTION_ITERABLE().
+/**
+ * @brief Iterate over a specified iterable section.
+ *
+ * @details
+ * Iterator for structure instances gathered by STRUCT_SECTION_ITERABLE().
  * The linker must provide a _<struct_type>_list_start symbol and a
  * _<struct_type>_list_end symbol to mark the start and the end of the
- * list of struct objects to iterate over.
+ * list of struct objects to iterate over. This is normally done using
+ * ITERABLE_SECTION_ROM() or ITERABLE_SECTION_RAM() in the linker script.
  */
-#define Z_STRUCT_SECTION_FOREACH(struct_type, iterator)                                            \
-    extern struct struct_type _CONCAT(_##struct_type, _list_start)[];                              \
-    extern struct struct_type _CONCAT(_##struct_type, _list_end)[];                                \
-    for (struct struct_type *iterator = _CONCAT(_##struct_type, _list_start); ({                   \
-             __ASSERT(iterator <= _CONCAT(_##struct_type, _list_end),                              \
-                      "unexpected list end location");                                             \
-             iterator < _CONCAT(_##struct_type, _list_end);                                        \
-         });                                                                                       \
-         iterator++)
+#define STRUCT_SECTION_FOREACH(struct_type, iterator) \
+	extern struct struct_type _CONCAT(_##struct_type, _list_start)[]; \
+	extern struct struct_type _CONCAT(_##struct_type, _list_end)[]; \
+	for (struct struct_type *iterator = \
+			_CONCAT(_##struct_type, _list_start); \
+	     ({ __ASSERT(iterator <= _CONCAT(_##struct_type, _list_end), \
+			 "unexpected list end location"); \
+		iterator < _CONCAT(_##struct_type, _list_end); }); \
+	     iterator++)
 
-#define Z_STRUCT_SECTION_LIST_VAR_DEFINE(struct_type, num)                                         \
+/**
+ * @brief Get element from section.
+ *
+ * @note There is no protection against reading beyond the section.
+ *
+ * @param[in]  struct_type Struct type.
+ * @param[in]  i Index.
+ * @param[out] dst Pointer to location where pointer to element is written.
+ */
+#define STRUCT_SECTION_GET(struct_type, i, dst) do { \
+	extern struct struct_type _CONCAT(_##struct_type, _list_start)[]; \
+	*(dst) = &_CONCAT(_##struct_type, _list_start)[i]; \
+} while (0)
+
+/**
+ * @brief Count elements in a section.
+ *
+ * @param[in]  struct_type Struct type
+ * @param[out] dst Pointer to location where result is written.
+ */
+#define STRUCT_SECTION_COUNT(struct_type, dst) do { \
+	extern struct struct_type _CONCAT(_##struct_type, _list_start)[]; \
+	extern struct struct_type _CONCAT(_##struct_type, _list_end)[]; \
+	*(dst) = ((uintptr_t)_CONCAT(_##struct_type, _list_end) - \
+		  (uintptr_t)_CONCAT(_##struct_type, _list_start)) / sizeof(struct struct_type); \
+} while (0)
+
+#define STRUCT_SECTION_LIST_VAR_DEFINE(struct_type, num)                                         \
     struct struct_type _CONCAT(_##struct_type, _list)[num];
 
-#define Z_STRUCT_SECTION_LIST_VAR(struct_type, index, item)                                        \
+#define STRUCT_SECTION_LIST_VAR(struct_type, index, item)                                        \
     _CONCAT(_##struct_type, _list)[index] = item;
 
-#define Z_STRUCT_SECTION_LIST_VAR_EXTERN(struct_type, index, item)                                 \
+#define STRUCT_SECTION_LIST_VAR_EXTERN(struct_type, index, item)                                 \
     extern struct struct_type item;                                                                \
     _CONCAT(_##struct_type, _list)[index] = item;
 
-#define Z_STRUCT_SECTION_FOREACH_NEW(struct_type, iterator, num)                                   \
+#define STRUCT_SECTION_FOREACH_NEW(struct_type, iterator, num)                                   \
     for (struct struct_type *iterator = _CONCAT(_##struct_type, _list);                            \
          (iterator < (_CONCAT(_##struct_type, _list) + num)); iterator++)
-#define Z_STRUCT_SECTION_FOREACH_NEW_EXTERN(struct_type, iterator, num)                            \
+#define STRUCT_SECTION_FOREACH_NEW_EXTERN(struct_type, iterator, num)                            \
     extern struct struct_type _CONCAT(_##struct_type, _list)[num];                                 \
     for (struct struct_type *iterator = _CONCAT(_##struct_type, _list);                            \
          (iterator < (_CONCAT(_##struct_type, _list) + num)); iterator++)

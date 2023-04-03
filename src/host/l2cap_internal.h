@@ -259,8 +259,6 @@ struct bt_l2cap_ecred_reconf_rsp
     uint16_t result;
 } __packed;
 
-#define BT_L2CAP_SDU_HDR_LEN 2
-
 struct bt_l2cap_fixed_chan
 {
     uint16_t cid;
@@ -276,11 +274,11 @@ struct bt_l2cap_fixed_chan
     };
 
 #define BT_L2CAP_CHANNEL_DEFINE(_name, _cid, _accept, _destroy)                                    \
-    const Z_STRUCT_SECTION_ITERABLE(bt_l2cap_fixed_chan, _name) = {                                \
+    const STRUCT_SECTION_ITERABLE(bt_l2cap_fixed_chan, _name) = {                                  \
             .cid = _cid,                                                                           \
             .accept = _accept,                                                                     \
             .destroy = _destroy,                                                                   \
-    };
+    }
 
 /* Need a name different than bt_l2cap_fixed_chan for a different section */
 struct bt_l2cap_br_fixed_chan
@@ -290,7 +288,7 @@ struct bt_l2cap_br_fixed_chan
 };
 
 #define BT_L2CAP_BR_CHANNEL_DEFINE(_name, _cid, _accept)                                           \
-    const Z_STRUCT_SECTION_ITERABLE(bt_l2cap_br_fixed_chan, _name) = {                             \
+    const STRUCT_SECTION_ITERABLE(bt_l2cap_br_fixed_chan, _name) = {                               \
             .cid = _cid,                                                                           \
             .accept = _accept,                                                                     \
     }
@@ -315,14 +313,14 @@ void bt_l2cap_chan_del(struct bt_l2cap_chan *chan);
 
 const char *bt_l2cap_chan_state_str(bt_l2cap_chan_state_t state);
 
-#if defined(CONFIG_BT_DEBUG_L2CAP)
+#if defined(CONFIG_BT_L2CAP_LOG_LEVEL_DBG)
 void bt_l2cap_chan_set_state_debug(struct bt_l2cap_chan *chan, bt_l2cap_chan_state_t state,
                                    const char *func, int line);
 #define bt_l2cap_chan_set_state(_chan, _state)                                                     \
     bt_l2cap_chan_set_state_debug(_chan, _state, __func__, __LINE__)
 #else
 void bt_l2cap_chan_set_state(struct bt_l2cap_chan *chan, bt_l2cap_chan_state_t state);
-#endif /* CONFIG_BT_DEBUG_L2CAP */
+#endif /* CONFIG_BT_L2CAP_LOG_LEVEL_DBG */
 
 /*
  * Notify L2CAP channels of a change in encryption state passing additionally
@@ -334,8 +332,7 @@ void bt_l2cap_security_changed(struct bt_conn *conn, uint8_t hci_status);
 struct net_buf *bt_l2cap_create_pdu_timeout(struct spool *pool, size_t reserve,
                                             k_timeout_t timeout);
 
-#define bt_l2cap_create_pdu(_pool, _reserve)                                                       \
-    bt_l2cap_create_pdu_timeout(_pool, _reserve, ((k_timeout_t){0}))
+#define bt_l2cap_create_pdu(_pool, _reserve) bt_l2cap_create_pdu_timeout(_pool, _reserve, K_FOREVER)
 
 /* Prepare a L2CAP Response PDU to be sent over a connection */
 struct net_buf *bt_l2cap_create_rsp(struct net_buf *buf, size_t reserve);
@@ -411,5 +408,8 @@ struct bt_l2cap_ecred_cb
 
 /* Register callbacks for Enhanced Credit based Flow Control */
 void bt_l2cap_register_ecred_cb(const struct bt_l2cap_ecred_cb *cb);
+
+/* Returns a server if it exists for given psm. */
+struct bt_l2cap_server *bt_l2cap_server_lookup_psm(uint16_t psm);
 
 #endif /* _ZEPHYR_POLLING_HOST_L2CAP_INTERNAL_H_ */
