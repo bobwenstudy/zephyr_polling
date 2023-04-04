@@ -56,4 +56,7 @@ int bt_id_set_public_id_addr(bt_addr_le_t *addr);
 
 void bt_id_loading(void);
 
+int set_random_address(const bt_addr_t *addr);
+int bt_id_init_end(void);
+
 #endif /* _ZEPHYR_POLLING_HOST_ID_H_ */

@@ -17,6 +17,7 @@
 #include "hci_core.h"
 #include "settings.h"
 #include "common/bt_storage_kv.h"
+#include "keys.h"
 
 #define LOG_MODULE_NAME settings
 #include "logging/bt_log.h"
@@ -411,8 +412,6 @@ void bt_settings_save_id(void)
 
 int bt_settings_init(void)
 {
-    int err;
-
     LOG_DBG("");
 
     bt_storage_kv_get_id();

@@ -11,6 +11,7 @@
 #include "bt_config.h"
 
 int prng_init(void);
+int prng_init_new(uint8_t* perso);
 void bt_rand_init(unsigned int seed);
 
 #endif /* _ZEPHYR_POLLING_HOST_CRYPTO_H_ */

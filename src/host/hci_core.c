@@ -30,6 +30,9 @@
 #include <common/bt_buf.h>
 #include <common/bt_storage_kv.h>
 
+#include "settings.h"
+#include "addr_internal.h"
+
 #define LOG_MODULE_NAME bt_hci_core
 #include "logging/bt_log.h"
 
@@ -160,6 +163,7 @@ static void handle_event(uint8_t event, struct net_buf *buf, const struct event_
     /* Other possible errors are handled by handle_event_common function */
 }
 
+__unused
 static void handle_vs_event(uint8_t event, struct net_buf *buf,
                             const struct event_handler *handlers, size_t num_handlers)
 {
@@ -335,6 +339,7 @@ int bt_hci_le_rand(void *buffer, size_t len)
     return 0;
 }
 
+__unused
 static int hci_le_read_max_data_len(uint16_t *tx_octets, uint16_t *tx_time)
 {
     struct bt_hci_rp_le_read_max_data_len *rp;
@@ -687,6 +692,7 @@ int bt_hci_disconnect(uint16_t handle, uint8_t reason)
 }
 
 static uint16_t disconnected_handles[CONFIG_BT_MAX_CONN];
+__unused
 static void disconnected_handles_reset(void)
 {
     (void)memset(disconnected_handles, 0, sizeof(disconnected_handles));
@@ -1105,6 +1111,7 @@ static void le_conn_complete_cancel(void)
 
 static void le_conn_complete_adv_timeout(void)
 {
+#if defined(CONFIG_BT_PERIPHERAL)
     if (!(IS_ENABLED(CONFIG_BT_EXT_ADV) && BT_DEV_FEAT_LE_EXT_ADV(bt_dev.le.features)))
     {
         struct bt_le_ext_adv *adv = bt_le_adv_lookup_legacy();
@@ -1139,6 +1146,7 @@ static void le_conn_complete_adv_timeout(void)
 
         bt_conn_unref(conn);
     }
+#endif
 }
 
 static void enh_conn_complete(struct bt_hci_evt_le_enh_conn_complete *evt)
@@ -2649,7 +2657,7 @@ static void le_rand_complete(struct net_buf *buf)
     {
         uint8_t perso[8];
         /* Number of bytes to fill on this iteration */
-        size_t count = MIN(sizeof(perso), sizeof(rp->rand));
+        // size_t count = MIN(sizeof(perso), sizeof(rp->rand));
 
         memcpy(perso, rp->rand, sizeof(rp->rand));
         prng_init_new(perso);
@@ -2738,6 +2746,7 @@ static void read_local_features_complete(struct net_buf *buf)
     memcpy(bt_dev.features[0], rp->features, sizeof(bt_dev.features[0]));
 }
 
+__unused
 static void le_read_supp_states_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_supp_states *rp = (void *)buf->data;
@@ -2748,6 +2757,7 @@ static void le_read_supp_states_complete(struct net_buf *buf)
 }
 
 #if defined(CONFIG_BT_SMP)
+__unused
 static void le_read_resolving_list_size_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_rl_size *rp = (void *)buf->data;

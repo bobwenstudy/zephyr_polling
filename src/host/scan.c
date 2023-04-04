@@ -22,6 +22,7 @@
 #include "conn_internal.h"
 // #include "direction_internal.h"
 #include "id.h"
+#include "addr_internal.h"
 
 #define LOG_MODULE_NAME bt_scan
 #include "logging/bt_log.h"

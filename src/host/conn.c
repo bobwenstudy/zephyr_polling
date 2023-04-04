@@ -41,6 +41,7 @@
 #include "iso_internal.h"
 #include "adv.h"
 #include "scan.h"
+#include "addr_internal.h"
 
 #if defined(CONFIG_BT_CONN)
 struct tx_meta
@@ -86,8 +87,6 @@ static void deferred_work(struct k_work *work);
 static void notify_connected(struct bt_conn *conn);
 
 static struct bt_conn acl_conns[CONFIG_BT_MAX_CONN];
-NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
-                    BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU), sizeof(struct tx_meta), NULL);
 
 #if CONFIG_BT_L2CAP_TX_FRAG_COUNT > 0
 /* Dedicated pool for fragment buffers in case queued up TX buffers don't

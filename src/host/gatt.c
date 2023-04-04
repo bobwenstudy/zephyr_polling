@@ -19,6 +19,8 @@
 #include "base/common.h"
 
 #include "common/bt_storage_kv.h"
+#include "common/bt_settings.h"
+#include "settings.h"
 
 #include <bluetooth/hci.h>
 #include <bluetooth/bluetooth.h>
@@ -78,7 +80,7 @@ static sys_slist_t db;
 #endif /* CONFIG_BT_GATT_DYNAMIC_DB */
 
 static atomic_t init;
-static atomic_t service_init;
+// static atomic_t service_init;
 
 static ssize_t read_name(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf,
                          uint16_t len, uint16_t offset)
@@ -348,6 +350,7 @@ static void sc_store(struct gatt_sc_cfg *cfg)
 #endif
 }
 
+__unused
 static void clear_sc_cfg(struct gatt_sc_cfg *cfg)
 {
     memset(cfg, 0, sizeof(*cfg));
@@ -6047,6 +6050,7 @@ static int ccc_set(const char *name, size_t len_rd, settings_read_cb read_cb, vo
     return 0;
 }
 
+__unused
 static int ccc_set_cb(const char *name, size_t len_rd, settings_read_cb read_cb, void *cb_arg)
 {
     if (IS_ENABLED(CONFIG_BT_SETTINGS_CCC_LAZY_LOADING))
@@ -6060,6 +6064,7 @@ static int ccc_set_cb(const char *name, size_t len_rd, settings_read_cb read_cb,
 
 // SETTINGS_STATIC_HANDLER_DEFINE(bt_ccc, "bt/ccc", NULL, ccc_set_cb, NULL, NULL);
 
+__unused
 static int ccc_set_direct(const char *key, size_t len, settings_read_cb read_cb, void *cb_arg,
                           void *param)
 {
@@ -6281,6 +6286,7 @@ struct ccc_save
     size_t count;
 };
 
+__unused
 static uint8_t ccc_save(const struct bt_gatt_attr *attr, uint16_t handle, void *user_data)
 {
     struct ccc_save *save = user_data;

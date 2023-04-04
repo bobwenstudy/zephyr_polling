@@ -494,6 +494,7 @@ struct bt_keys *bt_id_find_conflict(struct bt_keys *candidate);
 
 int bt_setup_random_id_addr(void);
 int bt_setup_public_id_addr(void);
+int bt_setup_public_id_addr_new(bt_addr_le_t* addr);
 
 void bt_finalize_init(void);
 
@@ -566,4 +567,5 @@ void bt_sleep_wakeup_with_timeout(void);
 
 void bt_set_rx_acl_lock(uint8_t rx_lock);
 uint8_t bt_get_rx_acl_lock(void);
+void bt_polling_work(void);
 #endif /* _ZEPHYR_POLLING_HOST_HCI_CORE_H_ */

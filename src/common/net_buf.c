@@ -50,17 +50,17 @@ struct spool *net_buf_pool_get(struct spool * id)
 	return id;
 }
 
-static int pool_id(struct spool *pool)
-{
-	return pool;
-}
+// static int pool_id(struct spool *pool)
+// {
+// 	return (int)pool;
+// }
 
-int net_buf_id(struct net_buf *buf)
-{
-	struct spool *pool = net_buf_pool_get(buf->pool_id);
+// int net_buf_id(struct net_buf *buf)
+// {
+// 	struct spool *pool = net_buf_pool_get(buf->pool_id);
 
-	return spool_get_id(pool, buf);
-}
+// 	return spool_get_id(pool, buf);
+// }
 
 #if defined(CONFIG_BT_DEBUG)
 struct net_buf *net_buf_alloc_debug(struct spool *pool, const char *func, int line)

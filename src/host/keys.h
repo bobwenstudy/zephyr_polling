@@ -236,5 +236,6 @@ void bt_keys_link_key_update_usage(const bt_addr_t *addr);
 
 void bt_keys_show_sniffer_info(struct bt_keys *keys, void *data);
 
+int bt_keys_loading(void);
 
 #endif /* _ZEPHYR_POLLING_HOST_KEYS_H_ */

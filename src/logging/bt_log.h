@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-// #ifdef CONFIG_BT_DEBUG
-// #define LOG_LEVEL CONFIG_BT_LOG_LEVEL
-// #else
-// #define LOG_LEVEL LOG_IMPL_LEVEL_NONE
-// #endif
+#ifdef CONFIG_BT_DEBUG
+#define LOG_LEVEL CONFIG_BT_LOG_LEVEL
+#else
+#define LOG_LEVEL LOG_IMPL_LEVEL_NONE
+#endif
 
-#define LOG_LEVEL LOG_IMPL_LEVEL_DBG
+// #define LOG_LEVEL LOG_IMPL_LEVEL_DBG
 
 #define LOG_DBG(fmt, ...)  LOG_IMPL_DBG(LOG_MODULE_NAME, LOG_LEVEL, fmt, ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)  LOG_IMPL_ERR(LOG_MODULE_NAME, LOG_LEVEL, fmt, ##__VA_ARGS__)

@@ -22,12 +22,12 @@ CFLAGS  += -g
 # warning param setting
 CFLAGS	+= -Wall
 # think use -Os.
-CFLAGS	+= -Wno-unused-function
-CFLAGS	+= -Wno-unused-variable
+# CFLAGS	+= -Wno-unused-function
+# CFLAGS	+= -Wno-unused-variable
 
-CFLAGS	+= -Wstrict-prototypes
-CFLAGS	+= -Wshadow
-# CFLAGS	+= -Werror
+# CFLAGS	+= -Wstrict-prototypes
+# CFLAGS	+= -Wshadow
+CFLAGS	+= -Werror
 
 # spec c version
 CFLAGS  += -std=c99

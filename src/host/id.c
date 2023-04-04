@@ -23,6 +23,7 @@
 #include "conn_internal.h"
 #include "keys.h"
 #include "common/rpa.h"
+#include "settings.h"
 
 #include "common/bt_storage_kv.h"
 #include "common/timer.h"
@@ -486,6 +487,7 @@ int bt_id_set_adv_private_addr(struct bt_le_ext_adv *adv)
 
 static void adv_pause_rpa(struct bt_le_ext_adv *adv, void *data)
 {
+#if defined(CONFIG_BT_EXT_ADV)
     bool *adv_enabled = data;
 
     /* Disable advertising sets to prepare them for RPA update. */
@@ -504,6 +506,7 @@ static void adv_pause_rpa(struct bt_le_ext_adv *adv, void *data)
         atomic_set_bit(adv->flags, BT_ADV_RPA_UPDATE);
         *adv_enabled = true;
     }
+#endif
 }
 
 static bool le_adv_rpa_timeout(void)
@@ -539,11 +542,13 @@ static void adv_enable_rpa(struct bt_le_ext_adv *adv, void *data)
             LOG_WRN("Failed to update advertiser RPA address (%d)", err);
         }
 
+#if defined(CONFIG_BT_EXT_ADV)
         err = bt_le_adv_set_enable_ext(adv, true, NULL);
         if (err)
         {
             LOG_ERR("Failed to enable advertising (err %d)", err);
         }
+#endif
     }
 }
 

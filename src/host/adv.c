@@ -658,7 +658,7 @@ static int hci_set_adv_ext_fragmented(struct bt_le_ext_adv *adv, uint16_t hci_op
         struct net_buf *buf;
         const size_t data_len = MIN(BT_HCI_LE_EXT_ADV_FRAG_MAX_LEN, stream.remaining_size);
         const size_t cmd_size = sizeof(*set_data) + data_len;
-        int err;
+        // int err;
 
         buf = bt_hci_cmd_create(hci_op, cmd_size);
         if (!buf)
@@ -1937,6 +1937,7 @@ static void adv_timeout(struct k_work *work)
     int err = 0;
     struct k_work_delayable *dwork;
     struct bt_le_ext_adv *adv;
+    ARG_UNUSED(adv);
 
     dwork = k_work_delayable_from_work(work);
     adv = CONTAINER_OF(dwork, struct bt_le_ext_adv, lim_adv_timeout_work);

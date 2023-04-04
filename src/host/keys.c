@@ -564,6 +564,7 @@ int bt_keys_loading(void)
     return 0;
 }
 
+__unused
 static void id_add(struct bt_keys *keys, void *user_data)
 {
     __ASSERT_NO_MSG(keys != NULL);
