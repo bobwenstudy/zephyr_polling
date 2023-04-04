@@ -1838,19 +1838,19 @@ int bt_gatt_service_register(struct bt_gatt_service *svc)
         return -EALREADY;
     }
 
-    k_sched_lock();
+    // k_sched_lock();
 
     err = gatt_register(svc);
     if (err < 0)
     {
-        k_sched_unlock();
+        // k_sched_unlock();
         return err;
     }
 
     /* Don't submit any work until the stack is initialized */
     if (!atomic_get(&init))
     {
-        k_sched_unlock();
+        // k_sched_unlock();
         return 0;
     }
 
@@ -1858,7 +1858,7 @@ int bt_gatt_service_register(struct bt_gatt_service *svc)
 
     db_changed();
 
-    k_sched_unlock();
+    // k_sched_unlock();
 
     return 0;
 }
@@ -1869,19 +1869,19 @@ int bt_gatt_service_unregister(struct bt_gatt_service *svc)
 
     __ASSERT(svc, "invalid parameters\n");
 
-    k_sched_lock();
+    // k_sched_lock();
 
     err = gatt_unregister(svc);
     if (err)
     {
-        k_sched_unlock();
+        // k_sched_unlock();
         return err;
     }
 
     /* Don't submit any work until the stack is initialized */
     if (!atomic_get(&init))
     {
-        k_sched_unlock();
+        // k_sched_unlock();
         return 0;
     }
 
@@ -1889,7 +1889,7 @@ int bt_gatt_service_unregister(struct bt_gatt_service *svc)
 
     db_changed();
 
-    k_sched_unlock();
+    // k_sched_unlock();
 
     return 0;
 }
@@ -1899,7 +1899,7 @@ bool bt_gatt_service_is_registered(const struct bt_gatt_service *svc)
     bool registered = false;
     sys_snode_t *node;
 
-    k_sched_lock();
+    // k_sched_lock();
     SYS_SLIST_FOR_EACH_NODE (&db, node)
     {
         if (&svc->node == node)
@@ -1909,7 +1909,7 @@ bool bt_gatt_service_is_registered(const struct bt_gatt_service *svc)
         }
     }
 
-    k_sched_unlock();
+    // k_sched_unlock();
 
     return registered;
 }
@@ -5798,7 +5798,7 @@ void bt_gatt_cancel(struct bt_conn *conn, void *params)
     struct bt_att_req *req;
     bt_att_func_t func = NULL;
 
-    k_sched_lock();
+    // k_sched_lock();
 
     req = bt_att_find_req_by_user_data(conn, params);
     if (req)
@@ -5807,7 +5807,7 @@ void bt_gatt_cancel(struct bt_conn *conn, void *params)
         bt_att_req_cancel(conn, req);
     }
 
-    k_sched_unlock();
+    // k_sched_unlock();
 
     if (func)
     {

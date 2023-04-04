@@ -416,7 +416,9 @@ int bt_settings_init(void)
 
     bt_storage_kv_get_id();
 #if defined(CONFIG_BT_SMP)
+#if defined(CONFIG_BT_SETTINGS)
     bt_keys_loading();
+#endif
 #endif
 #if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
     bt_storage_kv_get_appearance();

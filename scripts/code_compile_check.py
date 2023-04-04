@@ -39,6 +39,26 @@ chipset_sets = ['ats2851',
                 'csr8910', 
                 'pts_dongle',]
 
+# app_sets = ['app_test',
+#             'beacon', 
+#             'broadcaster', 
+#             'central', 
+#             'central_gatt_write', 
+#             'central_hr', 
+#             'central_ht',
+#             'eddystone',
+#             'ibeacon',
+#             'observer',
+#             'peripheral',
+#             'peripheral_csc',
+#             'peripheral_dis',
+#             'peripheral_esp',
+#             'peripheral_gatt_write',
+#             'peripheral_hids',
+#             'peripheral_hr',
+#             'peripheral_ht',
+#             'peripheral_throughput', ]
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cpu-arch",

@@ -112,19 +112,23 @@ static void adv_is_limited_enabled(struct bt_le_ext_adv *adv, void *data)
 
 static void adv_pause_enabled(struct bt_le_ext_adv *adv, void *data)
 {
+#if defined(CONFIG_BT_BROADCASTER)
     if (atomic_test_bit(adv->flags, BT_ADV_ENABLED))
     {
         atomic_set_bit(adv->flags, BT_ADV_PAUSED);
         bt_le_adv_set_enable(adv, false);
     }
+#endif
 }
 
 static void adv_unpause_enabled(struct bt_le_ext_adv *adv, void *data)
 {
+#if defined(CONFIG_BT_BROADCASTER)
     if (atomic_test_and_clear_bit(adv->flags, BT_ADV_PAUSED))
     {
         bt_le_adv_set_enable(adv, true);
     }
+#endif
 }
 #endif /* defined(CONFIG_BT_SMP) */
 
