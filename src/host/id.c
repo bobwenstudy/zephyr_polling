@@ -620,9 +620,7 @@ static void le_update_private_addr(void)
 static void le_force_rpa_timeout(void)
 {
 #if defined(CONFIG_BT_PRIVACY)
-    struct k_work_sync sync;
-
-    k_work_cancel_delayable_sync(&bt_dev.rpa_update, &sync);
+    k_work_cancel_delayable(&bt_dev.rpa_update);
 #endif
     (void)le_adv_rpa_timeout();
     le_rpa_invalidate();
@@ -2338,6 +2336,16 @@ int bt_id_init(void)
             return err;
         }
     }
+
+#if defined(CONFIG_BT_PRIVACY)
+    k_work_init_delayable(&bt_dev.rpa_update, rpa_timeout);
+#endif
+
+    return 0;
+}
+
+int bt_id_init_end(void)
+{
 
 #if defined(CONFIG_BT_PRIVACY)
     k_work_init_delayable(&bt_dev.rpa_update, rpa_timeout);

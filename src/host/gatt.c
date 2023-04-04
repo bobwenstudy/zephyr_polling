@@ -320,6 +320,7 @@ static struct gatt_sc_cfg *find_sc_cfg(uint8_t id, const bt_addr_le_t *addr)
 
 static void sc_store(struct gatt_sc_cfg *cfg)
 {
+#if 0
     char key[BT_SETTINGS_KEY_MAX];
     int err;
 
@@ -344,6 +345,7 @@ static void sc_store(struct gatt_sc_cfg *cfg)
 
     LOG_DBG("stored SC for %s (%s, 0x%04x-0x%04x)", bt_addr_le_str(&cfg->peer), key,
             cfg->data.start, cfg->data.end);
+#endif
 }
 
 static void clear_sc_cfg(struct gatt_sc_cfg *cfg)
@@ -354,6 +356,7 @@ static void clear_sc_cfg(struct gatt_sc_cfg *cfg)
 static int bt_gatt_clear_sc(uint8_t id, const bt_addr_le_t *addr)
 {
 
+#if 0
     struct gatt_sc_cfg *cfg;
 
     cfg = find_sc_cfg(id, (bt_addr_le_t *)addr);
@@ -391,12 +394,13 @@ static int bt_gatt_clear_sc(uint8_t id, const bt_addr_le_t *addr)
     }
 
     clear_sc_cfg(cfg);
-
+#endif
     return 0;
 }
 
 static void sc_clear(struct bt_conn *conn)
 {
+#if 0
     if (bt_addr_le_is_bonded(conn->id, &conn->le.dst))
     {
         int err;
@@ -417,18 +421,21 @@ static void sc_clear(struct bt_conn *conn)
             clear_sc_cfg(cfg);
         }
     }
+#endif
 }
 
 static void sc_reset(struct gatt_sc_cfg *cfg)
 {
     LOG_DBG("peer %s", bt_addr_le_str(&cfg->peer));
 
+#if 0
     memset(&cfg->data, 0, sizeof(cfg->data));
 
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
         sc_store(cfg);
     }
+#endif
 }
 
 static bool update_range(uint16_t *start, uint16_t *end, uint16_t new_start, uint16_t new_end)
@@ -1555,7 +1562,7 @@ static void delayed_store(struct k_work *work)
     }
 }
 #endif /* CONFIG_BT_SETTINGS_DELAYED_STORE */
-
+#if 0
 static void bt_gatt_service_init(void)
 {
     if (!atomic_cas(&service_init, 0, 1))
@@ -1568,7 +1575,7 @@ static void bt_gatt_service_init(void)
         last_static_handle += svc->attr_count;
     }
 }
-
+#endif
 STRUCT_SECTION_LIST_VAR_DEFINE(bt_gatt_service_static, CONFIG_BT_GATT_FIXED_SERVICES_SIZE);
 
 void bt_gatt_init(void)
@@ -6051,11 +6058,12 @@ static int ccc_set_cb(const char *name, size_t len_rd, settings_read_cb read_cb,
     return ccc_set(name, len_rd, read_cb, cb_arg);
 }
 
-SETTINGS_STATIC_HANDLER_DEFINE(bt_ccc, "bt/ccc", NULL, ccc_set_cb, NULL, NULL);
+// SETTINGS_STATIC_HANDLER_DEFINE(bt_ccc, "bt/ccc", NULL, ccc_set_cb, NULL, NULL);
 
 static int ccc_set_direct(const char *key, size_t len, settings_read_cb read_cb, void *cb_arg,
                           void *param)
 {
+#if 0
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
         const char *name;
@@ -6071,6 +6079,7 @@ static int ccc_set_direct(const char *key, size_t len, settings_read_cb read_cb,
 
         return ccc_set(name, len, read_cb, cb_arg);
     }
+#endif
     return 0;
 }
 
@@ -6083,6 +6092,7 @@ void bt_gatt_connected(struct bt_conn *conn)
     data.conn = conn;
     data.sec = BT_SECURITY_L1;
 
+#if 0
     /* Load CCC settings from backend if bonded */
     if (IS_ENABLED(CONFIG_BT_SETTINGS_CCC_LAZY_LOADING) &&
         bt_addr_le_is_bonded(conn->id, &conn->le.dst))
@@ -6103,7 +6113,7 @@ void bt_gatt_connected(struct bt_conn *conn)
 
         settings_load_subtree_direct(key, ccc_set_direct, (void *)key);
     }
-
+#endif
     bt_gatt_foreach_attr(0x0001, 0xffff, update_ccc, &data);
 
     /* BLUETOOTH CORE SPECIFICATION Version 5.1 | Vol 3, Part C page 2192:
@@ -6303,6 +6313,7 @@ static uint8_t ccc_save(const struct bt_gatt_attr *attr, uint16_t handle, void *
 
 int bt_gatt_store_ccc(uint8_t id, const bt_addr_le_t *addr)
 {
+#if 0
     struct ccc_save save;
     char key[BT_SETTINGS_KEY_MAX];
     size_t len;
@@ -6358,7 +6369,7 @@ int bt_gatt_store_ccc(uint8_t id, const bt_addr_le_t *addr)
     {
         LOG_DBG("  CCC: NULL");
     }
-
+#endif
     return 0;
 }
 
@@ -6650,6 +6661,7 @@ static int bt_gatt_clear_ccc(uint8_t id, const bt_addr_le_t *addr)
 
     bt_gatt_foreach_attr(0x0001, 0xffff, remove_peer_from_attr, &addr_with_id);
 
+#if 0
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
         char key[BT_SETTINGS_KEY_MAX];
@@ -6668,7 +6680,7 @@ static int bt_gatt_clear_ccc(uint8_t id, const bt_addr_le_t *addr)
 
         return settings_delete(key);
     }
-
+#endif
     return 0;
 }
 
@@ -6682,6 +6694,7 @@ static int bt_gatt_clear_cf(uint8_t id, const bt_addr_le_t *addr)
         clear_cf_cfg(cfg);
     }
 
+#if 0
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
         char key[BT_SETTINGS_KEY_MAX];
@@ -6700,7 +6713,7 @@ static int bt_gatt_clear_cf(uint8_t id, const bt_addr_le_t *addr)
 
         return settings_delete(key);
     }
-
+#endif
     return 0;
 }
 

@@ -83,7 +83,7 @@ static void init_list(struct bt_storage_kv_header *list, uint16_t list_cnt)
     // TODO: Do nothing.
 }
 
-static int get(uint16_t key, uint8_t *data, uint16_t *len)
+static int get(uint16_t key, uint8_t *data, int *len)
 {
     char file_name[STORAGE_FILE_PATH_MAX_LENGTH];
     printk("get: key: 0x%x\n", key);
@@ -99,7 +99,7 @@ static int get(uint16_t key, uint8_t *data, uint16_t *len)
     file = fopen(file_name, "rb");
     if (file == NULL)
     {
-        *len = 0;
+        *len = -1;
         return -1;
     }
     else
@@ -111,7 +111,7 @@ static int get(uint16_t key, uint8_t *data, uint16_t *len)
     return 0;
 }
 
-static void set(uint16_t key, uint8_t *data, uint16_t len)
+static void set(uint16_t key, uint8_t *data, int len)
 {
     char file_name[STORAGE_FILE_PATH_MAX_LENGTH];
     printk("set: key: 0x%x, len: %d\n", key, len);
@@ -124,7 +124,7 @@ static void set(uint16_t key, uint8_t *data, uint16_t len)
     write_to_file(file_name, data, len);
 }
 
-static void delete (uint16_t key, uint8_t *data, uint16_t len)
+static void delete(uint16_t key, uint8_t *data, int len)
 {
     char file_name[STORAGE_FILE_PATH_MAX_LENGTH];
     printk("delete: key: 0x%x\n", key);

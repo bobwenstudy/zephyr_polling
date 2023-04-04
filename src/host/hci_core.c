@@ -578,7 +578,7 @@ int bt_le_create_conn_ext(const struct bt_conn *conn)
 
     bt_hci_cmd_state_set_init(buf, &state, bt_dev.flags, BT_DEV_INITIATING, true);
 
-    return bt_hci_cmd_send(BT_HCI_OP_LE_EXT_CREATE_CONN, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_EXT_CREATE_CONN, buf, NULL);
 }
 
 static int bt_le_create_conn_legacy(const struct bt_conn *conn)
@@ -642,7 +642,7 @@ static int bt_le_create_conn_legacy(const struct bt_conn *conn)
 
     bt_hci_cmd_state_set_init(buf, &state, bt_dev.flags, BT_DEV_INITIATING, true);
 
-    return bt_hci_cmd_send(BT_HCI_OP_LE_CREATE_CONN, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_CREATE_CONN, buf, NULL);
 }
 
 int bt_le_create_conn(const struct bt_conn *conn)
@@ -664,7 +664,7 @@ int bt_le_create_conn_cancel(void)
 
     bt_hci_cmd_state_set_init(buf, &state, bt_dev.flags, BT_DEV_INITIATING, false);
 
-    return bt_hci_cmd_send(BT_HCI_OP_LE_CREATE_CONN_CANCEL, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_CREATE_CONN_CANCEL, buf, NULL);
 }
 #endif /* CONFIG_BT_CENTRAL */
 
@@ -683,7 +683,7 @@ int bt_hci_disconnect(uint16_t handle, uint8_t reason)
     disconn->handle = sys_cpu_to_le16(handle);
     disconn->reason = reason;
 
-    return bt_hci_cmd_send(BT_HCI_OP_DISCONNECT, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_DISCONNECT, buf, NULL);
 }
 
 static uint16_t disconnected_handles[CONFIG_BT_MAX_CONN];
@@ -821,7 +821,7 @@ static int hci_le_read_remote_features(struct bt_conn *conn)
 
     cp = net_buf_add(buf, sizeof(*cp));
     cp->handle = sys_cpu_to_le16(conn->handle);
-    return bt_hci_cmd_send(BT_HCI_OP_LE_READ_REMOTE_FEATURES, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_REMOTE_FEATURES, buf, NULL);
 }
 
 static int hci_read_remote_version(struct bt_conn *conn)
@@ -849,7 +849,7 @@ static int hci_read_remote_version(struct bt_conn *conn)
     cp = net_buf_add(buf, sizeof(*cp));
     cp->handle = sys_cpu_to_le16(conn->handle);
 
-    return bt_hci_cmd_send(BT_HCI_OP_READ_REMOTE_VERSION_INFO, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_READ_REMOTE_VERSION_INFO, buf, NULL);
 }
 
 /* LE Data Length Change Event is optional so this function just ignore
@@ -871,7 +871,7 @@ int bt_le_set_data_len(struct bt_conn *conn, uint16_t tx_octets, uint16_t tx_tim
     cp->tx_octets = sys_cpu_to_le16(tx_octets);
     cp->tx_time = sys_cpu_to_le16(tx_time);
 
-    return bt_hci_cmd_send(BT_HCI_OP_LE_SET_DATA_LEN, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_DATA_LEN, buf, NULL);
 }
 
 #if defined(CONFIG_BT_USER_PHY_UPDATE)
@@ -925,7 +925,7 @@ int bt_le_set_phy(struct bt_conn *conn, uint8_t all_phys, uint8_t pref_tx_phy, u
     cp->rx_phys = pref_rx_phy;
     cp->phy_opts = phy_opts;
 
-    return bt_hci_cmd_send(BT_HCI_OP_LE_SET_PHY, buf);
+    return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PHY, buf, NULL);
 }
 
 static struct bt_conn *find_pending_connect(uint8_t role, bt_addr_le_t *peer_addr)
@@ -3421,9 +3421,7 @@ static void hci_init_end(int err)
     bt_dev.hci_state = HCI_STATE_READY;
     bt_dev.hci_init_state = HCI_INIT_SUCCESS;
 
-#if defined(CONFIG_BT_PRIVACY)
-    k_work_init_delayable(&bt_dev.rpa_update, rpa_timeout);
-#endif
+    bt_id_init_end();
 
     if (IS_ENABLED(CONFIG_BT_CONN))
     {
@@ -3834,6 +3832,7 @@ int bt_set_name(const char *name)
 {
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
     size_t len = strlen(name);
+    int err;
 
     if (len > CONFIG_BT_DEVICE_NAME_MAX)
     {

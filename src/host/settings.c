@@ -27,7 +27,7 @@
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
 int bt_storage_kv_get_name(void)
 {
-    uint16_t len = sizeof(bt_dev.name) - 1;
+    ssize_t len = sizeof(bt_dev.name) - 1;
     bt_storage_kv_get(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, &len);
     if (len < 0)
     {
@@ -48,7 +48,7 @@ int bt_storage_kv_get_name(void)
 #if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
 int bt_storage_kv_get_appearance(void)
 {
-    uint16_t len = sizeof(bt_dev.appearance);
+    ssize_t len = sizeof(bt_dev.appearance);
     bt_storage_kv_get(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance, &len);
     if (len < 0)
     {
@@ -67,13 +67,14 @@ int bt_storage_kv_get_appearance(void)
 
 int bt_storage_kv_get_id(void)
 {
-    uint16_t len = sizeof(bt_dev.id_addr);
+    int len = 0;
     int ret = 0;
 
     if(!bt_dev.id_count)
     {
+        len = sizeof(bt_dev.id_addr);
         ret = bt_storage_kv_get(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr, &len);
-        if (len < sizeof(bt_dev.id_addr[0]))
+        if (ret || len < sizeof(bt_dev.id_addr[0]))
         {
             if (len < 0)
             {
@@ -106,7 +107,7 @@ int bt_storage_kv_get_id(void)
 #if defined(CONFIG_BT_PRIVACY)
     len = sizeof(bt_dev.irk);
     ret = bt_storage_kv_get(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, &len);
-    if (len < sizeof(bt_dev.irk[0]))
+    if (ret || len < sizeof(bt_dev.irk[0]))
     {
         if (len < 0)
         {
@@ -425,5 +426,11 @@ int bt_settings_init(void)
     bt_storage_kv_get_name();
 #endif
 
+#if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
+    if (bt_dev.name[0] == '\0')
+    {
+        bt_set_name(CONFIG_BT_DEVICE_NAME);
+    }
+#endif
     return 0;
 }

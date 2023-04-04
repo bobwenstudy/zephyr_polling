@@ -24,6 +24,7 @@ extern "C" {
 typedef int atomic_t;
 typedef atomic_t atomic_val_t;
 typedef void *atomic_ptr_t;
+typedef atomic_ptr_t atomic_ptr_val_t;
 
 /**
  * @defgroup atomic_apis Atomic Services APIs
@@ -89,7 +90,16 @@ static inline bool atomic_ptr_cas(atomic_ptr_t *target, void *old_value, void *n
 #elif defined(CONFIG_ATOMIC_OPERATIONS_C)
 __syscall bool atomic_ptr_cas(atomic_ptr_t *target, void *old_value, void *new_value);
 #else
-extern bool atomic_ptr_cas(atomic_ptr_t *target, void *old_value, void *new_value);
+static inline bool atomic_ptr_cas(atomic_ptr_t *target, void *old_value, void *new_value)
+{
+    if (*target == old_value)
+    {
+        *target = new_value;
+        return 1;
+    }
+
+    return 0;
+}
 #endif
 
 /**
@@ -222,7 +232,10 @@ static inline void *atomic_ptr_get(const atomic_ptr_t *target)
     return __atomic_load_n(target, __ATOMIC_SEQ_CST);
 }
 #else
-extern void *atomic_ptr_get(const atomic_ptr_t *target);
+static inline void *atomic_ptr_get(const atomic_ptr_t *target)
+{
+	return *target;
+}
 #endif
 
 /**
@@ -277,7 +290,13 @@ static inline void *atomic_ptr_set(atomic_ptr_t *target, void *value)
 #elif defined(CONFIG_ATOMIC_OPERATIONS_C)
 __syscall void *atomic_ptr_set(atomic_ptr_t *target, void *value);
 #else
-extern void *atomic_ptr_set(atomic_ptr_t *target, void *value);
+static inline void *atomic_ptr_set(atomic_ptr_t *target, void *value)
+{
+	atomic_ptr_val_t ret;
+	ret = *target;
+	*target = value;
+    return ret;
+}
 #endif
 
 /**

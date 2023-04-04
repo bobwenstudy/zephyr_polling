@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <zephyr/sys/byteorder.h>
+#include <base/byteorder.h>
 
 #include <tinycrypt/cmac_mode.h>
 #include <tinycrypt/constants.h>
@@ -13,10 +13,11 @@
 #include "common/bt_str.h"
 #include "bt_crypto.h"
 
-#define LOG_LEVEL CONFIG_BT_CRYPTO_LOG_LEVEL
-#include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(bt_crypto);
 
+#define LOG_MODULE_NAME bt_crypto
+#include "logging/bt_log.h"
+
+#ifdef CONFIG_BT_CRYPTO
 int bt_crypto_aes_cmac(const uint8_t *key, const uint8_t *in, size_t len, uint8_t *out)
 {
     struct tc_aes_key_sched_struct sched;
@@ -304,3 +305,4 @@ int bt_crypto_h8(const uint8_t k[16], const uint8_t s[16], const uint8_t key_id[
 
     return 0;
 }
+#endif

@@ -11,7 +11,7 @@ config BT_CRYPTO
 
 config BT_DEBUG_CRYPTO
 	bool "Bluetooth Cryptographic Toolbox debug"
-	select DEPRECATED
+	# select DEPRECATED
 	depends on BT_CRYPTO
 	help
 	  This option enables debug log output for the Bluetooth
@@ -21,7 +21,7 @@ config BT_DEBUG_CRYPTO
 	  the Long Term Key.
 	  Use of this feature in production is strongly discouraged.
 
-module = BT_CRYPTO
-legacy-debug-sym = BT_DEBUG_CRYPTO
-module-str = "Bluetooth Cryptographic Toolbox"
-source "subsys/bluetooth/common/Kconfig.template.log_config_bt"
+# module = BT_CRYPTO
+# legacy-debug-sym = BT_DEBUG_CRYPTO
+# module-str = "Bluetooth Cryptographic Toolbox"
+# source "subsys/bluetooth/common/Kconfig.template.log_config_bt"

@@ -33,17 +33,17 @@ void bt_storage_kv_init_list(struct bt_storage_kv_header *list, uint16_t list_cn
     (*kv_obj->init_list)(list, list_cnt);
 }
 
-int bt_storage_kv_get(uint16_t key, uint8_t *data, uint16_t *len)
+int bt_storage_kv_get(uint16_t key, uint8_t *data, int *len)
 {
     return (*kv_obj->get)(key, data, len);
 }
 
-void bt_storage_kv_set(uint16_t key, uint8_t *data, uint16_t len)
+void bt_storage_kv_set(uint16_t key, uint8_t *data, int len)
 {
     (*kv_obj->set)(key, data, len);
 }
 
-void bt_storage_kv_delete(uint16_t key, uint8_t *data, uint16_t len)
+void bt_storage_kv_delete(uint16_t key, uint8_t *data, int len)
 {
     (*kv_obj->delete)(key, data, len);
 }

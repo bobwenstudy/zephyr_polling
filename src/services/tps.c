@@ -22,7 +22,8 @@
 #include <bluetooth/uuid.h>
 #include <bluetooth/gatt.h>
 
-#include <logging/bt_log_impl.h>
+#define LOG_MODULE_NAME tps
+#include "logging/bt_log.h"
 
 #if defined(CONFIG_BT_TPS)
 static ssize_t read_tx_power_level(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf,

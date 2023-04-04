@@ -10,8 +10,6 @@
 #include <errno.h>
 #include <stdbool.h>
 
-#include "att_internal.h"
-
 #include "base/atomic.h"
 #include "base/common.h"
 #include "base/byteorder.h"
@@ -20,8 +18,10 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/uuid.h>
 #include <bluetooth/gatt.h>
+#include <bluetooth/att.h>
 #include <drivers/hci_driver.h>
 
+#include "att_internal.h"
 #define LOG_MODULE_NAME bt_att
 #include "logging/bt_log.h"
 
@@ -169,10 +169,10 @@ static struct bt_att_tx_meta_data *tx_meta_data_alloc(k_timeout_t timeout)
      * so if we're in the same workqueue but there are no immediate
      * contexts available, there's no chance we'll get one by waiting.
      */
-    if (k_current_get() == &k_sys_work_q.thread)
-    {
-        return k_fifo_get(&free_att_tx_meta_data, K_NO_WAIT);
-    }
+    // if (k_current_get() == &k_sys_work_q.thread)
+    // {
+    //     return k_fifo_get(&free_att_tx_meta_data, K_NO_WAIT);
+    // }
 
     return k_fifo_get(&free_att_tx_meta_data, timeout);
 }
@@ -3443,7 +3443,7 @@ static int bt_att_accept(struct bt_conn *conn, struct bt_l2cap_chan **ch)
         return -ENOMEM;
     }
 
-    att_handle_rsp_thread = k_current_get();
+    // att_handle_rsp_thread = k_current_get();
 
     (void)memset(att, 0, sizeof(*att));
     att->conn = conn;
@@ -3797,6 +3797,7 @@ static int bt_eatt_accept(struct bt_conn *conn, struct bt_l2cap_chan **chan)
 
 static void bt_eatt_init(void)
 {
+#if defined(CONFIG_BT_EATT)
     int err;
     static struct bt_l2cap_server eatt_l2cap = {
             .psm = BT_EATT_PSM,
@@ -3825,6 +3826,7 @@ static void bt_eatt_init(void)
     };
 
     bt_l2cap_register_ecred_cb(&cb);
+#endif /* CONFIG_BT_EATT */
 #endif /* CONFIG_BT_EATT */
 }
 

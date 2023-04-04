@@ -18,6 +18,7 @@
 #define _ZEPHYR_POLLING_UTILS_K_SEM_H_
 
 #include "base/sys_clock.h"
+#include "limits.h"
 
 #ifdef __cplusplus
 extern "C" {

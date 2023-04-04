@@ -26,6 +26,8 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/buf.h>
 
+#include "crypto/bt_crypto.h"
+
 #define LOG_MODULE_NAME bt_smp
 #include "logging/bt_log.h"
 

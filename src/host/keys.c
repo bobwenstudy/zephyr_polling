@@ -63,7 +63,7 @@ void bt_storage_kv_init_key_list_info(struct bt_storage_kv_key_list_header *list
 
 void bt_storage_kv_get_key_list_info(struct bt_storage_kv_key_list_header *list_info)
 {
-    uint16_t len = sizeof(struct bt_storage_kv_key_list_header);
+    int len = sizeof(struct bt_storage_kv_key_list_header);
     int ret = bt_storage_kv_get(KEY_INDEX_LE_KEY_INFO_LIST, (uint8_t *)list_info, &len);
     if ((ret < 0) || (len != sizeof(struct bt_storage_kv_key_list_header)) ||
         (list_info->magic != BT_KEYS_LIST_INFO_MAGIC_INFO))
@@ -159,7 +159,7 @@ int bt_storage_kv_get_key_item(uint8_t index, struct bt_keys *keys)
 {
     // TODO: check the old one?
     BT_ASSERT(index < BT_SETTINGS_KEY_MAX);
-    uint16_t len = BT_KEYS_STORAGE_LEN;
+    int len = BT_KEYS_STORAGE_LEN;
 
     // TODO: length judge?
     return bt_storage_kv_get(KEY_INDEX_LE_KEY_INFO_ITEM(index), keys->storage_start, &len);

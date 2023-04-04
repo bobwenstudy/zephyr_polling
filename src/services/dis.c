@@ -23,7 +23,8 @@
 #include <bluetooth/gatt.h>
 #include <bluetooth/uuid.h>
 
-#include <logging/bt_log_impl.h>
+#define LOG_MODULE_NAME dis
+#include "logging/bt_log.h"
 
 #if defined(CONFIG_BT_DIS)
 

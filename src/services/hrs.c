@@ -22,7 +22,8 @@
 #include <bluetooth/uuid.h>
 #include <bluetooth/gatt.h>
 
-#include <logging/bt_log_impl.h>
+#define LOG_MODULE_NAME hrs
+#include "logging/bt_log.h"
 
 #if defined(CONFIG_BT_HRS)
 #define GATT_PERM_READ_MASK                                                                        \

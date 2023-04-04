@@ -18,6 +18,7 @@
 #include "utils/slist.h"
 #include "utils/k_fifo.h"
 #include "base/__assert.h"
+#include "base/check.h"
 
 #include <bluetooth/hci.h>
 #include <bluetooth/bluetooth.h>
@@ -69,7 +70,7 @@ static void conn_tx_destroy(struct bt_conn *conn, struct bt_conn_tx *tx)
      */
     tx_free(tx);
 
-    cb(conn, user_data, -ESHUTDOWN);
+    cb(conn, user_data, -EFAULT);
 }
 
 #if defined(CONFIG_BT_CONN_TX)
@@ -816,7 +817,7 @@ void bt_conn_cleanup_all(void)
 {
     bt_conn_foreach(BT_CONN_TYPE_ALL, conn_destroy, NULL);
 }
-
+#if 0
 static int conn_prepare_events(struct bt_conn *conn, struct k_poll_event *events)
 {
     if (!atomic_get(&conn->ref))
@@ -910,7 +911,7 @@ int bt_conn_prepare_events(struct k_poll_event events[])
 
     return ev_count;
 }
-
+#endif
 void bt_conn_process_tx(struct bt_conn *conn)
 {
     struct net_buf *buf;
@@ -1079,7 +1080,7 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
             break;
         }
         k_fifo_init(&conn->tx_queue);
-        k_poll_signal_raise(&conn_change, 0);
+        // k_poll_signal_raise(&conn_change, 0);
 
         if (IS_ENABLED(CONFIG_BT_ISO) && conn->type == BT_CONN_TYPE_ISO)
         {
@@ -1121,15 +1122,14 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
             tx_notify(conn);
 
             /* Cancel Connection Update if it is pending */
-            if ((conn->type == BT_CONN_TYPE_LE) &&
-                (k_work_delayable_busy_get(&conn->deferred_work) &
-                 (K_WORK_QUEUED | K_WORK_DELAYED)))
+            if ((conn->type == BT_CONN_TYPE_LE))
             {
                 k_work_cancel_delayable(&conn->deferred_work);
             }
 
-            atomic_set_bit(conn->flags, BT_CONN_CLEANUP);
-            k_poll_signal_raise(&conn_change, 0);
+            // atomic_set_bit(conn->flags, BT_CONN_CLEANUP);
+            // k_poll_signal_raise(&conn_change, 0);
+            conn_cleanup(conn);
             /* The last ref will be dropped during cleanup */
             break;
         case BT_CONN_CONNECTING:
@@ -1406,7 +1406,7 @@ struct net_buf *bt_conn_create_pdu_timeout(struct spool *pool, size_t reserve, k
      * PDU must not be allocated from ISR as we block with 'K_FOREVER'
      * during the allocation
      */
-    __ASSERT_NO_MSG(!k_is_in_isr());
+    // __ASSERT_NO_MSG(!k_is_in_isr());
 
     if (!pool)
     {
@@ -1528,13 +1528,13 @@ static void notify_connected(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->connected)
-        {
-            cb->connected(conn, conn->err);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->connected)
+    //     {
+    //         cb->connected(conn, conn->err);
+    //     }
+    // }
 }
 
 static void notify_disconnected(struct bt_conn *conn)
@@ -1549,13 +1549,13 @@ static void notify_disconnected(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->disconnected)
-        {
-            cb->disconnected(conn, conn->err);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->disconnected)
+    //     {
+    //         cb->disconnected(conn, conn->err);
+    //     }
+    // }
 }
 
 #if defined(CONFIG_BT_REMOTE_INFO)
@@ -1580,13 +1580,13 @@ void notify_remote_info(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->remote_info_available)
-        {
-            cb->remote_info_available(conn, &remote_info);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->remote_info_available)
+    //     {
+    //         cb->remote_info_available(conn, &remote_info);
+    //     }
+    // }
 }
 #endif /* defined(CONFIG_BT_REMOTE_INFO) */
 
@@ -1613,13 +1613,13 @@ void notify_le_param_updated(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->le_param_updated)
-        {
-            cb->le_param_updated(conn, conn->le.interval, conn->le.latency, conn->le.timeout);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->le_param_updated)
+    //     {
+    //         cb->le_param_updated(conn, conn->le.interval, conn->le.latency, conn->le.timeout);
+    //     }
+    // }
 }
 
 #if defined(CONFIG_BT_USER_DATA_LEN_UPDATE)
@@ -1635,13 +1635,13 @@ void notify_le_data_len_updated(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->le_data_len_updated)
-        {
-            cb->le_data_len_updated(conn, &conn->le.data_len);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->le_data_len_updated)
+    //     {
+    //         cb->le_data_len_updated(conn, &conn->le.data_len);
+    //     }
+    // }
 }
 #endif
 
@@ -1658,13 +1658,13 @@ void notify_le_phy_updated(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->le_phy_updated)
-        {
-            cb->le_phy_updated(conn, &conn->le.phy);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->le_phy_updated)
+    //     {
+    //         cb->le_phy_updated(conn, &conn->le.phy);
+    //     }
+    // }
 }
 #endif
 
@@ -1698,26 +1698,26 @@ bool le_param_req(struct bt_conn *conn, struct bt_le_conn_param *param)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (!cb->le_param_req)
-        {
-            continue;
-        }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (!cb->le_param_req)
+    //     {
+    //         continue;
+    //     }
 
-        if (!cb->le_param_req(conn, param))
-        {
-            return false;
-        }
+    //     if (!cb->le_param_req(conn, param))
+    //     {
+    //         return false;
+    //     }
 
-        /* The callback may modify the parameters so we need to
-         * double-check that it returned valid parameters.
-         */
-        if (!bt_le_conn_params_valid(param))
-        {
-            return false;
-        }
-    }
+    //     /* The callback may modify the parameters so we need to
+    //      * double-check that it returned valid parameters.
+    //      */
+    //     if (!bt_le_conn_params_valid(param))
+    //     {
+    //         return false;
+    //     }
+    // }
 
     /* Default to accepting if there's no app callback */
     return true;
@@ -2206,13 +2206,13 @@ void bt_conn_identity_resolved(struct bt_conn *conn)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->identity_resolved)
-        {
-            cb->identity_resolved(conn, rpa, &conn->le.dst);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->identity_resolved)
+    //     {
+    //         cb->identity_resolved(conn, rpa, &conn->le.dst);
+    //     }
+    // }
 }
 
 int bt_conn_le_start_encryption(struct bt_conn *conn, uint8_t rand[8], uint8_t ediv[2],
@@ -2323,13 +2323,13 @@ void bt_conn_security_changed(struct bt_conn *conn, uint8_t hci_err, enum bt_sec
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->security_changed)
-        {
-            cb->security_changed(conn, conn->sec_level, err);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->security_changed)
+    //     {
+    //         cb->security_changed(conn, conn->sec_level, err);
+    //     }
+    // }
 
 #if defined(CONFIG_BT_KEYS_OVERWRITE_OLDEST)
     if (!err && conn->sec_level >= BT_SECURITY_L2)
@@ -3455,13 +3455,13 @@ void bt_hci_le_df_connection_iq_report_common(uint8_t event, struct net_buf *buf
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->cte_report_cb)
-        {
-            cb->cte_report_cb(conn, &iq_report);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->cte_report_cb)
+    //     {
+    //         cb->cte_report_cb(conn, &iq_report);
+    //     }
+    // }
 
     bt_conn_unref(conn);
 }
@@ -3502,13 +3502,13 @@ void bt_hci_le_df_cte_req_failed(struct net_buf *buf)
         }
     }
 
-    STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
-    {
-        if (cb->cte_report_cb)
-        {
-            cb->cte_report_cb(conn, &iq_report);
-        }
-    }
+    // STRUCT_SECTION_FOREACH(bt_conn_cb, cb)
+    // {
+    //     if (cb->cte_report_cb)
+    //     {
+    //         cb->cte_report_cb(conn, &iq_report);
+    //     }
+    // }
 
     bt_conn_unref(conn);
 }
