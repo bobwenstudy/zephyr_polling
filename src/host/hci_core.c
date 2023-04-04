@@ -3043,7 +3043,9 @@ static void hci_state_event_process(uint16_t opcode)
                     return;
                 }
                 bt_dev.hci_init_state = HCI_INIT_SET_RANDOM_BD_ADDR;
+                break;
             }
+            hci_init_end(0);
             break;
         case HCI_INIT_READ_BD_ADDR:
             if (opcode != BT_HCI_OP_READ_BD_ADDR)
