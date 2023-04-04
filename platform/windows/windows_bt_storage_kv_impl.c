@@ -99,6 +99,7 @@ static int get(uint16_t key, uint8_t *data, uint16_t *len)
     file = fopen(file_name, "rb");
     if (file == NULL)
     {
+        *len = 0;
         return -1;
     }
     else

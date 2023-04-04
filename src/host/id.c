@@ -32,79 +32,6 @@
 
 #define ID_DATA_LEN(array) (bt_dev.id_count * sizeof(array[0]))
 
-void bt_storage_kv_set_id(void)
-{
-    bt_storage_kv_set(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr,
-                      ID_DATA_LEN(bt_dev.id_addr));
-#if defined(CONFIG_BT_PRIVACY)
-    bt_storage_kv_set(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, ID_DATA_LEN(bt_dev.irk));
-#endif
-}
-
-int bt_storage_kv_get_id(void)
-{
-    uint16_t len = sizeof(bt_dev.id_addr);
-    int ret;
-    ARG_UNUSED(ret);
-    bt_storage_kv_get(KEY_INDEX_LE_ID_ADDR_LIST, (uint8_t *)bt_dev.id_addr, &len);
-    if (len < sizeof(bt_dev.id_addr[0]))
-    {
-        if (len < 0)
-        {
-            LOG_ERR("Failed to read ID address from storage"
-                   " (err %zd)",
-                   len);
-        }
-        else
-        {
-            LOG_ERR("Invalid length ID address in storage");
-            // BT_HEXDUMP_DBG(&bt_dev.id_addr, len,
-            // 			"data read");
-        }
-        (void)memset(bt_dev.id_addr, 0, sizeof(bt_dev.id_addr));
-        bt_dev.id_count = 0U;
-    }
-    else
-    {
-        int i;
-
-        bt_dev.id_count = len / sizeof(bt_dev.id_addr[0]);
-        for (i = 0; i < bt_dev.id_count; i++)
-        {
-            LOG_DBG("ID[%d] %s", i, bt_addr_le_str(&bt_dev.id_addr[i]));
-        }
-    }
-
-#if defined(CONFIG_BT_PRIVACY)
-    len = sizeof(bt_dev.irk);
-    ret = bt_storage_kv_get(KEY_INDEX_LE_ID_IRK_LIST, (uint8_t *)bt_dev.irk, &len);
-    if (len < sizeof(bt_dev.irk[0]))
-    {
-        if (len < 0)
-        {
-            LOG_ERR("Failed to read IRK from storage"
-                   " (err %zd)",
-                   len);
-        }
-        else
-        {
-            LOG_ERR("Invalid length IRK in storage");
-            (void)memset(bt_dev.irk, 0, sizeof(bt_dev.irk));
-        }
-    }
-    else
-    {
-        int i, count;
-
-        count = len / sizeof(bt_dev.irk[0]);
-        for (i = 0; i < count; i++)
-        {
-            LOG_DBG("IRK[%d] %s", i, bt_hex(bt_dev.irk[i], 16));
-        }
-    }
-#endif
-    return 0;
-}
 
 struct bt_adv_id_check_data
 {
@@ -1419,7 +1346,7 @@ static int id_create(uint8_t id, bt_addr_le_t *addr, uint8_t *irk)
      * we don't know the flash content, so it's potentially harmful to
      * try to write anything there.
      */
-    if (IS_ENABLED(CONFIG_BT_SETTINGS) && atomic_test_bit(bt_dev.flags, BT_DEV_READY))
+    if (IS_ENABLED(CONFIG_BT_SETTINGS) /*&& atomic_test_bit(bt_dev.flags, BT_DEV_READY)*/)
     {
         bt_settings_save_id();
     }
@@ -1592,7 +1519,7 @@ int bt_id_delete(uint8_t id)
         bt_dev.id_count--;
     }
 
-    if (IS_ENABLED(CONFIG_BT_SETTINGS) && atomic_test_bit(bt_dev.flags, BT_DEV_READY))
+    if (IS_ENABLED(CONFIG_BT_SETTINGS) /*&& atomic_test_bit(bt_dev.flags, BT_DEV_READY)*/)
     {
         bt_settings_save_id();
     }

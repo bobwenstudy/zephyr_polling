@@ -40,7 +40,7 @@ uint8_t spool_get_id(struct spool *pool, struct net_buf *buf)
 {
     for (int i = 0; i < pool->num; i++)
     {
-        if(buf == (uint8_t *)(pool->__buf +
+        if(buf == (struct net_buf *)(pool->__buf +
                              ((pool->data_size + sizeof(struct net_buf) + pool->user_data_size) + 3) / 4 * 4 *
                                      i))
                                      {

@@ -3010,7 +3010,7 @@ static void hci_state_event_process(uint16_t opcode)
                 return;
             }
             
-            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            if (!bt_dev.id_count)
             {
                 LOG_DBG("No user identity. Trying to set public.");
                 
@@ -3020,7 +3020,7 @@ static void hci_state_event_process(uint16_t opcode)
                 break;
             }
             
-            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            if (!bt_dev.id_count)
             {
                 LOG_DBG("No public address. Trying to set static random.");
 
@@ -3053,7 +3053,7 @@ static void hci_state_event_process(uint16_t opcode)
                 return;
             }
             
-            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            if (!bt_dev.id_count)
             {
                 LOG_DBG("No public address. Trying to set static random.");
 
@@ -3429,6 +3429,17 @@ static void hci_init_end(int err)
     {
         err = bt_conn_init();
     }
+
+    // if (IS_ENABLED(CONFIG_BT_SETTINGS))
+    // {
+    //     if (!bt_dev.id_count)
+    //     {
+    //         LOG_INF("No ID address. App must call settings_load()");
+    //         return 0;
+    //     }
+
+    //     atomic_set_bit(bt_dev.flags, BT_DEV_PRESET_ID);
+    // }
 
     bt_finalize_init();
 
@@ -3819,39 +3830,6 @@ BUILD_ASSERT(DEVICE_NAME_LEN < CONFIG_BT_DEVICE_NAME_MAX);
 BUILD_ASSERT(DEVICE_NAME_LEN < 248);
 #endif
 
-void bt_storage_kv_set_name(size_t val_len)
-{
-#if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
-    bt_storage_kv_set(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, val_len);
-#endif
-}
-
-int bt_storage_kv_get_name(void)
-{
-#if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
-    uint16_t len = sizeof(bt_dev.name) - 1;
-    bt_storage_kv_get(KEY_INDEX_LE_ID_NAME, (uint8_t *)&bt_dev.name, &len);
-    if (len < 0)
-    {
-        LOG_ERR("Failed to read device name from storage"
-               " (err %zd)",
-               len);
-    }
-    else
-    {
-        bt_dev.name[len] = '\0';
-
-        LOG_DBG("Name set to %s", bt_dev.name);
-    }
-#endif
-    return 0;
-}
-
-void bt_name_loading(void)
-{
-    bt_storage_kv_get_name();
-}
-
 int bt_set_name(const char *name)
 {
 #if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
@@ -3872,7 +3850,11 @@ int bt_set_name(const char *name)
 
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
-        bt_storage_kv_set_name(len);
+        err = settings_save_one("bt/name", bt_dev.name, len);
+        if (err)
+        {
+            LOG_WRN("Unable to store name");
+        }
     }
 
     return 0;
@@ -3900,42 +3882,22 @@ uint16_t bt_get_appearance(void)
 }
 
 #if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
-void bt_storage_kv_set_appearance(void)
-{
-    bt_storage_kv_set(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance,
-                      sizeof(bt_dev.appearance));
-}
-
-int bt_storage_kv_get_appearance(void)
-{
-    uint16_t len = sizeof(bt_dev.appearance);
-    bt_storage_kv_get(KEY_INDEX_LE_ID_APPEARANCE, (uint8_t *)&bt_dev.appearance, &len);
-    if (len < 0)
-    {
-        LOG_ERR("Failed to read device appearance from storage"
-               " (err %zd)",
-               len);
-    }
-    else
-    {
-        LOG_DBG("Appearance set to %d", bt_dev.appearance);
-    }
-
-    return 0;
-}
-
-void bt_appearance_loading(void)
-{
-    bt_storage_kv_get_appearance();
-}
-
 int bt_set_appearance(uint16_t appearance)
 {
-    bt_dev.appearance = appearance;
-
-    if (IS_ENABLED(CONFIG_BT_SETTINGS))
+    if (bt_dev.appearance != appearance)
     {
-        bt_storage_kv_set_appearance();
+        if (IS_ENABLED(CONFIG_BT_SETTINGS))
+        {
+            int err = settings_save_one("bt/appearance", &appearance, sizeof(appearance));
+
+            if (err)
+            {
+                LOG_ERR("Unable to save setting 'bt/appearance' (err %d).", err);
+                return err;
+            }
+        }
+
+        bt_dev.appearance = appearance;
     }
 
     return 0;
