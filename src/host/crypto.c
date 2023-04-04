@@ -80,6 +80,47 @@ int prng_init(void)
     return prng_reseed(&prng);
 }
 
+static int prng_reseed_new(struct tc_hmac_prng_struct *h, uint8_t* perso)
+{
+    uint8_t seed[32];
+    int64_t extra;
+    int ret;
+
+    // temp work.
+    memcpy(seed, perso, 8);
+    // ret = bt_hci_le_rand(seed, sizeof(seed));
+    // if (ret)
+    // {
+    //     return ret;
+    // }
+
+    extra = sys_clock_tick_get();
+
+    ret = tc_hmac_prng_reseed(h, seed, sizeof(seed), (uint8_t *)&extra, sizeof(extra));
+    if (ret == TC_CRYPTO_FAIL)
+    {
+        LOG_ERR("Failed to re-seed PRNG");
+        return -EIO;
+    }
+
+    return 0;
+}
+
+int prng_init_new(uint8_t* perso)
+{
+    int ret;
+
+    ret = tc_hmac_prng_init(&prng, perso, 8);
+    if (ret == TC_CRYPTO_FAIL)
+    {
+        LOG_ERR("Failed to initialize PRNG");
+        return -EIO;
+    }
+
+    /* re-seed is needed after init */
+    return prng_reseed_new(&prng, perso);
+}
+
 #if defined(CONFIG_BT_HOST_CRYPTO_PRNG)
 int bt_rand(void *buf, size_t len)
 {
@@ -93,7 +134,8 @@ int bt_rand(void *buf, size_t len)
     ret = tc_hmac_prng_generate(buf, len, &prng);
     if (ret == TC_HMAC_PRNG_RESEED_REQ)
     {
-        ret = prng_reseed(&prng);
+        uint8_t perso[8];
+        ret = prng_reseed_new(&prng, perso);
         if (ret)
         {
             return ret;

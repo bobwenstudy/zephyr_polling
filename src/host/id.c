@@ -200,7 +200,7 @@ static void adv_unpause_enabled(struct bt_le_ext_adv *adv, void *data)
 }
 #endif /* defined(CONFIG_BT_SMP) */
 
-static int set_random_address(const bt_addr_t *addr)
+int set_random_address(const bt_addr_t *addr)
 {
     struct net_buf *buf;
     int err;
@@ -221,7 +221,7 @@ static int set_random_address(const bt_addr_t *addr)
 
     net_buf_add_mem(buf, addr, sizeof(*addr));
 
-    err = bt_hci_cmd_send(BT_HCI_OP_LE_SET_RANDOM_ADDRESS, buf);
+    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_RANDOM_ADDRESS, buf, NULL);
     if (err)
     {
         return err;
@@ -269,7 +269,7 @@ int bt_id_set_adv_random_addr(struct bt_le_ext_adv *adv, const bt_addr_t *addr)
     cp->handle = adv->handle;
     bt_addr_copy(&cp->bdaddr, addr);
 
-    err = bt_hci_cmd_send(BT_HCI_OP_LE_SET_ADV_SET_RANDOM_ADDR, buf);
+    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_ADV_SET_RANDOM_ADDR, buf, NULL);
     if (err)
     {
         return err;
@@ -1715,6 +1715,46 @@ int bt_setup_public_id_addr(void)
     }
 
     return id_create(BT_ID_DEFAULT, &addr, irk);
+}
+
+
+int bt_setup_public_id_addr_new(bt_addr_le_t* addr)
+{
+    uint8_t *irk = NULL;
+
+    if (!bt_dev.id_count)
+    {
+        return 0;
+    }
+
+#if defined(CONFIG_BT_PRIVACY)
+    uint8_t ir_irk[16];
+    uint8_t ir[16];
+
+    bt_read_identity_root(ir);
+
+    if (!IS_ENABLED(CONFIG_BT_PRIVACY_RANDOMIZE_IR))
+    {
+        if (!bt_smp_irk_get(ir, ir_irk))
+        {
+            irk = ir_irk;
+        }
+    }
+#endif /* defined(CONFIG_BT_PRIVACY) */
+
+    /* If true, `id_create` will randomize the IRK. */
+    if (!irk && IS_ENABLED(CONFIG_BT_PRIVACY))
+    {
+        /* `id_create` will not store the id when called before BT_DEV_READY.
+         * But since part of the id will be randomized, it needs to be stored.
+         */
+        if (IS_ENABLED(CONFIG_BT_SETTINGS))
+        {
+            atomic_set_bit(bt_dev.flags, BT_DEV_STORE_ID);
+        }
+    }
+
+    return id_create(BT_ID_DEFAULT, addr, irk);
 }
 
 #if defined(CONFIG_BT_HCI_VS_EXT)

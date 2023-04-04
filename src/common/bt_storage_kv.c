@@ -10,14 +10,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
 
 #include "bt_storage_kv.h"
 
+#include <base/types.h>
+
 #define LOG_MODULE_NAME bt_storage_kv
 #include "logging/bt_log.h"
+
 
 static const struct bt_storage_kv_impl *kv_obj;
 

@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-#ifdef CONFIG_BT_DEBUG
-#define LOG_LEVEL CONFIG_BT_LOG_LEVEL
-#else
-#define LOG_LEVEL LOG_IMPL_LEVEL_NONE
-#endif
+// #ifdef CONFIG_BT_DEBUG
+// #define LOG_LEVEL CONFIG_BT_LOG_LEVEL
+// #else
+// #define LOG_LEVEL LOG_IMPL_LEVEL_NONE
+// #endif
 
-// #define LOG_LEVEL LOG_IMPL_LEVEL_DBG
+#define LOG_LEVEL LOG_IMPL_LEVEL_DBG
 
 #define LOG_DBG(fmt, ...)  LOG_IMPL_DBG(LOG_MODULE_NAME, LOG_LEVEL, fmt, ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)  LOG_IMPL_ERR(LOG_MODULE_NAME, LOG_LEVEL, fmt, ##__VA_ARGS__)
@@ -81,6 +81,65 @@ extern "C" {
 #define BT_ASSERT(cond)               __ASSERT_NO_MSG(cond)
 #define BT_ASSERT_MSG(cond, msg, ...) __ASSERT(cond, msg, ##__VA_ARGS__)
 #endif /* CONFIG_BT_ASSERT*/
+
+#define Z_LOG_HEXDUMP(_level, _data, _length, _str) \
+    LOG_IMPL_DBG(LOG_MODULE_NAME, LOG_LEVEL, _str "%s", bt_hex_real(_data, _length))
+
+/**
+ * @brief Writes an ERROR level hexdump message to the log.
+ *
+ * @details It's meant to report severe errors, such as those from which it's
+ * not possible to recover.
+ *
+ * @param _data   Pointer to the data to be logged.
+ * @param _length Length of data (in bytes).
+ * @param _str    Persistent, raw string.
+ */
+#define LOG_HEXDUMP_ERR(_data, _length, _str) \
+    LOG_IMPL_ERR(LOG_MODULE_NAME, LOG_LEVEL, _str "%s", bt_hex_real(_data, _length))
+	// Z_LOG_HEXDUMP(LOG_LEVEL_ERR, _data, _length, _str)
+
+/**
+ * @brief Writes a WARNING level message to the log.
+ *
+ * @details It's meant to register messages related to unusual situations that
+ * are not necessarily errors.
+ *
+ * @param _data   Pointer to the data to be logged.
+ * @param _length Length of data (in bytes).
+ * @param _str    Persistent, raw string.
+ */
+#define LOG_HEXDUMP_WRN(_data, _length, _str) \
+    LOG_IMPL_WRN(LOG_MODULE_NAME, LOG_LEVEL, _str "%s", bt_hex_real(_data, _length))
+	// Z_LOG_HEXDUMP(LOG_LEVEL_WRN, _data, _length, _str)
+
+/**
+ * @brief Writes an INFO level message to the log.
+ *
+ * @details It's meant to write generic user oriented messages.
+ *
+ * @param _data   Pointer to the data to be logged.
+ * @param _length Length of data (in bytes).
+ * @param _str    Persistent, raw string.
+ */
+#define LOG_HEXDUMP_INF(_data, _length, _str) \
+    LOG_IMPL_INF(LOG_MODULE_NAME, LOG_LEVEL, _str "%s", bt_hex_real(_data, _length))
+	// Z_LOG_HEXDUMP(LOG_LEVEL_INF, _data, _length, _str)
+
+/**
+ * @brief Writes a DEBUG level message to the log.
+ *
+ * @details It's meant to write developer oriented information.
+ *
+ * @param _data   Pointer to the data to be logged.
+ * @param _length Length of data (in bytes).
+ * @param _str    Persistent, raw string.
+ */
+#define LOG_HEXDUMP_DBG(_data, _length, _str) \
+    LOG_IMPL_DBG(LOG_MODULE_NAME, LOG_LEVEL, _str "%s", bt_hex_real(_data, _length))
+	// Z_LOG_HEXDUMP(LOG_LEVEL_DBG, _data, _length, _str)
+
+
 
 #define BT_HEXDUMP_DBG(_data, _length, _str) LOG_HEXDUMP_DBG((const uint8_t *)_data, _length, _str)
 

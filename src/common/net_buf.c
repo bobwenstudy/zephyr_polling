@@ -95,14 +95,14 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, k_timeout_t timeout)
 {
     struct net_buf *buf, *frag;
 
-    NET_BUF_DBG("test_head: %p, tail: %p", fifo->_queue.data_q.head, fifo->_queue.data_q.tail);
+    // NET_BUF_DBG("test_head: %p, tail: %p", fifo->_queue.data_q.head, fifo->_queue.data_q.tail);
     buf = (struct net_buf *)k_fifo_get(fifo, timeout);
     if (!buf)
     {
         return NULL;
     }
-    NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p", fifo->_queue.data_q.head,
-                fifo->_queue.data_q.tail, buf, buf->node.next);
+    // NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p", fifo->_queue.data_q.head,
+    //             fifo->_queue.data_q.tail, buf, buf->node.next);
 
     // NET_BUF_DBG("%s():%d: buf %p fifo %p", func, line, buf, fifo);
 
@@ -152,7 +152,7 @@ void net_buf_slist_put(sys_slist_t *list, struct net_buf *buf)
         tail->flags |= NET_BUF_FRAGS;
         NET_BUF_DBG("buf %p ref %u pool_id %p frags %p", buf, buf->ref, buf->pool_id, buf->frags);
     }
-    NET_BUF_DBG("test_flag %d", buf->flags);
+    // NET_BUF_DBG("test_flag %d", buf->flags);
 
     sys_slist_append_list(list, &buf->node, &tail->node);
 }
@@ -169,7 +169,7 @@ struct net_buf *net_buf_slist_get(sys_slist_t *list)
     {
         return NULL;
     }
-    NET_BUF_DBG("test_flag %d", buf->flags);
+    // NET_BUF_DBG("test_flag %d", buf->flags);
 
     /* Get any fragments belonging to this buffer */
     for (frag = buf; (frag->flags & NET_BUF_FRAGS); frag = frag->frags)
@@ -201,11 +201,11 @@ void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
         NET_BUF_DBG("buf %p ref %u pool_id %p frags %p", buf, buf->ref, buf->pool_id, buf->frags);
     }
 
-    NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p, tail: %p", fifo->_queue.data_q.head,
-                fifo->_queue.data_q.tail, buf, buf->node.next, tail);
+    // NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p, tail: %p", fifo->_queue.data_q.head,
+    //             fifo->_queue.data_q.tail, buf, buf->node.next, tail);
     k_fifo_put_list(fifo, buf, tail);
-    NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p, tail: %p", fifo->_queue.data_q.head,
-                fifo->_queue.data_q.tail, buf, buf->node.next, tail);
+    // NET_BUF_DBG("test_head: %p, tail: %p, buf: %p, node: %p, tail: %p", fifo->_queue.data_q.head,
+    //             fifo->_queue.data_q.tail, buf, buf->node.next, tail);
 }
 
 #if defined(CONFIG_BT_DEBUG)
@@ -230,7 +230,7 @@ void net_buf_unref(struct net_buf *buf)
         NET_BUF_DBG("%s():%d: buf %p", func, line, buf);
 #endif
         NET_BUF_DBG("buf %p ref %u pool_id %p frags %p", buf, buf->ref, buf->pool_id, buf->frags);
-        NET_BUF_DBG("test_flag %d", buf->flags);
+        // NET_BUF_DBG("test_flag %d", buf->flags);
 
         if (--buf->ref > 0)
         {
@@ -254,7 +254,7 @@ struct net_buf *net_buf_ref(struct net_buf *buf)
     __ASSERT_NO_MSG(buf);
 
     NET_BUF_DBG("net_buf_ref, buf %p (old) ref %u pool_id %p", buf, buf->ref, buf->pool_id);
-    NET_BUF_DBG("test_flag %d", buf->flags);
+    // NET_BUF_DBG("test_flag %d", buf->flags);
     buf->ref++;
     return buf;
 }

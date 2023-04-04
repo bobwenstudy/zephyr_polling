@@ -292,7 +292,8 @@ int bt_hci_cmd_send(uint16_t opcode, struct net_buf *buf)
 
 int bt_hci_cmd_send_sync(uint16_t opcode, struct net_buf *buf, struct net_buf **rsp)
 {
-    BT_ASSERT(rsp != NULL);
+    // if need response, must change to async.
+    BT_ASSERT(rsp == NULL);
 
     bt_hci_cmd_send(opcode, buf);
 
@@ -2640,6 +2641,21 @@ static void le_read_buffer_size_complete(struct net_buf *buf)
 #endif /* CONFIG_BT_CONN */
 }
 
+static void le_rand_complete(struct net_buf *buf)
+{
+    struct bt_hci_rp_le_rand *rp = (void *)buf->data;
+
+    if(bt_dev.hci_init_state == HCI_INIT_READ_PRAND)
+    {
+        uint8_t perso[8];
+        /* Number of bytes to fill on this iteration */
+        size_t count = MIN(sizeof(perso), sizeof(rp->rand));
+
+        memcpy(perso, rp->rand, sizeof(rp->rand));
+        prng_init_new(perso);
+    }
+}
+
 __unused
 static void read_buffer_size_v2_complete(struct net_buf *buf)
 {
@@ -2746,19 +2762,20 @@ static void read_bd_addr_complete(struct net_buf *buf)
 {
     bt_addr_le_t addr;
     struct bt_hci_rp_read_bd_addr *rp;
-    // uint8_t *irk = NULL;
+    // bt_id_read_public_addr
     rp = (void *)buf->data;
     if (!bt_addr_cmp(&rp->bdaddr, BT_ADDR_ANY) || !bt_addr_cmp(&rp->bdaddr, BT_ADDR_NONE))
     {
         LOG_DBG("Controller has no public address");
+        bt_dev.id_count = 0;
         return;
     }
     bt_addr_copy(&addr.a, &rp->bdaddr);
     addr.type = BT_ADDR_LE_PUBLIC;
 
-    LOG_DBG("type: %d, addr: %s", addr.type, bt_addr_str_real(&addr.a));
-
-    //bt_id_set_public_id_addr(&addr);
+    bt_dev.id_count = 1;
+    
+    bt_setup_public_id_addr_new(&addr);
 }
 #if defined(CONFIG_BT_SLAVE_WHITELIST)
 static void hci_handle_cmd_cmp_evt_le_read_wl_size(struct net_buf *buf)
@@ -2802,6 +2819,7 @@ static const struct hci_command_complete_process_handler hci_cmd_cmp_handles[] =
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_READ_LOCAL_FEATURES, read_le_features_complete),
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_READ_BD_ADDR, read_bd_addr_complete),
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_READ_BUFFER_SIZE, le_read_buffer_size_complete),
+        HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_LE_RAND, le_rand_complete),
 #if defined(CONFIG_BT_CONN)
         HCI_COMMAND_COMPLETE_HANDLER(BT_HCI_OP_READ_BUFFER_SIZE, read_buffer_size_complete),
 #endif
@@ -2842,7 +2860,7 @@ handle_hci_command_complete_work(uint16_t opcode, struct net_buf *buf,
 static void hci_init_end(int err);
 static void hci_state_event_process(uint16_t opcode)
 {
-    // int err;
+    int err;
 
     LOG_DBG("hci_state_event_process, opcode 0x%04x, hci_state: 0x%x, hci_init_state: 0x%x", opcode,
            bt_dev.hci_state, bt_dev.hci_init_state);
@@ -2886,10 +2904,28 @@ static void hci_state_event_process(uint16_t opcode)
             {
                 return;
             }
+            
+            if (IS_ENABLED(CONFIG_BT_HOST_CRYPTO_PRNG))
+            {
+                bt_dev.hci_init_state = HCI_INIT_READ_PRAND;
+                bt_hci_cmd_send(BT_HCI_OP_LE_RAND, NULL);
+                return;
+            }
             /* For now we only support LE capable controllers */
             bt_dev.hci_init_state = HCI_INIT_LE_READ_LOCAL_FEATURES;
             bt_hci_cmd_send(BT_HCI_OP_LE_READ_LOCAL_FEATURES, NULL);
             break;
+        case HCI_INIT_READ_PRAND:
+            if (opcode != BT_HCI_OP_LE_RAND)
+            {
+                return;
+            }
+            /* For now we only support LE capable controllers */
+            bt_dev.hci_init_state = HCI_INIT_LE_READ_LOCAL_FEATURES;
+            bt_hci_cmd_send(BT_HCI_OP_LE_READ_LOCAL_FEATURES, NULL);
+            break;
+
+
         case HCI_INIT_LE_READ_LOCAL_FEATURES:
             if (opcode != BT_HCI_OP_LE_READ_LOCAL_FEATURES)
             {
@@ -2973,11 +3009,78 @@ static void hci_state_event_process(uint16_t opcode)
             {
                 return;
             }
-            bt_dev.hci_init_state = HCI_INIT_READ_BD_ADDR;
-            bt_hci_cmd_send(BT_HCI_OP_READ_BD_ADDR, NULL);
+            
+            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            {
+                LOG_DBG("No user identity. Trying to set public.");
+                
+                //bt_setup_public_id_addr
+                bt_dev.hci_init_state = HCI_INIT_READ_BD_ADDR;
+                bt_hci_cmd_send(BT_HCI_OP_READ_BD_ADDR, NULL);
+                break;
+            }
+            
+            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            {
+                LOG_DBG("No public address. Trying to set static random.");
+
+                err = bt_setup_random_id_addr();
+                if (err)
+                {
+                    LOG_ERR("Unable to set identity address");
+                    return;
+                }
+
+                /* The passive scanner just sends a dummy address type in the
+                * command. If the first activity does this, and the dummy type
+                * is a random address, it needs a valid value, even though it's
+                * not actually used.
+                */
+                err = set_random_address(&bt_dev.id_addr[0].a);
+                if (err)
+                {
+                    LOG_ERR("Unable to set random address");
+                    return;
+                }
+                bt_dev.hci_init_state = HCI_INIT_SET_RANDOM_BD_ADDR;
+            }
             break;
         case HCI_INIT_READ_BD_ADDR:
             if (opcode != BT_HCI_OP_READ_BD_ADDR)
+            {
+                return;
+            }
+            
+            if (!IS_ENABLED(CONFIG_BT_SETTINGS) && !bt_dev.id_count)
+            {
+                LOG_DBG("No public address. Trying to set static random.");
+
+                err = bt_setup_random_id_addr();
+                if (err)
+                {
+                    LOG_ERR("Unable to set identity address");
+                    return;
+                }
+
+                /* The passive scanner just sends a dummy address type in the
+                * command. If the first activity does this, and the dummy type
+                * is a random address, it needs a valid value, even though it's
+                * not actually used.
+                */
+                err = set_random_address(&bt_dev.id_addr[0].a);
+                if (err)
+                {
+                    LOG_ERR("Unable to set random address");
+                    return;
+                }
+                bt_dev.hci_init_state = HCI_INIT_SET_RANDOM_BD_ADDR;
+                break;
+            }
+
+            hci_init_end(0);
+            break;
+        case HCI_INIT_SET_RANDOM_BD_ADDR:
+            if (opcode != BT_HCI_OP_LE_SET_RANDOM_ADDRESS)
             {
                 return;
             }
@@ -3316,9 +3419,9 @@ static void hci_init_end(int err)
     bt_dev.hci_state = HCI_STATE_READY;
     bt_dev.hci_init_state = HCI_INIT_SUCCESS;
 
-    // bt_rand_init(0x1234);
-
-    bt_id_init();
+#if defined(CONFIG_BT_PRIVACY)
+    k_work_init_delayable(&bt_dev.rpa_update, rpa_timeout);
+#endif
 
     if (IS_ENABLED(CONFIG_BT_CONN))
     {
@@ -3634,28 +3737,13 @@ int bt_enable(bt_ready_cb_t cb)
         return -EALREADY;
     }
 
-#if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
-    bt_dev.appearance = CONFIG_BT_DEVICE_APPEARANCE,
-#endif
-
     if (IS_ENABLED(CONFIG_BT_SETTINGS))
     {
-        bt_id_loading();
-#if defined(CONFIG_BT_SMP)
-        bt_keys_loading();
-#endif
-        extern void bt_name_loading(void);
-        bt_name_loading();
-#if defined(CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC)
-        extern void bt_appearance_loading(void);
-        bt_appearance_loading();
-#endif
-#if defined(CONFIG_BT_DEVICE_NAME_DYNAMIC)
-        if (bt_dev.name[0] == '\0')
+        err = bt_settings_init();
+        if (err)
         {
-            bt_set_name(CONFIG_BT_DEVICE_NAME);
+            return err;
         }
-#endif
     }
     else if (IS_ENABLED(CONFIG_BT_DEVICE_NAME_DYNAMIC))
     {
@@ -3681,18 +3769,20 @@ int bt_enable(bt_ready_cb_t cb)
         k_sem_init(&bt_dev.ncmd_sem, 0, 1);
     }
 
-    /* Clear BT_DEV_READY before disabling HCI link */
-    // atomic_clear_bit(bt_dev.flags, BT_DEV_READY);
+    // k_fifo_init(&bt_dev.cmd_tx_queue);
+    /* TX thread */
+    // k_thread_create(&tx_thread_data, tx_thread_stack, K_KERNEL_STACK_SIZEOF(tx_thread_stack),
+    //                 hci_tx_thread, NULL, NULL, NULL, K_PRIO_COOP(CONFIG_BT_HCI_TX_PRIO), 0,
+    //                 K_NO_WAIT);
+    // k_thread_name_set(&tx_thread_data, "BT TX");
 
-    // err = bt_dev.drv->close();
-    // if (err) {
-    //	LOG_ERR("HCI driver close failed (%d)", err);
-
-    //	/* Re-enable BT_DEV_READY to avoid inconsistent stack state */
-    //	atomic_set_bit(bt_dev.flags, BT_DEV_READY);
-
-    //	return err;
-    //}
+#if defined(CONFIG_BT_RECV_WORKQ_BT)
+    /* RX thread */
+    k_work_queue_init(&bt_workq);
+    k_work_queue_start(&bt_workq, rx_thread_stack, CONFIG_BT_RX_STACK_SIZE,
+                       K_PRIO_COOP(CONFIG_BT_RX_PRIO), NULL);
+    k_thread_name_set(&bt_workq.thread, "BT RX");
+#endif
 
     /* Some functions rely on checking this bitfield */
     memset(bt_dev.supported_commands, 0x00, sizeof(bt_dev.supported_commands));
