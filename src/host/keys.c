@@ -528,7 +528,7 @@ int bt_keys_store(struct bt_keys *keys)
 {
     bt_storage_kv_key_store(keys);
 
-    LOG_DBG("Stored keys for %s", bt_addr_le_str(&keys->addr));
+    LOG_DBG("Stored keys for %s (%s)", bt_addr_le_str(&keys->addr), key);
 
     return 0;
 }
@@ -631,4 +631,23 @@ void bt_keys_show_sniffer_info(struct bt_keys *keys, void *data)
     }
 }
 #endif /* defined(CONFIG_BT_LOG_SNIFFER_INFO) */
+
+#ifdef ZTEST_UNITTEST
+struct bt_keys *bt_keys_get_key_pool(void)
+{
+    return key_pool;
+}
+
+#if defined(CONFIG_BT_KEYS_OVERWRITE_OLDEST)
+uint32_t bt_keys_get_aging_counter_val(void)
+{
+    return aging_counter_val;
+}
+
+struct bt_keys *bt_keys_get_last_keys_updated(void)
+{
+    return last_keys_updated;
+}
+#endif /* CONFIG_BT_KEYS_OVERWRITE_OLDEST */
+#endif /* ZTEST_UNITTEST */
 #endif /* defined(CONFIG_BT_SMP) */

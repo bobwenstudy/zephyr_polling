@@ -107,7 +107,7 @@ sys_slist_t bt_auth_info_cbs = SYS_SLIST_STATIC_INIT(&bt_auth_info_cbs);
 
 static struct bt_conn_cb *callback_list;
 
-static struct bt_conn_tx conn_tx[CONFIG_BT_CONN_TX_MAX];
+static struct bt_conn_tx conn_tx[CONFIG_BT_CONN_TX_MAX] __noretention_data_section;
 
 #if defined(CONFIG_BT_BREDR)
 static int bt_hci_connect_br_cancel(struct bt_conn *conn);
