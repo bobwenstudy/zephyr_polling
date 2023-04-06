@@ -15,6 +15,7 @@
    build/index.rst
    chipset/index.rst
    porting/index.rst
+   change/index.rst
 
 
 
