@@ -1825,19 +1825,20 @@ static int hci_send_cmd_le_set_event_mask(void)
 
     if (IS_ENABLED(CONFIG_BT_CONN))
     {
-        if ((IS_ENABLED(CONFIG_BT_SMP) && BT_FEAT_LE_PRIVACY(bt_dev.le.features)))
-        {
-            /* C24:
-             * Mandatory if the LE Controller supports Connection
-             * State and either LE Feature (LL Privacy) or
-             * LE Feature (Extended Advertising) is supported, ...
-             */
-            mask |= BT_EVT_MASK_LE_ENH_CONN_COMPLETE;
-        }
-        else
-        {
-            mask |= BT_EVT_MASK_LE_CONN_COMPLETE;
-        }
+        // if ((IS_ENABLED(CONFIG_BT_SMP) && BT_FEAT_LE_PRIVACY(bt_dev.le.features)))
+        // {
+        //     /* C24:
+        //      * Mandatory if the LE Controller supports Connection
+        //      * State and either LE Feature (LL Privacy) or
+        //      * LE Feature (Extended Advertising) is supported, ...
+        //      */
+        //     mask |= BT_EVT_MASK_LE_ENH_CONN_COMPLETE;
+        // }
+        // else
+        // {
+        //     mask |= BT_EVT_MASK_LE_CONN_COMPLETE;
+        // }
+        mask |= BT_EVT_MASK_LE_CONN_COMPLETE;
 
         mask |= BT_EVT_MASK_LE_CONN_UPDATE_COMPLETE;
         mask |= BT_EVT_MASK_LE_REMOTE_FEAT_COMPLETE;

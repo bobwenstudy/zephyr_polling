@@ -528,7 +528,7 @@ int bt_keys_store(struct bt_keys *keys)
 {
     bt_storage_kv_key_store(keys);
 
-    LOG_DBG("Stored keys for %s (%s)", bt_addr_le_str(&keys->addr), key);
+    LOG_DBG("Stored keys for %s (%s)", bt_addr_le_str(&keys->addr), keys);
 
     return 0;
 }
